@@ -104,10 +104,11 @@ bool GlobalRoutingTable::load(const char *fname)
 		if (sscanf
 		    (line + 1, "%d %d->%d %d", &node_id, &in_src, &in_dst,
 		     &dst_id) == 4) {
+				// cout<<"DEBUG: node_id="<<node_id<<" in_src="<<in_src<<" in_dst="<<in_dst<<" dst_id="<<dst_id<<endl;
 		    LinkId lin(in_src, in_dst);
-
 		    char *pstr = line + COLUMN_AOC;
 		    while (sscanf(pstr, "%d->%d", &out_src, &out_dst) == 2) {
+				// cout<<"DEBUG: out_src="<<out_src<<" out_dst="<<out_dst<<endl;
 			LinkId lout(out_src, out_dst);
 
 			rt_noc[node_id][lin][dst_id].insert(lout);

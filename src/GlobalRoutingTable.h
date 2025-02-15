@@ -9,7 +9,7 @@
 
 #ifndef __NOXIMGLOBALROUTINGTABLE_H__
 #define __NOXIMGLOBALROUTINGTABLE_H__
-
+// HG: Purpose of COLUMN_AOC https://github.com/davidepatti/noxim/issues/124
 #define COLUMN_AOC 22
 
 #include <vector>

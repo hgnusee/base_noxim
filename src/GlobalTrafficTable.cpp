@@ -107,9 +107,9 @@ double GlobalTrafficTable::getCumulativePirPor(const int src_id,
     if (comm.src == src_id) {
       int r_ccycle = ccycle % comm.t_period;
       if (r_ccycle > comm.t_on && r_ccycle < comm.t_off) {
-	cpirnpor += pir_not_por ? comm.pir : comm.por;
-	pair < int, double >dp(comm.dst, cpirnpor);
-	dst_prob.push_back(dp);
+		cpirnpor += pir_not_por ? comm.pir : comm.por;
+		pair < int, double >dp(comm.dst, cpirnpor);
+		dst_prob.push_back(dp);
       }
     }
   }
