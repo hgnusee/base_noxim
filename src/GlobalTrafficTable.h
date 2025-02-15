@@ -29,6 +29,16 @@ struct Communication {
   int t_period;		        // Period after which activity starts again
 };
 
+// HG: Structure to store traffic communication
+// 
+struct TrafficCommunication {
+  int src;
+  int dst;
+  int data_volume;
+  int waitPE;
+  int nextPE;
+};
+
 class GlobalTrafficTable {
 
   public:
@@ -38,13 +48,26 @@ class GlobalTrafficTable {
     // Load traffic table from file. Returns true if ok, false otherwise
     bool load(const char *fname);
 
+    // HG: Load TrafficCommunication table from file
+    // similar to bool load()
+    bool loadTrafficFile(const char *fname);
+
     // Returns the cumulative pir por along with a vector of pairs. The
     // first component of the pair is the destination. The second
     // component is the cumulative shotting probability.
-    double getCumulativePirPor(const int src_id,
-			       const int ccycle,
-			       const bool pir_not_por,
-			       vector < pair < int, double > > &dst_prob);
+    double getCumulativePirPor(const int src_id, const int ccycle, const bool pir_not_por, vector < pair < int, double > > &dst_prob);
+    
+    // HG: get parsed Traffic Communication Table
+    // similar to getCumulativePirPor()
+    // uses exact transaction info found in Traffic Communication Table
+    TrafficCommunication getTrafficCommunicationTable(const int src_id);
+
+    // HG: Move reserved transaction from Traffic Communication Table to Traffic Tabl
+    void moveReserveToTrafficCommunicationTable(const int nextPE, const int src_id);
+    
+    // HG: get reserve table traffic that matches nextPE
+    TrafficCommunication getReserveTrafficCommunicationTable(const int nextPE, const int src_id);
+    
 
     // Returns the number of occurrences of soruce src_id in the traffic
     // table
@@ -53,6 +76,11 @@ class GlobalTrafficTable {
   private:
 
      vector < Communication > traffic_table;
+     // HG: Create a vector for TrafficCommunication
+     vector < TrafficCommunication > traffic_communication_table;
+     //  HG: reserved_traffic_communication_table for holding next PE or waiting PE
+     vector < TrafficCommunication > reserved_traffic_communication_table;
+
 };
 
 #endif

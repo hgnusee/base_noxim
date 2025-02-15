@@ -62,6 +62,11 @@ SC_MODULE(ProcessingElement)
     Packet trafficULocal();	// Random with locality
 
     GlobalTrafficTable *traffic_table;	// Reference to the Global traffic Table
+    // HG: Reference to Traffic Communication Tables
+    GlobalTrafficTable *traffic_communication_table;
+    GlobalTrafficTable *reserved_traffic_communication_table;
+
+
     bool never_transmit;	// true if the PE does not transmit any packet 
     //  (valid only for the table based traffic)
 

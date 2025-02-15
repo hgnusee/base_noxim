@@ -119,6 +119,10 @@ void NoC::buildCommon()
 	// Check for traffic table availability
 	if (GlobalParams::traffic_distribution == TRAFFIC_TABLE_BASED)
 		assert(gttable.load(GlobalParams::traffic_table_filename.c_str()));
+	
+	// HG: Check for traffic communication table availability
+	if (GlobalParams::traffic_distribution == TRAFFIC_COMMUNICATION_TABLE)
+		assert(gttable.loadTrafficFile(GlobalParams::traffic_table_filename.c_str()));
 
 	// Var to track Hub connected ports
 	hub_connected_ports = (int *) calloc(GlobalParams::hub_configuration.size(), sizeof(int));
@@ -2206,6 +2210,10 @@ void NoC::buildMesh()
 		{
 			 t[i][j]->pe->traffic_table = &gttable;	// Needed to choose destination
 	   		 t[i][j]->pe->never_transmit = (gttable.occurrencesAsSource(t[i][j]->pe->local_id) == 0);
+		} else if (GlobalParams::traffic_distribution == TRAFFIC_COMMUNICATION_TABLE)
+		{
+			t[i][j]->pe->traffic_communication_table = &gttable;	// HG: Needed to choose destination
+			t[i][j]->pe->never_transmit = false;
 		}
 		else
 			t[i][j]->pe->never_transmit = false;

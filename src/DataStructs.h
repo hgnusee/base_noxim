@@ -46,6 +46,10 @@ struct Packet {
     int size;
     int flit_left;		// Number of remaining flits inside the packet
     bool use_low_voltage_path;
+    // HG: Custom fields for NN
+    int data_volume; // size of packet, to directly be used with 'sz' of packet.make()
+    int waitPE; // determine which PE it needs to wait for, -1 if no PE
+    int nextPE; // determine which PE it needs to go to next, -1 if no PE
 
     // Constructors
     Packet() { }
@@ -62,6 +66,23 @@ struct Packet {
 	size = sz;
 	flit_left = sz;
 	use_low_voltage_path = false;
+    }
+
+    // HG: Create make2() function to include nextPE access, make() is for original noxim funcitonality
+
+    Packet(const int s, const int d, const int vc, const double ts, const int sz, const int nxtPE) {
+	make2(s, d, vc, ts, sz, nxtPE);
+    }
+
+    void make2(const int s, const int d, const int vc, const double ts, const int sz, const int nxtPE) {
+	src_id = s;
+	dst_id = d;
+	vc_id = vc;
+	timestamp = ts;
+	size = sz;
+	flit_left = sz;
+	use_low_voltage_path = false;
+    nextPE = nxtPE;
     }
 };
 
@@ -127,6 +148,7 @@ struct Flit {
     double timestamp;		// Unix timestamp at packet generation
     int hop_no;			// Current number of hops from source to destination
     bool use_low_voltage_path;
+    int nextPE; // HG: next PE to go, used in TAIL FLIT
 
     int hub_relay_node;
 

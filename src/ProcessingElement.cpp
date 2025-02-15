@@ -24,8 +24,30 @@ void ProcessingElement::rxProcess()
     } else {
 	if (req_rx.read() == 1 - current_level_rx) {
 	    Flit flit_tmp = flit_rx.read();
+
+        cout << "src_id: " << flit_tmp.src_id << ", dst_id: " << flit_tmp.dst_id 
+        << ", vc_id: " << flit_tmp.vc_id << ", timestamp: " << flit_tmp.timestamp 
+        << ", sequence_no: " << flit_tmp.sequence_no << ", sequence_length: " 
+        << flit_tmp.sequence_length << ", hop_no: " << flit_tmp.hop_no << ", flit_type: " 
+        << flit_tmp.flit_type << ", hub_relay_node: " << flit_tmp.hub_relay_node << ", nextPE: " << flit_tmp.nextPE << endl;
+        
 	    current_level_rx = 1 - current_level_rx;	// Negate the old value for Alternating Bit Protocol (ABP)
+
+        // HG: Check if TAIL flit contains valid nextPE 
+        // If yes, the find the nextPE that resides in reserved_traffic_communication_table
+        //  move the FIRST FOUND matching nextPE to traffic_communication_table
+        if (local_id == flit_tmp.dst_id && flit_tmp.flit_type == FLIT_TYPE_TAIL && flit_tmp.nextPE >= 0) {
+            cout << "PE " << local_id << " received a TAIL flit with nextPE: " << flit_tmp.nextPE << endl;
+            // call function from GlobalTraffiCTal to move the traffic into traffic_communication_table
+            // TODO: Why does traffic_communication_table-> works but not reserved_traffic_communication_table->?
+            traffic_communication_table->moveReserveToTrafficCommunicationTable(flit_tmp.nextPE, flit_tmp.src_id);
+            
+            // Used for debugging moveReserveToTrafficCommunicationTable
+            // TrafficCommunication comm_tomove = traffic_communication_table->getReserveTrafficCommunicationTable(flit_tmp.nextPE, flit_tmp.src_id);
+
+        }
 	}
+
 	ack_rx.write(current_level_rx);
     }
 }
@@ -33,27 +55,27 @@ void ProcessingElement::rxProcess()
 void ProcessingElement::txProcess()
 {
     if (reset.read()) {
-	req_tx.write(0);
-	current_level_tx = 0;
-	transmittedAtPreviousCycle = false;
+        req_tx.write(0);
+        current_level_tx = 0;
+        transmittedAtPreviousCycle = false;
     } else {
-	Packet packet;
+        Packet packet;
 
-	if (canShot(packet)) {
-	    packet_queue.push(packet);
-	    transmittedAtPreviousCycle = true;
-	} else
-	    transmittedAtPreviousCycle = false;
+        if (canShot(packet)) {
+            packet_queue.push(packet);
+            transmittedAtPreviousCycle = true;
+        } else
+            transmittedAtPreviousCycle = false;
 
 
-	if (ack_tx.read() == current_level_tx) {
-	    if (!packet_queue.empty()) {
-		Flit flit = nextFlit();	// Generate a new flit
-		flit_tx->write(flit);	// Send the generated flit
-		current_level_tx = 1 - current_level_tx;	// Negate the old value for Alternating Bit Protocol (ABP)
-		req_tx.write(current_level_tx);
-	    }
-	}
+        if (ack_tx.read() == current_level_tx) {
+            if (!packet_queue.empty()) {
+                Flit flit = nextFlit();	// Generate a new flit
+                flit_tx->write(flit);	// Send the generated flit
+                current_level_tx = 1 - current_level_tx;	// Negate the old value for Alternating Bit Protocol (ABP)
+                req_tx.write(current_level_tx);
+            }
+        }
     }
 }
 
@@ -74,15 +96,20 @@ Flit ProcessingElement::nextFlit()
     flit.hub_relay_node = NOT_VALID;
 
     if (packet.size == packet.flit_left)
-	flit.flit_type = FLIT_TYPE_HEAD;
+	    flit.flit_type = FLIT_TYPE_HEAD;
     else if (packet.flit_left == 1)
-	flit.flit_type = FLIT_TYPE_TAIL;
+	    flit.flit_type = FLIT_TYPE_TAIL;
     else
-	flit.flit_type = FLIT_TYPE_BODY;
+	    flit.flit_type = FLIT_TYPE_BODY;
+
+    // HG: send nextPE information in TAIL Flit
+    if (flit.flit_type == FLIT_TYPE_TAIL)
+        flit.nextPE = packet.nextPE;
 
     packet_queue.front().flit_left--;
+
     if (packet_queue.front().flit_left == 0)
-	packet_queue.pop();
+	    packet_queue.pop();
 
     return flit;
 }
@@ -113,55 +140,71 @@ bool ProcessingElement::canShot(Packet & packet)
 
     double now = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
 
-    if (GlobalParams::traffic_distribution != TRAFFIC_TABLE_BASED) {
+    //  HG: For TraffiC Comm Table based communicatio, need to set TRAFFIC_COMMUNICATION_TABLE in config file
+    if (GlobalParams::traffic_distribution == TRAFFIC_COMMUNICATION_TABLE) {
+        if (never_transmit)
+            return false;
+        
+        // get transaction for this PE from Traffic Communication Table
+        TrafficCommunication comm = traffic_communication_table->getTrafficCommunicationTable(local_id);
+
+        if (comm.src == 0 && comm.dst == 0 && comm.data_volume == 0 && comm.waitPE == 0 && comm.nextPE == 0) {
+            return false;
+        } else {
+            shot = true;
+            // HG: make2() to include nextPE information in Packet
+            packet.make2(local_id, comm.dst, 0, now, comm.data_volume, comm.nextPE);
+        }
+        // TODO: Consider nextPE and waitPE logic here
+    } else if (GlobalParams::traffic_distribution != TRAFFIC_TABLE_BASED) {
 	if (!transmittedAtPreviousCycle)
 	    threshold = GlobalParams::packet_injection_rate;
 	else
 	    threshold = GlobalParams::probability_of_retransmission;
 
 	shot = (((double) rand()) / RAND_MAX < threshold);
-	if (shot) {
-	    if (GlobalParams::traffic_distribution == TRAFFIC_RANDOM)
-		    packet = trafficRandom();
-        else if (GlobalParams::traffic_distribution == TRAFFIC_TRANSPOSE1)
-		    packet = trafficTranspose1();
-        else if (GlobalParams::traffic_distribution == TRAFFIC_TRANSPOSE2)
-    		packet = trafficTranspose2();
-        else if (GlobalParams::traffic_distribution == TRAFFIC_BIT_REVERSAL)
-		    packet = trafficBitReversal();
-        else if (GlobalParams::traffic_distribution == TRAFFIC_SHUFFLE)
-		    packet = trafficShuffle();
-        else if (GlobalParams::traffic_distribution == TRAFFIC_BUTTERFLY)
-		    packet = trafficButterfly();
-        else if (GlobalParams::traffic_distribution == TRAFFIC_LOCAL)
-		    packet = trafficLocal();
-        else if (GlobalParams::traffic_distribution == TRAFFIC_ULOCAL)
-		    packet = trafficULocal();
-        else {
-            cout << "Invalid traffic distribution: " << GlobalParams::traffic_distribution << endl;
-            exit(-1);
+        if (shot) {
+            if (GlobalParams::traffic_distribution == TRAFFIC_RANDOM)
+                packet = trafficRandom();
+            else if (GlobalParams::traffic_distribution == TRAFFIC_TRANSPOSE1)
+                packet = trafficTranspose1();
+            else if (GlobalParams::traffic_distribution == TRAFFIC_TRANSPOSE2)
+                packet = trafficTranspose2();
+            else if (GlobalParams::traffic_distribution == TRAFFIC_BIT_REVERSAL)
+                packet = trafficBitReversal();
+            else if (GlobalParams::traffic_distribution == TRAFFIC_SHUFFLE)
+                packet = trafficShuffle();
+            else if (GlobalParams::traffic_distribution == TRAFFIC_BUTTERFLY)
+                packet = trafficButterfly();
+            else if (GlobalParams::traffic_distribution == TRAFFIC_LOCAL)
+                packet = trafficLocal();
+            else if (GlobalParams::traffic_distribution == TRAFFIC_ULOCAL)
+                packet = trafficULocal();
+            else {
+                cout << "Invalid traffic distribution: " << GlobalParams::traffic_distribution << endl;
+                exit(-1);
+            }
         }
-	}
     } else {			// Table based communication traffic
-	if (never_transmit)
-	    return false;
+        if (never_transmit)
+            return false;
 
-	bool use_pir = (transmittedAtPreviousCycle == false);
-	vector < pair < int, double > > dst_prob;
-	double threshold =
-	    traffic_table->getCumulativePirPor(local_id, (int) now, use_pir, dst_prob);
+        bool use_pir = (transmittedAtPreviousCycle == false);
+        vector < pair < int, double > > dst_prob;
+        double threshold =
+            traffic_table->getCumulativePirPor(local_id, (int) now, use_pir, dst_prob);
 
-	double prob = (double) rand() / RAND_MAX;
-	shot = (prob < threshold);
-	if (shot) {
-	    for (unsigned int i = 0; i < dst_prob.size(); i++) {
-		if (prob < dst_prob[i].second) {
-                    int vc = randInt(0,GlobalParams::n_virtual_channels-1);
-		    packet.make(local_id, dst_prob[i].first, vc, now, getRandomSize());
-		    break;
-		}
-	    }
-	}
+        double prob = (double) rand() / RAND_MAX;
+        shot = (prob < threshold);
+        if (shot) {
+            for (unsigned int i = 0; i < dst_prob.size(); i++) {
+                if (prob < dst_prob[i].second) {
+                            int vc = randInt(0,GlobalParams::n_virtual_channels-1);
+                    packet.make(local_id, dst_prob[i].first, vc, now, getRandomSize());
+                    break;
+                }
+            }
+        }
     }
 
     return shot;

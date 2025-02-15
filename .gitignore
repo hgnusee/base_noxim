@@ -3,3 +3,4 @@ bin/libs
 bin/noxim
 *.code-workspace
 *.vscode
+bin/sim_routingTABLE.out
