@@ -46,10 +46,16 @@ SC_MODULE(ProcessingElement)
     queue < Packet > packet_queue;	// Local queue of packets
     bool transmittedAtPreviousCycle;	// Used for distributions with memory
 
+    peState state;        // HG: State of the PE
+    int compute_cycle;    // HG: Number of cycles to compute, aka how many cycles to stall PE
+
     // Functions
     void rxProcess();		// The receiving process
     void txProcess();		// The transmitting process
     bool canShot(Packet & packet);	// True when the packet must be shot
+
+    void computeProcess(); // HG: Compute Process to "stall" PE from further receive packets
+
     Flit nextFlit();	// Take the next flit of the current packet
     Packet trafficTest();	// used for testing traffic
     Packet trafficRandom();	// Random destination distribution

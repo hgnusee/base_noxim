@@ -21,34 +21,51 @@ void ProcessingElement::rxProcess()
     if (reset.read()) {
 	ack_rx.write(0);
 	current_level_rx = 0;
+    // HG: reset ProcessingElement state flag to PE_WAIT
+    state = PE_READY;
     } else {
-	if (req_rx.read() == 1 - current_level_rx) {
-	    Flit flit_tmp = flit_rx.read();
 
-        cout << "src_id: " << flit_tmp.src_id << ", dst_id: " << flit_tmp.dst_id 
-        << ", vc_id: " << flit_tmp.vc_id << ", timestamp: " << flit_tmp.timestamp 
-        << ", sequence_no: " << flit_tmp.sequence_no << ", sequence_length: " 
-        << flit_tmp.sequence_length << ", hop_no: " << flit_tmp.hop_no << ", flit_type: " 
-        << flit_tmp.flit_type << ", hub_relay_node: " << flit_tmp.hub_relay_node << ", nextPE: " << flit_tmp.nextPE << endl;
+        switch (state) {
+        case PE_READY:
+            if (req_rx.read() == 1 - current_level_rx) {
+                Flit flit_tmp = flit_rx.read();
+
+                cout << "src_id: " << flit_tmp.src_id << ", dst_id: " << flit_tmp.dst_id 
+                << ", vc_id: " << flit_tmp.vc_id << ", timestamp: " << flit_tmp.timestamp 
+                << ", sequence_no: " << flit_tmp.sequence_no << ", sequence_length: " 
+                << flit_tmp.sequence_length << ", hop_no: " << flit_tmp.hop_no << ", flit_type: " 
+                << flit_tmp.flit_type << ", hub_relay_node: " << flit_tmp.hub_relay_node << ", nextPE: " << flit_tmp.nextPE << endl;
+                
+                current_level_rx = 1 - current_level_rx;	// Negate the old value for Alternating Bit Protocol (ABP)
+
+                // HG: Check if TAIL flit contains valid nextPE 
+                // If TRUE, the find the nextPE that resides in reserved_traffic_communication_table
+                //  move the FIRST FOUND matching nextPE to traffic_communication_table
+                if (local_id == flit_tmp.dst_id && flit_tmp.flit_type == FLIT_TYPE_TAIL && flit_tmp.nextPE >= 0) {
+                    cout << "PE " << local_id << " received a TAIL flit with nextPE: " << flit_tmp.nextPE << endl;
+                    // call function from GlobalTraffiCTal to move the traffic into traffic_communication_table
+                    // TODO: Why does traffic_communication_table-> works but not reserved_traffic_communication_table->?
+                    traffic_communication_table->moveReserveToTrafficCommunicationTable(flit_tmp.nextPE, flit_tmp.src_id);
+                    
+                    // Used for debugging moveReserveToTrafficCommunicationTable
+                    // TrafficCommunication comm_tomove = traffic_communication_table->getReserveTrafficCommunicationTable(flit_tmp.nextPE, flit_tmp.src_id);
+                }
+
+                if (flit_tmp.flit_type == FLIT_TYPE_TAIL) {
+                    cout << "PE " << local_id << " received a TAIL flit. Begin COMPUTE!!" << endl;
+                    state = PE_BUSY; // Flag state to PE_BUSY to begin computeProcess() on next cycle
+                    compute_cycle = 3; // Hard-code compute_cycle to 3 cycles // TODO: make compute_cycle a dynamic value
+                }
+            }
+            ack_rx.write(current_level_rx);
+        break;
         
-	    current_level_rx = 1 - current_level_rx;	// Negate the old value for Alternating Bit Protocol (ABP)
+        case PE_BUSY:
+            computeProcess();
 
-        // HG: Check if TAIL flit contains valid nextPE 
-        // If yes, the find the nextPE that resides in reserved_traffic_communication_table
-        //  move the FIRST FOUND matching nextPE to traffic_communication_table
-        if (local_id == flit_tmp.dst_id && flit_tmp.flit_type == FLIT_TYPE_TAIL && flit_tmp.nextPE >= 0) {
-            cout << "PE " << local_id << " received a TAIL flit with nextPE: " << flit_tmp.nextPE << endl;
-            // call function from GlobalTraffiCTal to move the traffic into traffic_communication_table
-            // TODO: Why does traffic_communication_table-> works but not reserved_traffic_communication_table->?
-            traffic_communication_table->moveReserveToTrafficCommunicationTable(flit_tmp.nextPE, flit_tmp.src_id);
-            
-            // Used for debugging moveReserveToTrafficCommunicationTable
-            // TrafficCommunication comm_tomove = traffic_communication_table->getReserveTrafficCommunicationTable(flit_tmp.nextPE, flit_tmp.src_id);
+        break;
 
         }
-	}
-
-	ack_rx.write(current_level_rx);
     }
 }
 
@@ -210,6 +227,21 @@ bool ProcessingElement::canShot(Packet & packet)
     return shot;
 }
 
+// HG: Compute Process to "stall" PE from further receive packets
+void ProcessingElement::computeProcess()
+{
+    // HG: PE is in PE_BUSY state, stall PE from receiving new packets
+    state = PE_BUSY;
+    cout << "PE " << local_id << " is in PE_BUSY state. PE Stalled.";
+    cout << " Compute cycle: " << compute_cycle << endl;
+    compute_cycle--;
+
+    if (compute_cycle == 0) {
+        cout << "PE " << local_id << " Compute Done!" << endl;
+        state = PE_READY;
+        cout << "PE " << local_id << " is in PE_READY state. PE is ready to receive new packets." << endl;
+    }
+}
 
 Packet ProcessingElement::trafficLocal()
 {

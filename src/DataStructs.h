@@ -72,7 +72,7 @@ struct Packet {
 
     Packet(const int s, const int d, const int vc, const double ts, const int sz, const int nxtPE) {
 	make2(s, d, vc, ts, sz, nxtPE);
-    }
+    } 
 
     void make2(const int s, const int d, const int vc, const double ts, const int sz, const int nxtPE) {
 	src_id = s;
@@ -84,6 +84,12 @@ struct Packet {
 	use_low_voltage_path = false;
     nextPE = nxtPE;
     }
+};
+
+// HG: create PE State Tracking to stall PE from receiving new packets when PE_BUSY
+enum peState {
+    PE_READY,
+    PE_BUSY
 };
 
 // RouteData -- data required to perform routing

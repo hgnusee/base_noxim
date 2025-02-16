@@ -184,7 +184,7 @@ void setBufferAntenna(int depth)
 
 }
 
-
+// TODO Update config manager to include traffic communication based distribution options
 void showHelp(char selfname[])
 {
     cout << "Usage: " << selfname << " [options]" << endl
