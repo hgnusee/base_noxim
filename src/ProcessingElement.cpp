@@ -120,9 +120,15 @@ Flit ProcessingElement::nextFlit()
 	    flit.flit_type = FLIT_TYPE_BODY;
 
     // HG: send nextPE information in TAIL Flit
-    if (flit.flit_type == FLIT_TYPE_TAIL)
+    if (flit.flit_type == FLIT_TYPE_TAIL) {
         flit.nextPE = packet.nextPE;
 
+        // tag traffic as used in Traffic Communication Table, after PE sends out TAIL flit
+        TrafficCommunication comm_tagtraffic;
+        comm_tagtraffic = traffic_communication_table->getTrafficCommunicationTable(packet.src_id);
+        comm_tagtraffic.used_traffic = true;
+
+    }
     packet_queue.front().flit_left--;
 
     if (packet_queue.front().flit_left == 0)
@@ -165,8 +171,17 @@ bool ProcessingElement::canShot(Packet & packet)
         // get transaction for this PE from Traffic Communication Table
         TrafficCommunication comm = traffic_communication_table->getTrafficCommunicationTable(local_id);
 
-        if (comm.src == 0 && comm.dst == 0 && comm.data_volume == 0 && comm.waitPE == 0 && comm.nextPE == 0) {
-            return false;
+        if (comm.src == 0 && comm.dst == 0 && comm.data_volume == 0 && comm.waitPE == 0 && comm.nextPE == 0 && comm.used_traffic == true) {
+            
+            // Check reserved_traffic_communication_table w.r.t. to traffic_comm_table before return false
+            comm = traffic_communication_table->getReserveTrafficCommunicationTable(local_id);
+           if (comm.src == 0 && comm.dst == 0 && comm.data_volume == 0 && comm.waitPE == 0 && comm.nextPE == 0) {
+                return false;
+            } else {
+                shot = true;
+                packet.make2(local_id, comm.dst, 0, now, comm.data_volume, comm.nextPE);
+            }
+
         } else {
             shot = true;
             // HG: make2() to include nextPE information in Packet

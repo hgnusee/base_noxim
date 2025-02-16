@@ -29,7 +29,7 @@ struct Communication {
   int t_period;		        // Period after which activity starts again
 };
 
-// HG: Structure to store traffic communication
+// HG: Structure to store traffic communication table
 // 
 struct TrafficCommunication {
   int src;
@@ -37,6 +37,7 @@ struct TrafficCommunication {
   int data_volume;
   int waitPE;
   int nextPE;
+  bool used_traffic; // HG: Used to flag if traffic is used, to avoid double use
 };
 
 class GlobalTrafficTable {
@@ -66,7 +67,7 @@ class GlobalTrafficTable {
     void moveReserveToTrafficCommunicationTable(const int nextPE, const int src_id);
     
     // HG: get reserve table traffic that matches nextPE
-    TrafficCommunication getReserveTrafficCommunicationTable(const int nextPE, const int src_id);
+    TrafficCommunication getReserveTrafficCommunicationTable(const int src_id);
     
 
     // Returns the number of occurrences of soruce src_id in the traffic

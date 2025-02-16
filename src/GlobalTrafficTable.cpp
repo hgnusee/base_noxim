@@ -130,6 +130,7 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 	  TrafficCommunication.data_volume = data_vol;
 	  TrafficCommunication.waitPE = waitPE;
 	  TrafficCommunication.nextPE = nextPE;
+	  TrafficCommunication.used_traffic = false; // HG: All traffic are unused initially
 
 	  // Bucket the Traffic into reserved_traffic_communication_table or not
 	  if (waitPE == -1 && nextPE == -1) {
@@ -183,15 +184,14 @@ TrafficCommunication GlobalTrafficTable::getTrafficCommunicationTable(const int 
   TrafficCommunication comm;
 
   // intialize TrafficCommunication struct (to act as a empty struct)
-  comm = { 0, 0, 0, 0, 0 };
+  comm = { 0, 0, 0, 0, 0, true};
 
   for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
 	TrafficCommunication comm = traffic_communication_table[i];
-	if (comm.src == src_id) {
+	if (comm.src == src_id && comm.used_traffic == false) { // HG: Check if traffic is used
 		// remove transaction from transaction communication table once used
+		// traffic_communication_table.erase(traffic_communication_table.begin() + i);
 		cout << "DEBUG: Traffic Communication Table found for src_id = " << src_id << endl;
-		traffic_communication_table.erase(traffic_communication_table.begin() + i);
-		
 		// return transaction to Processing Element to make packet
 	  return comm;
 	}
@@ -237,29 +237,42 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int nextPE
 }
 
 // for DEBUG use when building moveReserveToTrafficCommunicationTable
-TrafficCommunication GlobalTrafficTable::getReserveTrafficCommunicationTable(const int nextPE, const int src_id) {
+// repurpose to get reserve traffic communication table
+TrafficCommunication GlobalTrafficTable::getReserveTrafficCommunicationTable(const int src_id) {
 	
 	cout<<"DEBUG: size of reserved_traffic: "<< reserved_traffic_communication_table.size() << endl;
 	TrafficCommunication comm;
 	// intialize TrafficCommunication struct (to act as a empty struct)
-	comm = { 0, 0, 0, 0, 0 };
+	comm = { 0, 0, 0, 0, 0, true };
 	
 	for (unsigned int i = 0; i < reserved_traffic_communication_table.size(); i++) {
 		TrafficCommunication comm = reserved_traffic_communication_table[i];
-		// check if the reserved table contains: 
-		// src is based on the nextPE label of the earlier transaction
-		// waitPE in the reserve table that matches src_id of the earlier transaction,
-		//     since this current transaction is waiting for earlier transaction to complete
-		if (comm.src == nextPE && comm.waitPE == src_id) {
-			// return transaction to Processing Element to make packet
-			reserved_traffic_communication_table.erase(reserved_traffic_communication_table.begin() + i);
-
-			return comm;
+		// get reserve traffic table where local_id == src_id (of reserved traffic)
+			// based on this, check used_traffic == true, nextPE == local_id
+				// return shot = true;
+			// else return empty comm;
+		
+		if (comm.src == src_id && comm.used_traffic == false && comm.waitPE >= 0) {
+			
+			for (unsigned int j = 0; j < traffic_communication_table.size(); j++) {
+				TrafficCommunication comm_tmp = traffic_communication_table[j];
+				if (comm_tmp.nextPE == src_id && comm_tmp.used_traffic == true && comm_tmp.src == comm.waitPE) {
+					// remove transaction from transaction communication table
+					// traffic_communication_table.erase(traffic_communication_table.begin() + j);
+					// add transaction to reserved transaction communication table
+					comm.used_traffic = true; // set as used traffic
+					traffic_communication_table.push_back(comm); // move to traffic comm table
+					cout << "DEBUG: Found Reserved + Matching Used Traffic for src_id = " << src_id << endl;
+					return comm;
+				}
+			}
+			
 		}
 	}
 	
 	// HG:return empty TrafficCommunication, if not matching src_id found
-	cout << "DEBUG: No Reserved Traffic Communication Table found for src_id = " << src_id << " and nextPE = " << nextPE << endl;
+	cout << "DEBUG: No Reserved + Matching Used Traffic found for src_id = " << src_id << endl;
+	
 	return comm;
 }
 
