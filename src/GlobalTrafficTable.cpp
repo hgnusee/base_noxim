@@ -95,7 +95,7 @@ bool GlobalTrafficTable::load(const char *fname)
 
 // HG: load Traffic Table from file, need to set TRAFFIC_COMMUNICATION_TABLE in config file
 // Format of Traffic Communication File:
-// src dst data_volume waitPE nextPE
+// src dst data_volume waitID waitOP
 bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 {
   // Open file
@@ -114,42 +114,42 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 
     if (line[0] != '\0') {
       if (line[0] != '%') {
-	int src, dst;	// Mandatory
-	int data_vol, waitPE, nextPE;
+		int taskID, src, dst;	// Mandatory
+		int data_vol, waitID, waitOP;
 
-	int params =
-	  sscanf(line, "%d %d %d %d %d", &src, &dst, &data_vol,
-		 &waitPE, &nextPE);
-	if (params >= 2 && params <= 5) {
-	  // Create a communication from the parameters read on the line
-	  TrafficCommunication TrafficCommunication;
+		int params =
+		sscanf(line, "%d %d %d %d %d %d", &taskID, &src, &dst, &data_vol,
+			&waitID, &waitOP);
+		if (params >= 2 && params <= 6) {
+			// Create a communication from the parameters read on the line
+			TrafficCommunication TrafficCommunication;
 
-	  // Mandatory fields
-	  TrafficCommunication.src = src;
-	  TrafficCommunication.dst = dst;
-	  TrafficCommunication.data_volume = data_vol;
-	  TrafficCommunication.waitPE = waitPE;
-	  TrafficCommunication.nextPE = nextPE;
+			// Mandatory fields
+			TrafficCommunication.taskID = taskID;
+			TrafficCommunication.src = src;
+			TrafficCommunication.dst = dst;
+			TrafficCommunication.data_volume = data_vol;
+			TrafficCommunication.waitID = waitID;
+			TrafficCommunication.waitOP = waitOP;
 
-	  // Bucket the Traffic into reserved_traffic_communication_table or not
-	  if (waitPE == -1 && nextPE == -1) {
-	    assert("Wrong Traffic! Both waitPE and nextPE are -1");
-	  } else if (waitPE == -1 && nextPE != -1) {
-	    // Add to vector of communications
-	    traffic_communication_table.push_back(TrafficCommunication);
-	  } else if (waitPE != -1 && nextPE == -1) {
-	    // Add to the reserved vector of communications
-	    reserved_traffic_communication_table.push_back(TrafficCommunication);
-	  } else if (waitPE != -1 && nextPE != -1) {
-	    // Add to the reserved vector of communications
-	    reserved_traffic_communication_table.push_back(TrafficCommunication);
-	  } else {
-	    assert("Wrong Traffic! Ennsure waitPE and nextPE are set!");
-	  }
-	} else {
-		// ensure all params must be present in traffic communication file
-		assert(params == 5);
-	}
+			TrafficCommunication.traffic_used = false; // HG: all new traffic are 'unused'
+			TrafficCommunication.trn_complete = false; // HG: all new traffic transmission are 'incomplete'
+			TrafficCommunication.cmp_complete = false; // HG: all new traffic computation in dst PE are 'incomplete'
+
+			// Bucket the Traffic into reserved_traffic_communication_table or not
+			if (waitID == -1) {
+				traffic_communication_table.push_back(TrafficCommunication);
+			} else if (waitID >= 0) {
+				// Add to reserved traffic table
+				reserved_traffic_communication_table.push_back(TrafficCommunication);
+			} else {
+				assert("Wrong Traffic! Ensure waitID >= -1 !");
+			}
+
+		} else {
+			// ensure all params must be present in traffic communication file
+			assert(params == 6);
+		}
       }
     }
   }
@@ -178,90 +178,96 @@ double GlobalTrafficTable::getCumulativePirPor(const int src_id,const int ccycle
   return cpirnpor;
 }
 
-TrafficCommunication GlobalTrafficTable::getTrafficCommunicationTable(const int src_id)
+TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int src_id)
 {
-  TrafficCommunication comm;
-
-  // intialize TrafficCommunication struct (to act as a empty struct)
-  comm = { 0, 0, 0, 0, 0 };
-
   for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
-	TrafficCommunication comm = traffic_communication_table[i];
-	if (comm.src == src_id) {
+
+	if (traffic_communication_table[i].src == src_id) {
 		// remove transaction from transaction communication table once used
-		cout << "DEBUG: Traffic Communication Table found for src_id = " << src_id << endl;
-		traffic_communication_table.erase(traffic_communication_table.begin() + i);
-		
+		// cout << "DEBUG: Traffic Communication Table found for src_id = " << src_id << endl;
+		// traffic_communication_table[i].traffic_used = true; // this flag is done in PE canShot() function
 		// return transaction to Processing Element to make packet
-	  return comm;
+	  return traffic_communication_table[i];
 	}
   }
 
   // HG:return empty TrafficCommunication, if not matching src_id found
 //   cout << "DEBUG: No Traffic Communication Table found for src_id = " << src_id << endl;
-  return comm;
+  return empty_comm;
 }
 
-void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int nextPE, const int src_id) {
-	
+void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id) {
+	/*
 	cout << "DEBUG: Print Reserve Table before MOVING" << endl;
 	// Print reserved_traffic_communication_table
 	for (const auto& comm : reserved_traffic_communication_table) {
 		cout << "src: " << comm.src << ", dst: " << comm.dst << ", data_volume: " << comm.data_volume
-				<< ", waitPE: " << comm.waitPE << ", nextPE: " << comm.nextPE << endl;
+				<< ", waitID: " << comm.waitID << ", waitOP: " << comm.waitOP << endl;
 	}
-	TrafficCommunication comm;
-	// intialize TrafficCommunication struct (to act as a empty struct)
-	comm = { 0, 0, 0, 0, 0 };
-	
-	cout << "Target src_id: " << src_id << ", nextPE: " << nextPE << endl;
+	*/
+	// find all reserved transactions for matching src_id
+	//   and move the matching ones to compare with traff comm table
 
-	// move reserved transaction from Traffic Communication Table to Traffic Tabl
+	// vector <TrafficCommunication> reserved_comm = {};
+	vector <unsigned int> index_to_remove;
+
 	for (unsigned int i = 0; i < reserved_traffic_communication_table.size(); i++) {
-		// check if the reserved table contains: 
-		// comm.src is based on the nextPE label of the earlier transaction
-		// comm.waitPE in the reserve table that matches src_id of the earlier transaction,
-		//     since this current transaction is waiting for earlier transaction to complete
-		TrafficCommunication comm = reserved_traffic_communication_table[i];
-		if (comm.src == nextPE && comm.waitPE == src_id) {
-			// remove transaction from reserved transaction communication table
-			reserved_traffic_communication_table.erase(reserved_traffic_communication_table.begin() + i);
-			// add transaction to transaction communication table
-			traffic_communication_table.push_back(comm);
-			cout << "DEBUG: Found Reserved Traffic for src_id = " << src_id << " and nextPE = " << nextPE << endl;
-			return;
+		TrafficCommunication reserved_comm = reserved_traffic_communication_table[i];
+		if (reserved_comm.src == src_id) {
+			// reserved_comm.push_back(reserved_comm);
+			cout << "DEBUG: Found Reserved Traffic for src_id = " << src_id << endl;
+
+			// loop and compare with traffic_communication_table
+			for (unsigned int j = 0; j < traffic_communication_table.size(); j++) {
+				TrafficCommunication tcomm = traffic_communication_table[j];
+
+                if (reserved_comm.waitID == tcomm.taskID) {
+                    if ((reserved_comm.waitOP == CMP && tcomm.cmp_complete) ||
+                        (reserved_comm.waitOP == TRN && tcomm.trn_complete)) {
+                        traffic_communication_table.push_back(reserved_comm);
+                        index_to_remove.push_back(i);
+                        break;
+                    }
+                }
+			}
 		}
 	}
-	cout << "DEBUG: No Reserved Traffic Communication Table found for dst_id = " << src_id << " and nextPE = " << nextPE << endl;
+	// Erase elements in reverse order to avoid index shifting issues
+    for (auto it = index_to_remove.rbegin(); it != index_to_remove.rend(); ++it) {
+        reserved_traffic_communication_table.erase(reserved_traffic_communication_table.begin() + *it);
+    }
+
+	// the reserved_comm should compare with traffic_communication_table
+	// 	using condition: reserved_comm.waitID == traffic_communication_table.taskID && reserved_comm.waitOP == TRANS|COMP COMPLETE
 
 }
 
-// for DEBUG use when building moveReserveToTrafficCommunicationTable
-TrafficCommunication GlobalTrafficTable::getReserveTrafficCommunicationTable(const int nextPE, const int src_id) {
-	
-	cout<<"DEBUG: size of reserved_traffic: "<< reserved_traffic_communication_table.size() << endl;
-	TrafficCommunication comm;
-	// intialize TrafficCommunication struct (to act as a empty struct)
-	comm = { 0, 0, 0, 0, 0 };
-	
-	for (unsigned int i = 0; i < reserved_traffic_communication_table.size(); i++) {
-		TrafficCommunication comm = reserved_traffic_communication_table[i];
-		// check if the reserved table contains: 
-		// src is based on the nextPE label of the earlier transaction
-		// waitPE in the reserve table that matches src_id of the earlier transaction,
-		//     since this current transaction is waiting for earlier transaction to complete
-		if (comm.src == nextPE && comm.waitPE == src_id) {
-			// return transaction to Processing Element to make packet
-			reserved_traffic_communication_table.erase(reserved_traffic_communication_table.begin() + i);
+void GlobalTrafficTable::setTransmitComplete(const int task_ID) {
 
-			return comm;
+	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
+		TrafficCommunication comm = traffic_communication_table[i];
+		if (comm.taskID == task_ID) {
+			traffic_communication_table[i].trn_complete = true;
+			// logic to check that cmp_complete should be false, since transmission is done first before compute can be done
+			assert(traffic_communication_table[i].cmp_complete == false);
+			break;
 		}
 	}
-	
-	// HG:return empty TrafficCommunication, if not matching src_id found
-	cout << "DEBUG: No Reserved Traffic Communication Table found for src_id = " << src_id << " and nextPE = " << nextPE << endl;
-	return comm;
 }
+
+void GlobalTrafficTable::setComputeComplete(const int task_ID) {
+
+	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
+		// TrafficCommunication comm = traffic_communication_table[i];
+		if (traffic_communication_table[i].taskID == task_ID) {
+			traffic_communication_table[i].cmp_complete = true;
+			// logic to check that trn_complete is also true, since transmission is done first before compute can be done
+			assert(traffic_communication_table[i].trn_complete == true);
+			break;
+		}
+	}
+}
+
 
 int GlobalTrafficTable::occurrencesAsSource(const int src_id)
 {

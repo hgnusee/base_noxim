@@ -23,47 +23,29 @@ void ProcessingElement::rxProcess()
 	current_level_rx = 0;
     // HG: reset ProcessingElement state flag to PE_WAIT
     state = PE_READY;
+    currentTaskID = -1; // HG: initialize to -1 to indicate no taskID
     } else {
 
         switch (state) {
-        case PE_READY:
-            if (req_rx.read() == 1 - current_level_rx) {
-                Flit flit_tmp = flit_rx.read();
+            case PE_READY:
+                if (req_rx.read() == 1 - current_level_rx) {
+                    Flit flit_tmp = flit_rx.read();
 
-                cout << "src_id: " << flit_tmp.src_id << ", dst_id: " << flit_tmp.dst_id 
-                << ", vc_id: " << flit_tmp.vc_id << ", timestamp: " << flit_tmp.timestamp 
-                << ", sequence_no: " << flit_tmp.sequence_no << ", sequence_length: " 
-                << flit_tmp.sequence_length << ", hop_no: " << flit_tmp.hop_no << ", flit_type: " 
-                << flit_tmp.flit_type << ", hub_relay_node: " << flit_tmp.hub_relay_node << ", nextPE: " << flit_tmp.nextPE << endl;
-                
-                current_level_rx = 1 - current_level_rx;	// Negate the old value for Alternating Bit Protocol (ABP)
+                    current_level_rx = 1 - current_level_rx;	// Negate the old value for Alternating Bit Protocol (ABP)
 
-                // HG: Check if TAIL flit contains valid nextPE 
-                // If TRUE, the find the nextPE that resides in reserved_traffic_communication_table
-                //  move the FIRST FOUND matching nextPE to traffic_communication_table
-                if (local_id == flit_tmp.dst_id && flit_tmp.flit_type == FLIT_TYPE_TAIL && flit_tmp.nextPE >= 0) {
-                    cout << "PE " << local_id << " received a TAIL flit with nextPE: " << flit_tmp.nextPE << endl;
-                    // call function from GlobalTraffiCTal to move the traffic into traffic_communication_table
-                    // TODO: Why does traffic_communication_table-> works but not reserved_traffic_communication_table->?
-                    traffic_communication_table->moveReserveToTrafficCommunicationTable(flit_tmp.nextPE, flit_tmp.src_id);
-                    
-                    // Used for debugging moveReserveToTrafficCommunicationTable
-                    // TrafficCommunication comm_tomove = traffic_communication_table->getReserveTrafficCommunicationTable(flit_tmp.nextPE, flit_tmp.src_id);
+                    if (flit_tmp.flit_type == FLIT_TYPE_TAIL) {
+                        cout << "PE " << local_id << " received a TAIL flit. Begin COMPUTE!!" << endl;
+                        state = PE_BUSY; // Flag state to PE_BUSY to begin computeProcess() on next cycle
+                        compute_cycle = 3; // Hard-code compute_cycle to 3 cycles // TODO: make compute_cycle a dynamic value
+                        currentTaskID = flit_tmp.taskID; // set currentTaskID to taskID of received flit
+                    }
                 }
-
-                if (flit_tmp.flit_type == FLIT_TYPE_TAIL) {
-                    cout << "PE " << local_id << " received a TAIL flit. Begin COMPUTE!!" << endl;
-                    state = PE_BUSY; // Flag state to PE_BUSY to begin computeProcess() on next cycle
-                    compute_cycle = 3; // Hard-code compute_cycle to 3 cycles // TODO: make compute_cycle a dynamic value
-                }
-            }
-            ack_rx.write(current_level_rx);
-        break;
-        
-        case PE_BUSY:
-            computeProcess();
-
-        break;
+                ack_rx.write(current_level_rx);
+            break;
+            
+            case PE_BUSY:
+                computeProcess();
+            break;
 
         }
     }
@@ -109,6 +91,7 @@ Flit ProcessingElement::nextFlit()
     flit.sequence_length = packet.size;
     flit.hop_no = 0;
     //  flit.payload     = DEFAULT_PAYLOAD;
+    flit.taskID = packet.taskID; // HG: set taskID to flit based on packet
 
     flit.hub_relay_node = NOT_VALID;
 
@@ -119,9 +102,10 @@ Flit ProcessingElement::nextFlit()
     else
 	    flit.flit_type = FLIT_TYPE_BODY;
 
-    // HG: send nextPE information in TAIL Flit
+    // HG: flag transaction trasmit is complete from src PE, when a tail flit is being created
     if (flit.flit_type == FLIT_TYPE_TAIL)
-        flit.nextPE = packet.nextPE;
+        // go to traffic_communication_table and set trn_complete = true
+        traffic_communication_table->setTransmitComplete(packet.taskID);
 
     packet_queue.front().flit_left--;
 
@@ -163,16 +147,19 @@ bool ProcessingElement::canShot(Packet & packet)
             return false;
         
         // get transaction for this PE from Traffic Communication Table
-        TrafficCommunication comm = traffic_communication_table->getTrafficCommunicationTable(local_id);
+        TrafficCommunication& comm = traffic_communication_table->getTrafficCommunicationTable(local_id);
 
-        if (comm.src == 0 && comm.dst == 0 && comm.data_volume == 0 && comm.waitPE == 0 && comm.nextPE == 0) {
+        if (comm.taskID == -1 && comm.src == 0 && comm.dst == 0 && comm.data_volume == 0 
+            && comm.waitID == 0 && comm.waitOP == 0 && comm.traffic_used == true) {
+                // cout << "No Traffic Communication Table found for src_id = " << local_id << endl;
             return false;
-        } else {
+        } else if (comm.traffic_used == false) {
             shot = true;
-            // HG: make2() to include nextPE information in Packet
-            packet.make2(local_id, comm.dst, 0, now, comm.data_volume, comm.nextPE);
+            comm.traffic_used = true;
+            // HG: make2() to include waitOP information in Packet
+            packet.make2(comm.taskID, local_id, comm.dst, 0, now, comm.data_volume, comm.waitOP);
         }
-        // TODO: Consider nextPE and waitPE logic here
+        
     } else if (GlobalParams::traffic_distribution != TRAFFIC_TABLE_BASED) {
 	if (!transmittedAtPreviousCycle)
 	    threshold = GlobalParams::packet_injection_rate;
@@ -236,10 +223,27 @@ void ProcessingElement::computeProcess()
     cout << " Compute cycle: " << compute_cycle << endl;
     compute_cycle--;
 
-    if (compute_cycle == 0) {
+    if (compute_cycle == 0 && currentTaskID >= 0) {
         cout << "PE " << local_id << " Compute Done!" << endl;
         state = PE_READY;
         cout << "PE " << local_id << " is in PE_READY state. PE is ready to receive new packets." << endl;
+
+        // set cmp_complete flag in Traffic Communication Table
+        traffic_communication_table->setComputeComplete(currentTaskID);
+        // set currentTaskID to -1 to indicate no taskID
+        currentTaskID = -1;
+    }
+}
+
+void ProcessingElement::reservedTableMonitor()
+{
+    // HG: check and move transactions from reserved -> traffic comm table
+
+    if (reset.read()){
+        // DO nothing
+    } else {
+        // provide local_id, and move matches from resreved -> traffic comm
+        traffic_communication_table->moveReserveToTrafficCommunicationTable(local_id);
     }
 }
 

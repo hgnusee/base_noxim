@@ -48,6 +48,7 @@ SC_MODULE(ProcessingElement)
 
     peState state;        // HG: State of the PE
     int compute_cycle;    // HG: Number of cycles to compute, aka how many cycles to stall PE
+    int currentTaskID;    // HG: Current Task ID for the PE
 
     // Functions
     void rxProcess();		// The receiving process
@@ -55,6 +56,7 @@ SC_MODULE(ProcessingElement)
     bool canShot(Packet & packet);	// True when the packet must be shot
 
     void computeProcess(); // HG: Compute Process to "stall" PE from further receive packets
+    void reservedTableMonitor(); // HG: check and move transactions from reserved -> traffic comm table
 
     Flit nextFlit();	// Take the next flit of the current packet
     Packet trafficTest();	// used for testing traffic
@@ -96,6 +98,10 @@ SC_MODULE(ProcessingElement)
 	SC_METHOD(txProcess);
 	sensitive << reset;
 	sensitive << clock.pos();
+
+    SC_METHOD(reservedTableMonitor);
+    sensitive << reset;
+    sensitive << clock.pos();
     }
 
 };

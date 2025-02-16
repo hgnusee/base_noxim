@@ -5,239 +5,567 @@
 Catania V., Mineo A., Monteleone S., Palesi M., and Patti D. (2016) Cycle-Accurate Network on Chip Simulation with Noxim. ACM Trans. Model. Comput. Simul. 27, 1, Article 4 (August 2016), 25 pages. DOI: https://doi.org/10.1145/2953878
 
 
-Loading configuration from file "../config_examples/0_configTrafficComm.yaml"... Done
+Loading configuration from file "../config_examples/1_confignewTraffic.yaml"... Done
 Loading power configurations from file "power.yaml"... Done
 Reset for 1000 cycles...  done! 
  Now running for 10000 cycles...
-DEBUG: Traffic Communication Table found for src_id = 0
-DEBUG: Traffic Communication Table found for src_id = 2
-1001    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (H0, 0->1 VC 0) collected from Input[4][0]
-1001    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 2->4 VC 0) collected from Input[4][0]
-1002    NoC.Tile[00][00]_(#0).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 0->1 VC 0)
-1002    NoC.Tile[00][00]_(#0).Router::txProcess() -->  reserving direction 1 for flit (H0, 0->1 VC 0)
-1002    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 0->1 VC 0)
-1002    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 2->4 VC 0)
-1002    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 3 for flit (H0, 2->4 VC 0)
-1002    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 2->4 VC 0)
-1003    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B1, 0->1 VC 0) collected from Input[4][0]
-1003    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 2->4 VC 0) collected from Input[1][0]
-1003    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 0->1 VC 0) collected from Input[3][0]
-1003    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B1, 2->4 VC 0) collected from Input[4][0]
-1004    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B1, 0->1 VC 0)
-1004    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 0->1 VC 0)
-1004    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 4 for flit (H0, 0->1 VC 0)
-1004    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[3] for Input[1][0] flit (H0, 2->4 VC 0)
-1004    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 3 for flit (H0, 2->4 VC 0)
-1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (H0, 2->4 VC 0)
-1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 0->1 VC 0)
-1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (H0, 0->1 VC 0)
-1004    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B1, 2->4 VC 0)
-1005    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (H0, 2->4 VC 0) collected from Input[1][0]
-1005    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B2, 0->1 VC 0) collected from Input[4][0]
-1005    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B1, 2->4 VC 0) collected from Input[1][0]
-1005    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B1, 0->1 VC 0) collected from Input[3][0]
-src_id: 0, dst_id: 1, vc_id: 0, timestamp: 1000, sequence_no: 0, sequence_length: 10, hop_no: 0, flit_type: 0, hub_relay_node: -1, nextPE: 990115504
-1005    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (T2, 2->4 VC 0) collected from Input[4][0]
-1006    NoC.Tile[00][00]_(#0).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 2->4 VC 0)
-1006    NoC.Tile[00][00]_(#0).Router::txProcess() -->  reserving direction 2 for flit (H0, 2->4 VC 0)
-1006    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 2->4 VC 0)
-1006    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B2, 0->1 VC 0)
-1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (B1, 2->4 VC 0)
-1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B1, 0->1 VC 0)
-1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B1, 0->1 VC 0)
-1006    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (T2, 2->4 VC 0)
-1007    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B1, 2->4 VC 0) collected from Input[1][0]
-1007    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B3, 0->1 VC 0) collected from Input[4][0]
-1007    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (T2, 2->4 VC 0) collected from Input[1][0]
-1007    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B2, 0->1 VC 0) collected from Input[3][0]
-src_id: 0, dst_id: 1, vc_id: 0, timestamp: 1000, sequence_no: 1, sequence_length: 10, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1007    NoC.Tile[00][01]_(#4).Router::rxProcess() -->  Flit (H0, 2->4 VC 0) collected from Input[0][0]
-1008    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B1, 2->4 VC 0)
-1008    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B3, 0->1 VC 0)
-1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (T2, 2->4 VC 0)
-1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B2, 0->1 VC 0)
-1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B2, 0->1 VC 0)
-1008    NoC.Tile[00][01]_(#4).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 2->4 VC 0)
-1008    NoC.Tile[00][01]_(#4).Router::txProcess() -->  reserving direction 4 for flit (H0, 2->4 VC 0)
-1008    NoC.Tile[00][01]_(#4).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 2->4 VC 0)
-1008    NoC.Tile[00][01]_(#4).Router::txProcess() --> Consumed flit (H0, 2->4 VC 0)
-1009    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (T2, 2->4 VC 0) collected from Input[1][0]
-1009    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B4, 0->1 VC 0) collected from Input[4][0]
-1009    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B3, 0->1 VC 0) collected from Input[3][0]
-src_id: 0, dst_id: 1, vc_id: 0, timestamp: 1000, sequence_no: 2, sequence_length: 10, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1009    NoC.Tile[00][01]_(#4).Router::rxProcess() -->  Flit (B1, 2->4 VC 0) collected from Input[0][0]
-src_id: 2, dst_id: 4, vc_id: 0, timestamp: 1000, sequence_no: 0, sequence_length: 3, hop_no: 0, flit_type: 0, hub_relay_node: -1, nextPE: 990115504
-1010    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (T2, 2->4 VC 0)
-1010    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B4, 0->1 VC 0)
-1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B3, 0->1 VC 0)
-1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B3, 0->1 VC 0)
-1010    NoC.Tile[00][01]_(#4).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B1, 2->4 VC 0)
-1010    NoC.Tile[00][01]_(#4).Router::txProcess() --> Consumed flit (B1, 2->4 VC 0)
-1011    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B5, 0->1 VC 0) collected from Input[4][0]
-1011    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B4, 0->1 VC 0) collected from Input[3][0]
-src_id: 0, dst_id: 1, vc_id: 0, timestamp: 1000, sequence_no: 3, sequence_length: 10, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1011    NoC.Tile[00][01]_(#4).Router::rxProcess() -->  Flit (T2, 2->4 VC 0) collected from Input[0][0]
-src_id: 2, dst_id: 4, vc_id: 0, timestamp: 1000, sequence_no: 1, sequence_length: 3, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1012    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B5, 0->1 VC 0)
-1012    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B4, 0->1 VC 0)
-1012    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B4, 0->1 VC 0)
-1012    NoC.Tile[00][01]_(#4).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (T2, 2->4 VC 0)
-1012    NoC.Tile[00][01]_(#4).Router::txProcess() --> Consumed flit (T2, 2->4 VC 0)
-1013    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B6, 0->1 VC 0) collected from Input[4][0]
-1013    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B5, 0->1 VC 0) collected from Input[3][0]
-src_id: 0, dst_id: 1, vc_id: 0, timestamp: 1000, sequence_no: 4, sequence_length: 10, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-src_id: 2, dst_id: 4, vc_id: 0, timestamp: 1000, sequence_no: 2, sequence_length: 3, hop_no: 0, flit_type: 2, hub_relay_node: -1, nextPE: 5
-PE 4 received a TAIL flit with nextPE: 5
-DEBUG: Print Reserve Table before MOVING
-src: 3, dst: 6, data_volume: 5, waitPE: 0, nextPE: 7
-src: 5, dst: 4, data_volume: 3, waitPE: 2, nextPE: 8
-Target src_id: 2, nextPE: 5
-DEBUG: Found Reserved Traffic for src_id = 2 and nextPE = 5
-PE 4 received a TAIL flit. Begin COMPUTE!!
-DEBUG: Traffic Communication Table found for src_id = 5
-1014    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B6, 0->1 VC 0)
-1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B5, 0->1 VC 0)
-1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B5, 0->1 VC 0)
-PE 4 is in PE_BUSY state. PE Stalled. Compute cycle: 3
-1014    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 5->4 VC 0) collected from Input[4][0]
-1015    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B7, 0->1 VC 0) collected from Input[4][0]
-1015    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B6, 0->1 VC 0) collected from Input[3][0]
-src_id: 0, dst_id: 1, vc_id: 0, timestamp: 1000, sequence_no: 5, sequence_length: 10, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-PE 4 is in PE_BUSY state. PE Stalled. Compute cycle: 2
-1015    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 5->4 VC 0)
-1015    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 3 for flit (H0, 5->4 VC 0)
-1015    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 5->4 VC 0)
-1016    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B7, 0->1 VC 0)
-1016    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B6, 0->1 VC 0)
-1016    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B6, 0->1 VC 0)
-1016    NoC.Tile[00][01]_(#4).Router::rxProcess() -->  Flit (H0, 5->4 VC 0) collected from Input[1][0]
-PE 4 is in PE_BUSY state. PE Stalled. Compute cycle: 1
-PE 4 Compute Done!
-PE 4 is in PE_READY state. PE is ready to receive new packets.
-1016    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (B1, 5->4 VC 0) collected from Input[4][0]
-1017    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B8, 0->1 VC 0) collected from Input[4][0]
-1017    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B7, 0->1 VC 0) collected from Input[3][0]
-src_id: 0, dst_id: 1, vc_id: 0, timestamp: 1000, sequence_no: 6, sequence_length: 10, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1017    NoC.Tile[00][01]_(#4).Router::txProcess() -->  checking availability of Output[4] for Input[1][0] flit (H0, 5->4 VC 0)
-1017    NoC.Tile[00][01]_(#4).Router::txProcess() -->  reserving direction 4 for flit (H0, 5->4 VC 0)
-1017    NoC.Tile[00][01]_(#4).Router::txProcess() --> Input[1][0] forwarded to Output[4], flit: (H0, 5->4 VC 0)
-1017    NoC.Tile[00][01]_(#4).Router::txProcess() --> Consumed flit (H0, 5->4 VC 0)
-1017    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B1, 5->4 VC 0)
-1018    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B8, 0->1 VC 0)
-1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B7, 0->1 VC 0)
-1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B7, 0->1 VC 0)
-1018    NoC.Tile[00][01]_(#4).Router::rxProcess() -->  Flit (B1, 5->4 VC 0) collected from Input[1][0]
-src_id: 5, dst_id: 4, vc_id: 0, timestamp: 1013, sequence_no: 0, sequence_length: 3, hop_no: 0, flit_type: 0, hub_relay_node: -1, nextPE: 990115504
-1018    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (T2, 5->4 VC 0) collected from Input[4][0]
-1019    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (T9, 0->1 VC 0) collected from Input[4][0]
-1019    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B8, 0->1 VC 0) collected from Input[3][0]
-src_id: 0, dst_id: 1, vc_id: 0, timestamp: 1000, sequence_no: 7, sequence_length: 10, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1019    NoC.Tile[00][01]_(#4).Router::txProcess() --> Input[1][0] forwarded to Output[4], flit: (B1, 5->4 VC 0)
-1019    NoC.Tile[00][01]_(#4).Router::txProcess() --> Consumed flit (B1, 5->4 VC 0)
-1019    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (T2, 5->4 VC 0)
-1020    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (T9, 0->1 VC 0)
-1020    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B8, 0->1 VC 0)
-1020    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B8, 0->1 VC 0)
-1020    NoC.Tile[00][01]_(#4).Router::rxProcess() -->  Flit (T2, 5->4 VC 0) collected from Input[1][0]
-src_id: 5, dst_id: 4, vc_id: 0, timestamp: 1013, sequence_no: 1, sequence_length: 3, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1021    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (T9, 0->1 VC 0) collected from Input[3][0]
-src_id: 0, dst_id: 1, vc_id: 0, timestamp: 1000, sequence_no: 8, sequence_length: 10, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1021    NoC.Tile[00][01]_(#4).Router::txProcess() --> Input[1][0] forwarded to Output[4], flit: (T2, 5->4 VC 0)
-1021    NoC.Tile[00][01]_(#4).Router::txProcess() --> Consumed flit (T2, 5->4 VC 0)
-1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (T9, 0->1 VC 0)
-1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (T9, 0->1 VC 0)
-src_id: 5, dst_id: 4, vc_id: 0, timestamp: 1013, sequence_no: 2, sequence_length: 3, hop_no: 0, flit_type: 2, hub_relay_node: -1, nextPE: 8
-PE 4 received a TAIL flit with nextPE: 8
-DEBUG: Print Reserve Table before MOVING
-src: 3, dst: 6, data_volume: 5, waitPE: 0, nextPE: 7
-Target src_id: 5, nextPE: 8
-DEBUG: No Reserved Traffic Communication Table found for dst_id = 5 and nextPE = 8
-PE 4 received a TAIL flit. Begin COMPUTE!!
-src_id: 0, dst_id: 1, vc_id: 0, timestamp: 1000, sequence_no: 9, sequence_length: 10, hop_no: 0, flit_type: 2, hub_relay_node: -1, nextPE: 3
-PE 1 received a TAIL flit with nextPE: 3
-DEBUG: Print Reserve Table before MOVING
-src: 3, dst: 6, data_volume: 5, waitPE: 0, nextPE: 7
-Target src_id: 0, nextPE: 3
-DEBUG: Found Reserved Traffic for src_id = 0 and nextPE = 3
-PE 1 received a TAIL flit. Begin COMPUTE!!
-DEBUG: Traffic Communication Table found for src_id = 3
-PE 4 is in PE_BUSY state. PE Stalled. Compute cycle: 3
-PE 1 is in PE_BUSY state. PE Stalled. Compute cycle: 3
-1024    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (H0, 3->6 VC 0) collected from Input[4][0]
-PE 4 is in PE_BUSY state. PE Stalled. Compute cycle: 2
-PE 1 is in PE_BUSY state. PE Stalled. Compute cycle: 2
-1025    NoC.Tile[03][00]_(#3).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 3->6 VC 0)
-1025    NoC.Tile[03][00]_(#3).Router::txProcess() -->  reserving direction 3 for flit (H0, 3->6 VC 0)
-1025    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 3->6 VC 0)
-PE 4 is in PE_BUSY state. PE Stalled. Compute cycle: 1
-PE 4 Compute Done!
-PE 4 is in PE_READY state. PE is ready to receive new packets.
-PE 1 is in PE_BUSY state. PE Stalled. Compute cycle: 1
-PE 1 Compute Done!
-PE 1 is in PE_READY state. PE is ready to receive new packets.
-1026    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 3->6 VC 0) collected from Input[1][0]
-1026    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B1, 3->6 VC 0) collected from Input[4][0]
-1027    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 3->6 VC 0)
-1027    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 2 for flit (H0, 3->6 VC 0)
-1027    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 3->6 VC 0)
-1027    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B1, 3->6 VC 0)
-1028    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B1, 3->6 VC 0) collected from Input[1][0]
-1028    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B2, 3->6 VC 0) collected from Input[4][0]
-1028    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (H0, 3->6 VC 0) collected from Input[0][0]
-1029    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B1, 3->6 VC 0)
-1029    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B2, 3->6 VC 0)
-1029    NoC.Tile[02][01]_(#6).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 3->6 VC 0)
-1029    NoC.Tile[02][01]_(#6).Router::txProcess() -->  reserving direction 4 for flit (H0, 3->6 VC 0)
-1029    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 3->6 VC 0)
-1029    NoC.Tile[02][01]_(#6).Router::txProcess() --> Consumed flit (H0, 3->6 VC 0)
-1030    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B2, 3->6 VC 0) collected from Input[1][0]
-1030    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B3, 3->6 VC 0) collected from Input[4][0]
-1030    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (B1, 3->6 VC 0) collected from Input[0][0]
-src_id: 3, dst_id: 6, vc_id: 0, timestamp: 1023, sequence_no: 0, sequence_length: 5, hop_no: 0, flit_type: 0, hub_relay_node: -1, nextPE: 990115504
-1031    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B2, 3->6 VC 0)
-1031    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B3, 3->6 VC 0)
-1031    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B1, 3->6 VC 0)
-1031    NoC.Tile[02][01]_(#6).Router::txProcess() --> Consumed flit (B1, 3->6 VC 0)
-1032    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B3, 3->6 VC 0) collected from Input[1][0]
-1032    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (T4, 3->6 VC 0) collected from Input[4][0]
-1032    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (B2, 3->6 VC 0) collected from Input[0][0]
-src_id: 3, dst_id: 6, vc_id: 0, timestamp: 1023, sequence_no: 1, sequence_length: 5, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1033    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B3, 3->6 VC 0)
-1033    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (T4, 3->6 VC 0)
-1033    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B2, 3->6 VC 0)
-1033    NoC.Tile[02][01]_(#6).Router::txProcess() --> Consumed flit (B2, 3->6 VC 0)
-1034    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (T4, 3->6 VC 0) collected from Input[1][0]
-1034    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (B3, 3->6 VC 0) collected from Input[0][0]
-src_id: 3, dst_id: 6, vc_id: 0, timestamp: 1023, sequence_no: 2, sequence_length: 5, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1035    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (T4, 3->6 VC 0)
-1035    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B3, 3->6 VC 0)
-1035    NoC.Tile[02][01]_(#6).Router::txProcess() --> Consumed flit (B3, 3->6 VC 0)
-1036    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (T4, 3->6 VC 0) collected from Input[0][0]
-src_id: 3, dst_id: 6, vc_id: 0, timestamp: 1023, sequence_no: 3, sequence_length: 5, hop_no: 0, flit_type: 1, hub_relay_node: -1, nextPE: 990115504
-1037    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (T4, 3->6 VC 0)
-1037    NoC.Tile[02][01]_(#6).Router::txProcess() --> Consumed flit (T4, 3->6 VC 0)
-src_id: 3, dst_id: 6, vc_id: 0, timestamp: 1023, sequence_no: 4, sequence_length: 5, hop_no: 0, flit_type: 2, hub_relay_node: -1, nextPE: 7
-PE 6 received a TAIL flit with nextPE: 7
-DEBUG: Print Reserve Table before MOVING
-Target src_id: 3, nextPE: 7
-DEBUG: No Reserved Traffic Communication Table found for dst_id = 3 and nextPE = 7
-PE 6 received a TAIL flit. Begin COMPUTE!!
-PE 6 is in PE_BUSY state. PE Stalled. Compute cycle: 3
-PE 6 is in PE_BUSY state. PE Stalled. Compute cycle: 2
-PE 6 is in PE_BUSY state. PE Stalled. Compute cycle: 1
-PE 6 Compute Done!
-PE 6 is in PE_READY state. PE is ready to receive new packets.
+DEBUG: Found Reserved Traffic for src_id = 3
+DEBUG: Found Reserved Traffic for src_id = 4
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1001    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->7 VC 0) collected from Input[4][0]
+1001    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 2->5 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 3
+DEBUG: Found Reserved Traffic for src_id = 4
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1002    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 1->7 VC 0)
+1002    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 1 for flit (H0, 1->7 VC 0)
+1002    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 1->7 VC 0)
+1002    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 2->5 VC 0)
+1002    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 3 for flit (H0, 2->5 VC 0)
+1002    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 2->5 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 3
+DEBUG: Found Reserved Traffic for src_id = 4
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1003    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 2->5 VC 0) collected from Input[1][0]
+1003    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B1, 1->7 VC 0) collected from Input[4][0]
+1003    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 1->7 VC 0) collected from Input[3][0]
+1003    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B1, 2->5 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 3
+DEBUG: Found Reserved Traffic for src_id = 4
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 2->5 VC 0)
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 2 for flit (H0, 2->5 VC 0)
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 2->5 VC 0)
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B1, 1->7 VC 0)
+1004    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[1] for Input[3][0] flit (H0, 1->7 VC 0)
+1004    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 1 for flit (H0, 1->7 VC 0)
+1004    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[1], flit: (H0, 1->7 VC 0)
+1004    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B1, 2->5 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 3
+DEBUG: Found Reserved Traffic for src_id = 4
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1005    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B1, 2->5 VC 0) collected from Input[1][0]
+1005    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B2, 1->7 VC 0) collected from Input[4][0]
+1005    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B1, 1->7 VC 0) collected from Input[3][0]
+1005    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B2, 2->5 VC 0) collected from Input[4][0]
+1005    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (H0, 1->7 VC 0) collected from Input[3][0]
+DEBUG: Found Reserved Traffic for src_id = 3
+DEBUG: Found Reserved Traffic for src_id = 4
+1005    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 2->5 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B1, 2->5 VC 0)
+1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B2, 1->7 VC 0)
+1006    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[1], flit: (B1, 1->7 VC 0)
+1006    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B2, 2->5 VC 0)
+1006    NoC.Tile[03][00]_(#3).Router::txProcess() -->  checking availability of Output[2] for Input[3][0] flit (H0, 1->7 VC 0)
+1006    NoC.Tile[03][00]_(#3).Router::txProcess() -->  reserving direction 2 for flit (H0, 1->7 VC 0)
+1006    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[3][0] forwarded to Output[2], flit: (H0, 1->7 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 3
+DEBUG: Found Reserved Traffic for src_id = 4
+1006    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 2->5 VC 0)
+1006    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 4 for flit (H0, 2->5 VC 0)
+1006    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 2->5 VC 0)
+1006    NoC.Tile[01][01]_(#5).Router::txProcess() --> Consumed flit (H0, 2->5 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1007    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B2, 2->5 VC 0) collected from Input[1][0]
+1007    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B3, 1->7 VC 0) collected from Input[4][0]
+1007    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B2, 1->7 VC 0) collected from Input[3][0]
+1007    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (T3, 2->5 VC 0) collected from Input[4][0]
+1007    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B1, 1->7 VC 0) collected from Input[3][0]
+DEBUG: Found Reserved Traffic for src_id = 3
+DEBUG: Found Reserved Traffic for src_id = 4
+1007    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (B1, 2->5 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 6
+1007    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (H0, 1->7 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B2, 2->5 VC 0)
+1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B3, 1->7 VC 0)
+1008    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[1], flit: (B2, 1->7 VC 0)
+1008    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (T3, 2->5 VC 0)
+1008    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[3][0] forwarded to Output[2], flit: (B1, 1->7 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 3
+DEBUG: Found Reserved Traffic for src_id = 4
+1008    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B1, 2->5 VC 0)
+1008    NoC.Tile[01][01]_(#5).Router::txProcess() --> Consumed flit (B1, 2->5 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 6
+1008    NoC.Tile[03][01]_(#7).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->7 VC 0)
+1008    NoC.Tile[03][01]_(#7).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->7 VC 0)
+1008    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->7 VC 0)
+1008    NoC.Tile[03][01]_(#7).Router::txProcess() --> Consumed flit (H0, 1->7 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1009    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (T3, 2->5 VC 0) collected from Input[1][0]
+1009    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (T4, 1->7 VC 0) collected from Input[4][0]
+1009    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B3, 1->7 VC 0) collected from Input[3][0]
+1009    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B2, 1->7 VC 0) collected from Input[3][0]
+1009    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (H0, 3->9 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 4
+1009    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (B2, 2->5 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 6
+1009    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (B1, 1->7 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (T3, 2->5 VC 0)
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (T4, 1->7 VC 0)
+1010    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[1], flit: (B3, 1->7 VC 0)
+1010    NoC.Tile[03][00]_(#3).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 3->9 VC 0)
+1010    NoC.Tile[03][00]_(#3).Router::txProcess() -->  reserving direction 3 for flit (H0, 3->9 VC 0)
+1010    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[3][0] forwarded to Output[2], flit: (B2, 1->7 VC 0)
+1010    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 3->9 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 4
+1010    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B2, 2->5 VC 0)
+1010    NoC.Tile[01][01]_(#5).Router::txProcess() --> Consumed flit (B2, 2->5 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 6
+1010    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B1, 1->7 VC 0)
+1010    NoC.Tile[03][01]_(#7).Router::txProcess() --> Consumed flit (B1, 1->7 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1011    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 3->9 VC 0) collected from Input[1][0]
+1011    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (T4, 1->7 VC 0) collected from Input[3][0]
+1011    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B3, 1->7 VC 0) collected from Input[3][0]
+1011    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B1, 3->9 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 4
+1011    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (T3, 2->5 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 6
+1011    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (B2, 1->7 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[3] for Input[1][0] flit (H0, 3->9 VC 0)
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 3 for flit (H0, 3->9 VC 0)
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (H0, 3->9 VC 0)
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[1], flit: (T4, 1->7 VC 0)
+1012    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[3][0] forwarded to Output[2], flit: (B3, 1->7 VC 0)
+1012    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B1, 3->9 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 4
+1012    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (T3, 2->5 VC 0)
+1012    NoC.Tile[01][01]_(#5).Router::txProcess() --> Consumed flit (T3, 2->5 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 6
+1012    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B2, 1->7 VC 0)
+1012    NoC.Tile[03][01]_(#7).Router::txProcess() --> Consumed flit (B2, 1->7 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1013    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 3->9 VC 0) collected from Input[1][0]
+1013    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B1, 3->9 VC 0) collected from Input[1][0]
+1013    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (T4, 1->7 VC 0) collected from Input[3][0]
+1013    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B2, 3->9 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 4
+PE 5 received a TAIL flit. Begin COMPUTE!!
+DEBUG: Found Reserved Traffic for src_id = 6
+1013    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (B3, 1->7 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 3->9 VC 0)
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 2 for flit (H0, 3->9 VC 0)
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 3->9 VC 0)
+1014    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (B1, 3->9 VC 0)
+1014    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[3][0] forwarded to Output[2], flit: (T4, 1->7 VC 0)
+1014    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B2, 3->9 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 4
+PE 5 is in PE_BUSY state. PE Stalled. Compute cycle: 3
+DEBUG: Found Reserved Traffic for src_id = 6
+1014    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B3, 1->7 VC 0)
+1014    NoC.Tile[03][01]_(#7).Router::txProcess() --> Consumed flit (B3, 1->7 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1015    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B1, 3->9 VC 0) collected from Input[1][0]
+1015    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B2, 3->9 VC 0) collected from Input[1][0]
+1015    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B3, 3->9 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 4
+1015    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 3->9 VC 0) collected from Input[0][0]
+PE 5 is in PE_BUSY state. PE Stalled. Compute cycle: 2
+DEBUG: Found Reserved Traffic for src_id = 6
+1015    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (T4, 1->7 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1016    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B1, 3->9 VC 0)
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (B2, 3->9 VC 0)
+1016    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B3, 3->9 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 4
+1016    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[2] for Input[0][0] flit (H0, 3->9 VC 0)
+1016    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 2 for flit (H0, 3->9 VC 0)
+1016    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (H0, 3->9 VC 0)
+PE 5 is in PE_BUSY state. PE Stalled. Compute cycle: 1
+PE 5 Compute Done!
+PE 5 is in PE_READY state. PE is ready to receive new packets.
+DEBUG: Found Reserved Traffic for src_id = 6
+1016    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (T4, 1->7 VC 0)
+1016    NoC.Tile[03][01]_(#7).Router::txProcess() --> Consumed flit (T4, 1->7 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1017    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B2, 3->9 VC 0) collected from Input[1][0]
+1017    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B3, 3->9 VC 0) collected from Input[1][0]
+1017    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B4, 3->9 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 4
+1017    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (B1, 3->9 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+PE 7 received a TAIL flit. Begin COMPUTE!!
+DEBUG: Found Reserved Traffic for src_id = 8
+1017    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (H0, 3->9 VC 0) collected from Input[0][0]
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B2, 3->9 VC 0)
+1018    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (B3, 3->9 VC 0)
+1018    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B4, 3->9 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 4
+1018    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B1, 3->9 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+PE 7 is in PE_BUSY state. PE Stalled. Compute cycle: 3
+DEBUG: Found Reserved Traffic for src_id = 8
+1018    NoC.Tile[01][02]_(#9).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 3->9 VC 0)
+1018    NoC.Tile[01][02]_(#9).Router::txProcess() -->  reserving direction 4 for flit (H0, 3->9 VC 0)
+1018    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 3->9 VC 0)
+1018    NoC.Tile[01][02]_(#9).Router::txProcess() --> Consumed flit (H0, 3->9 VC 0)
+1019    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B3, 3->9 VC 0) collected from Input[1][0]
+1019    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B4, 3->9 VC 0) collected from Input[1][0]
+1019    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B5, 3->9 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 4
+1019    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (B2, 3->9 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+PE 7 is in PE_BUSY state. PE Stalled. Compute cycle: 2
+DEBUG: Found Reserved Traffic for src_id = 8
+1019    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (B1, 3->9 VC 0) collected from Input[0][0]
+1020    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B3, 3->9 VC 0)
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (B4, 3->9 VC 0)
+1020    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B5, 3->9 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 4
+1020    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B2, 3->9 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+PE 7 is in PE_BUSY state. PE Stalled. Compute cycle: 1
+PE 7 Compute Done!
+PE 7 is in PE_READY state. PE is ready to receive new packets.
+DEBUG: Found Reserved Traffic for src_id = 8
+1020    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B1, 3->9 VC 0)
+1020    NoC.Tile[01][02]_(#9).Router::txProcess() --> Consumed flit (B1, 3->9 VC 0)
+1021    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B4, 3->9 VC 0) collected from Input[1][0]
+1021    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B5, 3->9 VC 0) collected from Input[1][0]
+1021    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B6, 3->9 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 4
+1021    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (B3, 3->9 VC 0) collected from Input[0][0]
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1021    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (B2, 3->9 VC 0) collected from Input[0][0]
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B4, 3->9 VC 0)
+1022    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (B5, 3->9 VC 0)
+1022    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (B6, 3->9 VC 0)
+1022    NoC.Tile[00][01]_(#4).Router::rxProcess() -->  Flit (H0, 4->13 VC 0) collected from Input[4][0]
+1022    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B3, 3->9 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 6
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1022    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B2, 3->9 VC 0)
+1022    NoC.Tile[01][02]_(#9).Router::txProcess() --> Consumed flit (B2, 3->9 VC 0)
+1023    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B5, 3->9 VC 0) collected from Input[1][0]
+1023    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (B6, 3->9 VC 0) collected from Input[1][0]
+1023    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (T7, 3->9 VC 0) collected from Input[4][0]
+1023    NoC.Tile[00][01]_(#4).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 4->13 VC 0)
+1023    NoC.Tile[00][01]_(#4).Router::txProcess() -->  reserving direction 1 for flit (H0, 4->13 VC 0)
+1023    NoC.Tile[00][01]_(#4).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 4->13 VC 0)
+1023    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (B4, 3->9 VC 0) collected from Input[0][0]
+1023    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (H0, 6->14 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1023    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (B3, 3->9 VC 0) collected from Input[0][0]
+1024    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B5, 3->9 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (B6, 3->9 VC 0)
+1024    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (T7, 3->9 VC 0)
+1024    NoC.Tile[00][01]_(#4).Router::rxProcess() -->  Flit (B1, 4->13 VC 0) collected from Input[4][0]
+1024    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B4, 3->9 VC 0)
+1024    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 4->13 VC 0) collected from Input[3][0]
+1024    NoC.Tile[02][01]_(#6).Router::txProcess() -->  checking availability of Output[2] for Input[4][0] flit (H0, 6->14 VC 0)
+1024    NoC.Tile[02][01]_(#6).Router::txProcess() -->  reserving direction 2 for flit (H0, 6->14 VC 0)
+1024    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (H0, 6->14 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1024    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B3, 3->9 VC 0)
+1024    NoC.Tile[01][02]_(#9).Router::txProcess() --> Consumed flit (B3, 3->9 VC 0)
+1025    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B6, 3->9 VC 0) collected from Input[1][0]
+1025    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (T7, 3->9 VC 0) collected from Input[1][0]
+1025    NoC.Tile[00][01]_(#4).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B1, 4->13 VC 0)
+1025    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[2] for Input[3][0] flit (H0, 4->13 VC 0)
+1025    NoC.Tile[01][01]_(#5).Router::txProcess() -->  RT_OUTVC_BUSY reservation direction 2 for flit (H0, 4->13 VC 0)
+1025    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (B5, 3->9 VC 0) collected from Input[0][0]
+1025    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (B1, 6->14 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1025    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (B4, 3->9 VC 0) collected from Input[0][0]
+1025    NoC.Tile[02][02]_(#10).Router::rxProcess() -->  Flit (H0, 6->14 VC 0) collected from Input[0][0]
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (B6, 3->9 VC 0)
+1026    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[3], flit: (T7, 3->9 VC 0)
+1026    NoC.Tile[00][01]_(#4).Router::rxProcess() -->  Flit (T2, 4->13 VC 0) collected from Input[4][0]
+1026    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[2] for Input[3][0] flit (H0, 4->13 VC 0)
+1026    NoC.Tile[01][01]_(#5).Router::txProcess() -->  RT_OUTVC_BUSY reservation direction 2 for flit (H0, 4->13 VC 0)
+1026    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B5, 3->9 VC 0)
+1026    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (B1, 4->13 VC 0) collected from Input[3][0]
+1026    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (B1, 6->14 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1026    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B4, 3->9 VC 0)
+1026    NoC.Tile[01][02]_(#9).Router::txProcess() --> Consumed flit (B4, 3->9 VC 0)
+1026    NoC.Tile[02][02]_(#10).Router::txProcess() -->  checking availability of Output[2] for Input[0][0] flit (H0, 6->14 VC 0)
+1026    NoC.Tile[02][02]_(#10).Router::txProcess() -->  reserving direction 2 for flit (H0, 6->14 VC 0)
+1026    NoC.Tile[02][02]_(#10).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (H0, 6->14 VC 0)
+1027    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (T7, 3->9 VC 0) collected from Input[1][0]
+1027    NoC.Tile[00][01]_(#4).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (T2, 4->13 VC 0)
+1027    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[2] for Input[3][0] flit (H0, 4->13 VC 0)
+1027    NoC.Tile[01][01]_(#5).Router::txProcess() -->  RT_OUTVC_BUSY reservation direction 2 for flit (H0, 4->13 VC 0)
+1027    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (B6, 3->9 VC 0) collected from Input[0][0]
+1027    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (B2, 6->14 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1027    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (B5, 3->9 VC 0) collected from Input[0][0]
+1027    NoC.Tile[02][02]_(#10).Router::rxProcess() -->  Flit (B1, 6->14 VC 0) collected from Input[0][0]
+1027    NoC.Tile[02][03]_(#14).Router::rxProcess() -->  Flit (H0, 6->14 VC 0) collected from Input[0][0]
+1028    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (T7, 3->9 VC 0)
+1028    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[2] for Input[3][0] flit (H0, 4->13 VC 0)
+1028    NoC.Tile[01][01]_(#5).Router::txProcess() -->  RT_OUTVC_BUSY reservation direction 2 for flit (H0, 4->13 VC 0)
+1028    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B6, 3->9 VC 0)
+1028    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (T2, 4->13 VC 0) collected from Input[3][0]
+1028    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (B2, 6->14 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1028    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B5, 3->9 VC 0)
+1028    NoC.Tile[01][02]_(#9).Router::txProcess() --> Consumed flit (B5, 3->9 VC 0)
+1028    NoC.Tile[02][02]_(#10).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B1, 6->14 VC 0)
+1028    NoC.Tile[02][03]_(#14).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 6->14 VC 0)
+1028    NoC.Tile[02][03]_(#14).Router::txProcess() -->  reserving direction 4 for flit (H0, 6->14 VC 0)
+1028    NoC.Tile[02][03]_(#14).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 6->14 VC 0)
+1028    NoC.Tile[02][03]_(#14).Router::txProcess() --> Consumed flit (H0, 6->14 VC 0)
+1029    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[2] for Input[3][0] flit (H0, 4->13 VC 0)
+1029    NoC.Tile[01][01]_(#5).Router::txProcess() -->  RT_OUTVC_BUSY reservation direction 2 for flit (H0, 4->13 VC 0)
+1029    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (T7, 3->9 VC 0) collected from Input[0][0]
+1029    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (B3, 6->14 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1029    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (B6, 3->9 VC 0) collected from Input[0][0]
+1029    NoC.Tile[02][02]_(#10).Router::rxProcess() -->  Flit (B2, 6->14 VC 0) collected from Input[0][0]
+1029    NoC.Tile[02][03]_(#14).Router::rxProcess() -->  Flit (B1, 6->14 VC 0) collected from Input[0][0]
+1030    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[2] for Input[3][0] flit (H0, 4->13 VC 0)
+1030    NoC.Tile[01][01]_(#5).Router::txProcess() -->  RT_OUTVC_BUSY reservation direction 2 for flit (H0, 4->13 VC 0)
+1030    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (T7, 3->9 VC 0)
+1030    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (B3, 6->14 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1030    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B6, 3->9 VC 0)
+1030    NoC.Tile[01][02]_(#9).Router::txProcess() --> Consumed flit (B6, 3->9 VC 0)
+1030    NoC.Tile[02][02]_(#10).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B2, 6->14 VC 0)
+1030    NoC.Tile[02][03]_(#14).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B1, 6->14 VC 0)
+1030    NoC.Tile[02][03]_(#14).Router::txProcess() --> Consumed flit (B1, 6->14 VC 0)
+1031    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[2] for Input[3][0] flit (H0, 4->13 VC 0)
+1031    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 2 for flit (H0, 4->13 VC 0)
+1031    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Cannot forward Input[3][0] to Output[2], flit: (H0, 4->13 VC 0)
+1031    NoC.Tile[01][01]_(#5).Router::txProcess() -->  **DEBUG buffer_full_status_tx 0
+1031    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (B4, 6->14 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1031    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (T7, 3->9 VC 0) collected from Input[0][0]
+1031    NoC.Tile[02][02]_(#10).Router::rxProcess() -->  Flit (B3, 6->14 VC 0) collected from Input[0][0]
+1031    NoC.Tile[02][03]_(#14).Router::rxProcess() -->  Flit (B2, 6->14 VC 0) collected from Input[0][0]
+1032    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[2] for Input[3][0] flit (H0, 4->13 VC 0)
+1032    NoC.Tile[01][01]_(#5).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 2 for flit (H0, 4->13 VC 0)
+1032    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[3][0] forwarded to Output[2], flit: (H0, 4->13 VC 0)
+1032    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (B4, 6->14 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1032    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (T7, 3->9 VC 0)
+1032    NoC.Tile[01][02]_(#9).Router::txProcess() --> Consumed flit (T7, 3->9 VC 0)
+1032    NoC.Tile[02][02]_(#10).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B3, 6->14 VC 0)
+1032    NoC.Tile[02][03]_(#14).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B2, 6->14 VC 0)
+1032    NoC.Tile[02][03]_(#14).Router::txProcess() --> Consumed flit (B2, 6->14 VC 0)
+1033    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Cannot forward Input[3][0] to Output[2], flit: (B1, 4->13 VC 0)
+1033    NoC.Tile[01][01]_(#5).Router::txProcess() -->  **DEBUG buffer_full_status_tx 0
+1033    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (T5, 6->14 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1033    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (H0, 4->13 VC 0) collected from Input[0][0]
+PE 9 received a TAIL flit. Begin COMPUTE!!
+1033    NoC.Tile[02][02]_(#10).Router::rxProcess() -->  Flit (B4, 6->14 VC 0) collected from Input[0][0]
+1033    NoC.Tile[02][03]_(#14).Router::rxProcess() -->  Flit (B3, 6->14 VC 0) collected from Input[0][0]
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[3][0] forwarded to Output[2], flit: (B1, 4->13 VC 0)
+1034    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (T5, 6->14 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1034    NoC.Tile[01][02]_(#9).Router::txProcess() -->  checking availability of Output[2] for Input[0][0] flit (H0, 4->13 VC 0)
+1034    NoC.Tile[01][02]_(#9).Router::txProcess() -->  reserving direction 2 for flit (H0, 4->13 VC 0)
+1034    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (H0, 4->13 VC 0)
+PE 9 is in PE_BUSY state. PE Stalled. Compute cycle: 3
+1034    NoC.Tile[02][02]_(#10).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B4, 6->14 VC 0)
+1034    NoC.Tile[02][03]_(#14).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B3, 6->14 VC 0)
+1034    NoC.Tile[02][03]_(#14).Router::txProcess() --> Consumed flit (B3, 6->14 VC 0)
+1035    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Cannot forward Input[3][0] to Output[2], flit: (T2, 4->13 VC 0)
+1035    NoC.Tile[01][01]_(#5).Router::txProcess() -->  **DEBUG buffer_full_status_tx 0
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1035    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (B1, 4->13 VC 0) collected from Input[0][0]
+PE 9 is in PE_BUSY state. PE Stalled. Compute cycle: 2
+1035    NoC.Tile[02][02]_(#10).Router::rxProcess() -->  Flit (T5, 6->14 VC 0) collected from Input[0][0]
+1035    NoC.Tile[01][03]_(#13).Router::rxProcess() -->  Flit (H0, 4->13 VC 0) collected from Input[0][0]
+1035    NoC.Tile[02][03]_(#14).Router::rxProcess() -->  Flit (B4, 6->14 VC 0) collected from Input[0][0]
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[3][0] forwarded to Output[2], flit: (T2, 4->13 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1036    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (B1, 4->13 VC 0)
+PE 9 is in PE_BUSY state. PE Stalled. Compute cycle: 1
+PE 9 Compute Done!
+PE 9 is in PE_READY state. PE is ready to receive new packets.
+1036    NoC.Tile[02][02]_(#10).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (T5, 6->14 VC 0)
+1036    NoC.Tile[01][03]_(#13).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 4->13 VC 0)
+1036    NoC.Tile[01][03]_(#13).Router::txProcess() -->  reserving direction 4 for flit (H0, 4->13 VC 0)
+1036    NoC.Tile[01][03]_(#13).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 4->13 VC 0)
+1036    NoC.Tile[01][03]_(#13).Router::txProcess() --> Consumed flit (H0, 4->13 VC 0)
+1036    NoC.Tile[02][03]_(#14).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B4, 6->14 VC 0)
+1036    NoC.Tile[02][03]_(#14).Router::txProcess() --> Consumed flit (B4, 6->14 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 7
+DEBUG: Found Reserved Traffic for src_id = 8
+1037    NoC.Tile[01][02]_(#9).Router::rxProcess() -->  Flit (T2, 4->13 VC 0) collected from Input[0][0]
+1037    NoC.Tile[01][03]_(#13).Router::rxProcess() -->  Flit (B1, 4->13 VC 0) collected from Input[0][0]
+1037    NoC.Tile[02][03]_(#14).Router::rxProcess() -->  Flit (T5, 6->14 VC 0) collected from Input[0][0]
+1038    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (H0, 7->3 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 8
+1038    NoC.Tile[01][02]_(#9).Router::txProcess() --> Input[0][0] forwarded to Output[2], flit: (T2, 4->13 VC 0)
+1038    NoC.Tile[01][03]_(#13).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B1, 4->13 VC 0)
+1038    NoC.Tile[01][03]_(#13).Router::txProcess() --> Consumed flit (B1, 4->13 VC 0)
+1038    NoC.Tile[02][03]_(#14).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (T5, 6->14 VC 0)
+1038    NoC.Tile[02][03]_(#14).Router::txProcess() --> Consumed flit (T5, 6->14 VC 0)
+1039    NoC.Tile[03][01]_(#7).Router::txProcess() -->  checking availability of Output[0] for Input[4][0] flit (H0, 7->3 VC 0)
+1039    NoC.Tile[03][01]_(#7).Router::txProcess() -->  reserving direction 0 for flit (H0, 7->3 VC 0)
+1039    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[4][0] forwarded to Output[0], flit: (H0, 7->3 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 8
+1039    NoC.Tile[01][03]_(#13).Router::rxProcess() -->  Flit (T2, 4->13 VC 0) collected from Input[0][0]
+PE 14 received a TAIL flit. Begin COMPUTE!!
+1040    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (H0, 7->3 VC 0) collected from Input[2][0]
+1040    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (B1, 7->3 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 8
+1040    NoC.Tile[01][03]_(#13).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (T2, 4->13 VC 0)
+1040    NoC.Tile[01][03]_(#13).Router::txProcess() --> Consumed flit (T2, 4->13 VC 0)
+PE 14 is in PE_BUSY state. PE Stalled. Compute cycle: 3
+1041    NoC.Tile[03][00]_(#3).Router::txProcess() -->  checking availability of Output[4] for Input[2][0] flit (H0, 7->3 VC 0)
+1041    NoC.Tile[03][00]_(#3).Router::txProcess() -->  reserving direction 4 for flit (H0, 7->3 VC 0)
+1041    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[2][0] forwarded to Output[4], flit: (H0, 7->3 VC 0)
+1041    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (H0, 7->3 VC 0)
+1041    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[4][0] forwarded to Output[0], flit: (B1, 7->3 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 8
+PE 13 received a TAIL flit. Begin COMPUTE!!
+PE 14 is in PE_BUSY state. PE Stalled. Compute cycle: 2
+1042    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B1, 7->3 VC 0) collected from Input[2][0]
+1042    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (B2, 7->3 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 8
+PE 13 is in PE_BUSY state. PE Stalled. Compute cycle: 3
+PE 14 is in PE_BUSY state. PE Stalled. Compute cycle: 1
+PE 14 Compute Done!
+PE 14 is in PE_READY state. PE is ready to receive new packets.
+1043    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[2][0] forwarded to Output[4], flit: (B1, 7->3 VC 0)
+1043    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (B1, 7->3 VC 0)
+1043    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[4][0] forwarded to Output[0], flit: (B2, 7->3 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 8
+PE 13 is in PE_BUSY state. PE Stalled. Compute cycle: 2
+1044    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B2, 7->3 VC 0) collected from Input[2][0]
+1044    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (B3, 7->3 VC 0) collected from Input[4][0]
+DEBUG: Found Reserved Traffic for src_id = 8
+PE 13 is in PE_BUSY state. PE Stalled. Compute cycle: 1
+PE 13 Compute Done!
+PE 13 is in PE_READY state. PE is ready to receive new packets.
+1045    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[2][0] forwarded to Output[4], flit: (B2, 7->3 VC 0)
+1045    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (B2, 7->3 VC 0)
+1045    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[4][0] forwarded to Output[0], flit: (B3, 7->3 VC 0)
+DEBUG: Found Reserved Traffic for src_id = 8
+1046    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B3, 7->3 VC 0) collected from Input[2][0]
+1046    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (B4, 7->3 VC 0) collected from Input[4][0]
+1046    NoC.Tile[00][02]_(#8).Router::rxProcess() -->  Flit (H0, 8->12 VC 0) collected from Input[4][0]
+1047    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[2][0] forwarded to Output[4], flit: (B3, 7->3 VC 0)
+1047    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (B3, 7->3 VC 0)
+1047    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[4][0] forwarded to Output[0], flit: (B4, 7->3 VC 0)
+1047    NoC.Tile[00][02]_(#8).Router::txProcess() -->  checking availability of Output[2] for Input[4][0] flit (H0, 8->12 VC 0)
+1047    NoC.Tile[00][02]_(#8).Router::txProcess() -->  reserving direction 2 for flit (H0, 8->12 VC 0)
+1047    NoC.Tile[00][02]_(#8).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (H0, 8->12 VC 0)
+1048    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B4, 7->3 VC 0) collected from Input[2][0]
+1048    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (B5, 7->3 VC 0) collected from Input[4][0]
+1048    NoC.Tile[00][02]_(#8).Router::rxProcess() -->  Flit (B1, 8->12 VC 0) collected from Input[4][0]
+1048    NoC.Tile[00][03]_(#12).Router::rxProcess() -->  Flit (H0, 8->12 VC 0) collected from Input[0][0]
+1049    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[2][0] forwarded to Output[4], flit: (B4, 7->3 VC 0)
+1049    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (B4, 7->3 VC 0)
+1049    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[4][0] forwarded to Output[0], flit: (B5, 7->3 VC 0)
+1049    NoC.Tile[00][02]_(#8).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (B1, 8->12 VC 0)
+1049    NoC.Tile[00][03]_(#12).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 8->12 VC 0)
+1049    NoC.Tile[00][03]_(#12).Router::txProcess() -->  reserving direction 4 for flit (H0, 8->12 VC 0)
+1049    NoC.Tile[00][03]_(#12).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 8->12 VC 0)
+1049    NoC.Tile[00][03]_(#12).Router::txProcess() --> Consumed flit (H0, 8->12 VC 0)
+1050    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B5, 7->3 VC 0) collected from Input[2][0]
+1050    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (B6, 7->3 VC 0) collected from Input[4][0]
+1050    NoC.Tile[00][02]_(#8).Router::rxProcess() -->  Flit (B2, 8->12 VC 0) collected from Input[4][0]
+1050    NoC.Tile[00][03]_(#12).Router::rxProcess() -->  Flit (B1, 8->12 VC 0) collected from Input[0][0]
+1051    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[2][0] forwarded to Output[4], flit: (B5, 7->3 VC 0)
+1051    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (B5, 7->3 VC 0)
+1051    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[4][0] forwarded to Output[0], flit: (B6, 7->3 VC 0)
+1051    NoC.Tile[00][02]_(#8).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (B2, 8->12 VC 0)
+1051    NoC.Tile[00][03]_(#12).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B1, 8->12 VC 0)
+1051    NoC.Tile[00][03]_(#12).Router::txProcess() --> Consumed flit (B1, 8->12 VC 0)
+1052    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B6, 7->3 VC 0) collected from Input[2][0]
+1052    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (B7, 7->3 VC 0) collected from Input[4][0]
+1052    NoC.Tile[00][02]_(#8).Router::rxProcess() -->  Flit (B3, 8->12 VC 0) collected from Input[4][0]
+1052    NoC.Tile[00][03]_(#12).Router::rxProcess() -->  Flit (B2, 8->12 VC 0) collected from Input[0][0]
+1053    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[2][0] forwarded to Output[4], flit: (B6, 7->3 VC 0)
+1053    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (B6, 7->3 VC 0)
+1053    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[4][0] forwarded to Output[0], flit: (B7, 7->3 VC 0)
+1053    NoC.Tile[00][02]_(#8).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (B3, 8->12 VC 0)
+1053    NoC.Tile[00][03]_(#12).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B2, 8->12 VC 0)
+1053    NoC.Tile[00][03]_(#12).Router::txProcess() --> Consumed flit (B2, 8->12 VC 0)
+1054    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (B7, 7->3 VC 0) collected from Input[2][0]
+1054    NoC.Tile[03][01]_(#7).Router::rxProcess() -->  Flit (T8, 7->3 VC 0) collected from Input[4][0]
+1054    NoC.Tile[00][02]_(#8).Router::rxProcess() -->  Flit (T4, 8->12 VC 0) collected from Input[4][0]
+1054    NoC.Tile[00][03]_(#12).Router::rxProcess() -->  Flit (B3, 8->12 VC 0) collected from Input[0][0]
+1055    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[2][0] forwarded to Output[4], flit: (B7, 7->3 VC 0)
+1055    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (B7, 7->3 VC 0)
+1055    NoC.Tile[03][01]_(#7).Router::txProcess() --> Input[4][0] forwarded to Output[0], flit: (T8, 7->3 VC 0)
+1055    NoC.Tile[00][02]_(#8).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (T4, 8->12 VC 0)
+1055    NoC.Tile[00][03]_(#12).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (B3, 8->12 VC 0)
+1055    NoC.Tile[00][03]_(#12).Router::txProcess() --> Consumed flit (B3, 8->12 VC 0)
+1056    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (T8, 7->3 VC 0) collected from Input[2][0]
+1056    NoC.Tile[00][03]_(#12).Router::rxProcess() -->  Flit (T4, 8->12 VC 0) collected from Input[0][0]
+1057    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[2][0] forwarded to Output[4], flit: (T8, 7->3 VC 0)
+1057    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (T8, 7->3 VC 0)
+1057    NoC.Tile[00][03]_(#12).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (T4, 8->12 VC 0)
+1057    NoC.Tile[00][03]_(#12).Router::txProcess() --> Consumed flit (T4, 8->12 VC 0)
+PE 3 received a TAIL flit. Begin COMPUTE!!
+PE 12 received a TAIL flit. Begin COMPUTE!!
+PE 3 is in PE_BUSY state. PE Stalled. Compute cycle: 3
+PE 12 is in PE_BUSY state. PE Stalled. Compute cycle: 3
+PE 3 is in PE_BUSY state. PE Stalled. Compute cycle: 2
+PE 12 is in PE_BUSY state. PE Stalled. Compute cycle: 2
+PE 3 is in PE_BUSY state. PE Stalled. Compute cycle: 1
+PE 3 Compute Done!
+PE 3 is in PE_READY state. PE is ready to receive new packets.
+PE 12 is in PE_BUSY state. PE Stalled. Compute cycle: 1
+PE 12 Compute Done!
+PE 12 is in PE_READY state. PE is ready to receive new packets.
 Noxim simulation completed. (11000 cycles executed)
 
 PE[0,0]0,PE[1,0]0,PE[2,0]0,PE[3,0]0,PE[0,1]0,PE[1,1]0,PE[2,1]0,PE[3,1]0,PE[0,2]0,PE[1,2]0,PE[2,2]0,PE[3,2]0,PE[0,3]0,PE[1,3]0,PE[2,3]0,PE[3,3]0,
-% Total received packets: 4
-% Total received flits: 21
-% Received/Ideal flits Ratio: 0.00164062
+% Total received packets: 7
+% Total received flits: 40
+% Received/Ideal flits Ratio: 0.003125
 % Average wireless utilization: 0
-% Global average delay (cycles): 5.5
-% Max delay (cycles): 8
-% Network throughput (flits/cycle): 0.0021
-% Average IP throughput (flits/cycle/IP): 0.00013125
-% Total energy (J): 1.97542e-06
-% 	Dynamic energy (J): 1.63936e-10
+% Global average delay (cycles): 7.57143
+% Max delay (cycles): 15
+% Network throughput (flits/cycle): 0.004
+% Average IP throughput (flits/cycle/IP): 0.00025
+% Total energy (J): 1.97565e-06
+% 	Dynamic energy (J): 4.02748e-10
 % 	Static energy (J): 1.97525e-06

@@ -1,0 +1,19 @@
+% Traffic Table for 4x4 Mesh Network
+% 4x4 Mesh Array
+%0   1  2  3
+%4   5  6  7
+%8   9 10 11
+%12 13 14 15
+% 
+% waitOP:
+%       0-NOP: DO NOT Wait for any process and start at time0
+%       1-TRN: Wait for src of waitID to complete sending TAIL flit
+%       2-CMP: Wait for dst of waitID to complete computeProcess()
+% taskID src dst data_vol waitID waitOP
+0 1 7 5 -1 0
+1 2 5 4 -1 0
+2 3 9 8 0 1
+3 4 13 3 0 2
+4 6 14 6 2 1
+5 7 3 9 2 2
+6 8 12 5 3 2

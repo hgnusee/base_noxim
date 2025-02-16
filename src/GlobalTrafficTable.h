@@ -30,13 +30,17 @@ struct Communication {
 };
 
 // HG: Structure to store traffic communication
-// 
+// taskID, src, dst, data_volume, waitID, waitOP, traffic_used, trn_complete, cmp_complete
 struct TrafficCommunication {
+  int taskID;
   int src;
   int dst;
   int data_volume;
-  int waitPE;
-  int nextPE;
+  int waitID;
+  int waitOP;
+  bool traffic_used;
+  bool trn_complete; // flag for transmit by src PE is done
+  bool cmp_complete; // flag for computation complete in dst PE
 };
 
 class GlobalTrafficTable {
@@ -60,14 +64,16 @@ class GlobalTrafficTable {
     // HG: get parsed Traffic Communication Table
     // similar to getCumulativePirPor()
     // uses exact transaction info found in Traffic Communication Table
-    TrafficCommunication getTrafficCommunicationTable(const int src_id);
+    TrafficCommunication& getTrafficCommunicationTable(const int src_id);
 
     // HG: Move reserved transaction from Traffic Communication Table to Traffic Tabl
-    void moveReserveToTrafficCommunicationTable(const int nextPE, const int src_id);
+    void moveReserveToTrafficCommunicationTable(const int src_id);
     
-    // HG: get reserve table traffic that matches nextPE
-    TrafficCommunication getReserveTrafficCommunicationTable(const int nextPE, const int src_id);
-    
+    // HG: set trn_complete flag in Traffic Communication Table
+    void setTransmitComplete(const int task_ID);
+
+    // HG: set cmp_complete flag in Traffic Communication Table
+    void setComputeComplete(const int task_ID);
 
     // Returns the number of occurrences of soruce src_id in the traffic
     // table
@@ -80,6 +86,8 @@ class GlobalTrafficTable {
      vector < TrafficCommunication > traffic_communication_table;
      //  HG: reserved_traffic_communication_table for holding next PE or waiting PE
      vector < TrafficCommunication > reserved_traffic_communication_table;
+     // HG: 'empty' transaction to be returned in no entry found in traffic comm table
+     TrafficCommunication empty_comm = { -1, 0, 0, 0, 0, 0, true, true, true };
 
 };
 
