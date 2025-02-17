@@ -182,8 +182,9 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
 {
   for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
 
-	if (traffic_communication_table[i].src == src_id) {
+	if (traffic_communication_table[i].src == src_id && !traffic_communication_table[i].traffic_used) {
 		// remove transaction from transaction communication table once used
+		// HG: Fix must check if traffic used or not
 		// cout << "DEBUG: Traffic Communication Table found for src_id = " << src_id << endl;
 		// traffic_communication_table[i].traffic_used = true; // this flag is done in PE canShot() function
 		// return transaction to Processing Element to make packet
