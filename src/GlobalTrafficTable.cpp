@@ -150,8 +150,10 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			TrafficCommunication.waitOP = waitOP;
 
 			TrafficCommunication.traffic_used = false; // HG: all new traffic are 'unused'
-			TrafficCommunication.trn_complete = false; // HG: all new traffic transmission are 'incomplete'
-			TrafficCommunication.cmp_complete = false; // HG: all new traffic computation in dst PE are 'incomplete'
+
+			// count of data trn and cmp based on # of src
+			TrafficCommunication.trn_complete = src.size();
+			TrafficCommunication.cmp_complete = src.size();
 
 			// Bucket the Traffic into reserved_traffic_communication_table or not
 			if (waitID == -1) {
@@ -207,7 +209,7 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
 
 	if (found_src == true && !traffic_communication_table[i].traffic_used) {
 		// TODO: Verify this if-statement
-		
+
 		// remove transaction from transaction communication table once used
 		// HG: Fix must check if traffic used or not
 		// cout << "DEBUG: Traffic Communication Table found for src_id = " << src_id << endl;
@@ -251,8 +253,8 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
 				TrafficCommunication tcomm = traffic_communication_table[j];
 
                 if (reserved_comm.waitID == tcomm.taskID) {
-                    if ((reserved_comm.waitOP == CMP && tcomm.cmp_complete) ||
-                        (reserved_comm.waitOP == TRN && tcomm.trn_complete)) {
+                    if ((reserved_comm.waitOP == CMP && tcomm.cmp_complete == 0) ||
+                        (reserved_comm.waitOP == TRN && tcomm.trn_complete == 0)) {
                         traffic_communication_table.push_back(reserved_comm);
                         index_to_remove.push_back(i);
                         break;
@@ -274,12 +276,22 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
 void GlobalTrafficTable::setTransmitComplete(const int task_ID) {
 
 	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
-		TrafficCommunication comm = traffic_communication_table[i];
+		TrafficCommunication& comm = traffic_communication_table[i];
+
 		if (comm.taskID == task_ID) {
-			traffic_communication_table[i].trn_complete = true;
-			// logic to check that cmp_complete should be false, since transmission is done first before compute can be done
-			assert(traffic_communication_table[i].cmp_complete == false);
-			break;
+			if (comm.trn_complete == 0 && comm.traffic_used != true) {
+				cout << "DEBUG: Set Transmit Complete for taskID = " << task_ID << endl;
+				// HG: we don't flag trn_complete, since it is a counter for multiple src
+				// traffic_communication_table[i].trn_complete = true;
+
+				// HG: flag traffic_used here instead of at PE canShot() function
+				comm.traffic_used = true;
+				assert(comm.cmp_complete >= 0); // TODO: Check logic of this assertion correct?
+				break;
+			} else if (comm.trn_complete > 0) {
+				cout << "DEBUG: Decrement Transmit Complete for taskID = " << task_ID << endl;
+				comm.trn_complete--; // decrement the counter
+			}
 		}
 	}
 }
@@ -287,12 +299,19 @@ void GlobalTrafficTable::setTransmitComplete(const int task_ID) {
 void GlobalTrafficTable::setComputeComplete(const int task_ID) {
 
 	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
-		// TrafficCommunication comm = traffic_communication_table[i];
-		if (traffic_communication_table[i].taskID == task_ID) {
-			traffic_communication_table[i].cmp_complete = true;
-			// logic to check that trn_complete is also true, since transmission is done first before compute can be done
-			assert(traffic_communication_table[i].trn_complete == true);
-			break;
+		TrafficCommunication& comm = traffic_communication_table[i];
+
+		if (comm.taskID == task_ID) {
+			if (comm.cmp_complete == 0) {
+				cout << "DEBUG: Set Compute Complete for taskID = " << task_ID << endl;
+				// HG: we don't flag cmp_complete, since it is a counter for multiple src
+				// traffic_communication_table[i].cmp_complete = true;
+				assert(comm.trn_complete == 0);
+				break;
+			} else if (comm.cmp_complete > 0) {
+				cout << "DEBUG: Decrement Compute Complete for taskID = " << task_ID << endl;
+				comm.cmp_complete--; // decrement the counter
+			}
 		}
 	}
 }

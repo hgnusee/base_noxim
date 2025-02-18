@@ -41,8 +41,10 @@ struct TrafficCommunication {
   int waitID;
   int waitOP;
   bool traffic_used;
-  bool trn_complete; // flag for transmit by src PE is done
-  bool cmp_complete; // flag for computation complete in dst PE
+  // trn/cmp_complete flag uses int to act as counter, for multiple src to control. 
+  //    the values should not be less than 0
+  int trn_complete; // flag for transmit by src PE is done
+  int cmp_complete; // flag for computation complete in dst PE
 };
 
 class GlobalTrafficTable {

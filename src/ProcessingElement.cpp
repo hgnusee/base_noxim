@@ -159,7 +159,11 @@ bool ProcessingElement::canShot(Packet & packet)
             return false;
         } else if (comm.traffic_used == false) {
             shot = true;
-            comm.traffic_used = true;
+
+            // only set traffic_used flag to true, if trn_complete is 0, meaning all src PE has transmitted
+            if (comm.trn_complete == 0) {
+                comm.traffic_used = true;
+            }
             // HG: make2() to include waitOP information in Packet
             packet.make2(comm.taskID, local_id, comm.dst, 0, now, comm.data_volume, comm.waitOP);
         }
