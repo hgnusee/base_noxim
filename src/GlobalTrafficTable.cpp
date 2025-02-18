@@ -114,19 +114,36 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 
     if (line[0] != '\0') {
       if (line[0] != '%') {
-		int taskID, src, dst;	// Mandatory
+		int taskID, dst;	// Mandatory
 		int data_vol, waitID, waitOP;
 
+		char src_str[512];
+
 		int params =
-		sscanf(line, "%d %d %d %d %d %d", &taskID, &src, &dst, &data_vol,
+		sscanf(line, "%d [%[^]]] %d %d %d %d", &taskID, src_str, &dst, &data_vol,
 			&waitID, &waitOP);
-		if (params >= 2 && params <= 6) {
+		if (params == 6) {
+			// parsing src_str to vector<int> src
+			vector<int> src;
+			char *token = strtok(src_str, " ");
+
+			// HG: additional work to parse src_str to vector<int> src
+			while (token != NULL) {
+				src.push_back(atoi(token));
+				token = strtok(NULL, " ");
+			}
+
+			// Ensure src vector is not empty
+			if (src.empty()) {
+				assert("Wrong src format! Ensure src contains at least one value.");
+			}
+
 			// Create a communication from the parameters read on the line
 			TrafficCommunication TrafficCommunication;
 
 			// Mandatory fields
 			TrafficCommunication.taskID = taskID;
-			TrafficCommunication.src = src;
+			TrafficCommunication.src = src; // HG: src is now a vector
 			TrafficCommunication.dst = dst;
 			TrafficCommunication.data_volume = data_vol;
 			TrafficCommunication.waitID = waitID;
@@ -181,8 +198,16 @@ double GlobalTrafficTable::getCumulativePirPor(const int src_id,const int ccycle
 TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int src_id)
 {
   for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
+	
+	// To accomadate vector of src, use find() function
+	bool found_src = false;
+	found_src = find(traffic_communication_table[i].src.begin(),
+				 traffic_communication_table[i].src.end(), src_id) != traffic_communication_table[i].src.end();
+	// if (traffic_communication_table[i].src == src_id && !traffic_communication_table[i].traffic_used) {
 
-	if (traffic_communication_table[i].src == src_id && !traffic_communication_table[i].traffic_used) {
+	if (found_src == true && !traffic_communication_table[i].traffic_used) {
+		// TODO: Verify this if-statement
+		
 		// remove transaction from transaction communication table once used
 		// HG: Fix must check if traffic used or not
 		// cout << "DEBUG: Traffic Communication Table found for src_id = " << src_id << endl;
@@ -214,7 +239,10 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
 
 	for (unsigned int i = 0; i < reserved_traffic_communication_table.size(); i++) {
 		TrafficCommunication reserved_comm = reserved_traffic_communication_table[i];
-		if (reserved_comm.src == src_id) {
+		// if (reserved_comm.src == src_id) {
+		// replace with vector of src find()
+		if (find(reserved_comm.src.begin(), reserved_comm.src.end(), src_id) != reserved_comm.src.end()){
+		// TODO: Verify this if-statement
 			// reserved_comm.push_back(reserved_comm);
 			cout << "DEBUG: Found Reserved Traffic for src_id = " << src_id << endl;
 

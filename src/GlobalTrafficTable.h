@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <algorithm> // HG: to use std::find
 #include "DataStructs.h"
 
 using namespace std;
@@ -33,7 +34,8 @@ struct Communication {
 // taskID, src, dst, data_volume, waitID, waitOP, traffic_used, trn_complete, cmp_complete
 struct TrafficCommunication {
   int taskID;
-  int src;
+  // int src;
+  vector < int > src; // replace src with vector of src
   int dst;
   int data_volume;
   int waitID;
@@ -87,7 +89,7 @@ class GlobalTrafficTable {
      //  HG: reserved_traffic_communication_table for holding next PE or waiting PE
      vector < TrafficCommunication > reserved_traffic_communication_table;
      // HG: 'empty' transaction to be returned in no entry found in traffic comm table
-     TrafficCommunication empty_comm = { -1, 0, 0, 0, 0, 0, true, true, true };
+     TrafficCommunication empty_comm = { -1, {0}, 0, 0, 0, 0, true, true, true };
 
 };
 

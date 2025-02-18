@@ -149,7 +149,11 @@ bool ProcessingElement::canShot(Packet & packet)
         // get transaction for this PE from Traffic Communication Table
         TrafficCommunication& comm = traffic_communication_table->getTrafficCommunicationTable(local_id);
 
-        if (comm.taskID == -1 && comm.src == 0 && comm.dst == 0 && comm.data_volume == 0 
+        vector<int> src_tmp = {0};
+
+        // src_tmp to compare with {0} of returned empty_comm
+
+        if (comm.taskID == -1 && comm.src == src_tmp && comm.dst == 0 && comm.data_volume == 0 
             && comm.waitID == 0 && comm.waitOP == 0 && comm.traffic_used == true) {
                 // cout << "No Traffic Communication Table found for src_id = " << local_id << endl;
             return false;
