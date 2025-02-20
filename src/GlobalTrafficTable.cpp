@@ -150,10 +150,9 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			TrafficCommunication.waitOP = waitOP;
 
 			TrafficCommunication.traffic_used = false; // HG: all new traffic are 'unused'
-
-			// count of data trn and cmp based on # of src
-			TrafficCommunication.trn_complete = src.size();
-			TrafficCommunication.cmp_complete = src.size();
+			// Initialize vectors of trn_complete and cmp_complete with 0, matching src size
+			TrafficCommunication.trn_complete.resize(src.size(), TRN_WAIT);
+			TrafficCommunication.cmp_complete.resize(src.size(), CMP_WAIT);
 
 			// Bucket the Traffic into reserved_traffic_communication_table or not
 			if (waitID == -1) {
@@ -203,19 +202,35 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
 	
 	// To accomadate vector of src, use find() function
 	bool found_src = false;
-	found_src = find(traffic_communication_table[i].src.begin(),
-				 traffic_communication_table[i].src.end(), src_id) != traffic_communication_table[i].src.end();
+	size_t src_pos = 0;
+	int check_trn_state = TRN_WAIT;  // default state
+
+	auto it = find(traffic_communication_table[i].src.begin(),
+				 traffic_communication_table[i].src.end(), src_id);
+
+	found_src = (it != traffic_communication_table[i].src.end());
+	if (found_src) {
+		src_pos = distance(traffic_communication_table[i].src.begin(), it);
+		check_trn_state = traffic_communication_table[i].trn_complete[src_pos];
+	}
 	// if (traffic_communication_table[i].src == src_id && !traffic_communication_table[i].traffic_used) {
 
-	if (found_src == true && !traffic_communication_table[i].traffic_used) {
+	if (found_src == true && check_trn_state == TRN_WAIT) {
 		// TODO: Verify this if-statement
 
 		// remove transaction from transaction communication table once used
 		// HG: Fix must check if traffic used or not
-		// cout << "DEBUG: Traffic Communication Table found for src_id = " << src_id << endl;
+		cout << "DEBUG: Traffic Comm Table found for src_id = " << src_id << endl;
 		// traffic_communication_table[i].traffic_used = true; // this flag is done in PE canShot() function
 		// return transaction to Processing Element to make packet
+		
+		traffic_communication_table[i].trn_complete[src_pos] = TRN_BUSY; // set trn_complete to BUSY
+
 	  return traffic_communication_table[i];
+
+	} else if (found_src == true && check_trn_state != TRN_WAIT) {
+		cout << "DEBUG: Traffic Comm Table found for src_id = " << src_id << " but trn_complete is not WAIT" << endl;
+	
 	}
   }
 
@@ -252,9 +267,19 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
 			for (unsigned int j = 0; j < traffic_communication_table.size(); j++) {
 				TrafficCommunication tcomm = traffic_communication_table[j];
 
+				// Check if all elements in trn_complete and cmp_complete vectors match their respective completion states
+				bool all_trn_done = true;
+				bool all_cmp_done = true;
+
+				for (size_t k = 0; k < tcomm.trn_complete.size(); k++) {
+					if (tcomm.trn_complete[k] != TRN_DONE) all_trn_done = false;
+					if (tcomm.cmp_complete[k] != CMP_DONE) all_cmp_done = false;
+				}
+
+				// If both vectors have all elements in completed state
                 if (reserved_comm.waitID == tcomm.taskID) {
-                    if ((reserved_comm.waitOP == CMP && tcomm.cmp_complete == 0) ||
-                        (reserved_comm.waitOP == TRN && tcomm.trn_complete == 0)) {
+                    if ((reserved_comm.waitOP == CMP && all_cmp_done) ||
+                        (reserved_comm.waitOP == TRN && all_trn_done)) {
                         traffic_communication_table.push_back(reserved_comm);
                         index_to_remove.push_back(i);
                         break;
@@ -273,45 +298,66 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
 
 }
 
-void GlobalTrafficTable::setTransmitComplete(const int task_ID) {
+void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID) {
 
 	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
 		TrafficCommunication& comm = traffic_communication_table[i];
 
 		if (comm.taskID == task_ID) {
-			if (comm.trn_complete == 0 && comm.traffic_used != true) {
-				cout << "DEBUG: Set Transmit Complete for taskID = " << task_ID << endl;
-				// HG: we don't flag trn_complete, since it is a counter for multiple src
-				// traffic_communication_table[i].trn_complete = true;
-
-				// HG: flag traffic_used here instead of at PE canShot() function
-				comm.traffic_used = true;
-				assert(comm.cmp_complete >= 0); // TODO: Check logic of this assertion correct?
-				break;
-			} else if (comm.trn_complete > 0) {
-				cout << "DEBUG: Decrement Transmit Complete for taskID = " << task_ID << endl;
-				comm.trn_complete--; // decrement the counter
+			// Find position of src_ID in the src vector
+			auto it = find(comm.src.begin(), comm.src.end(), src_ID);
+			if (it != comm.src.end()) {
+				// Calculate position
+				size_t pos = distance(comm.src.begin(), it);
+				// Set trn_complete at found position to TRN_DONE
+				comm.trn_complete[pos] = TRN_DONE;
 			}
+
+			// Check if all trn_complete values are TRN_DONE
+			bool all_done = true;
+			for (const auto& trn_status : comm.trn_complete) {
+				if (trn_status != TRN_DONE) {
+					all_done = false;
+					break;
+				}
+			}
+			if (all_done) {
+				cout << "DEBUG: All traffic complete for taskID = " << task_ID << endl;
+				comm.traffic_used = true;
+			}
+			break;
 		}
 	}
 }
 
-void GlobalTrafficTable::setComputeComplete(const int task_ID) {
+void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID) {
 
 	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
 		TrafficCommunication& comm = traffic_communication_table[i];
 
 		if (comm.taskID == task_ID) {
-			if (comm.cmp_complete == 0) {
-				cout << "DEBUG: Set Compute Complete for taskID = " << task_ID << endl;
-				// HG: we don't flag cmp_complete, since it is a counter for multiple src
-				// traffic_communication_table[i].cmp_complete = true;
-				assert(comm.trn_complete == 0);
-				break;
-			} else if (comm.cmp_complete > 0) {
-				cout << "DEBUG: Decrement Compute Complete for taskID = " << task_ID << endl;
-				comm.cmp_complete--; // decrement the counter
+			// Find position of src_ID in the src vector
+			auto it = find(comm.src.begin(), comm.src.end(), src_ID);
+			if (it != comm.src.end()) {
+				// Calculate position
+				size_t pos = distance(comm.src.begin(), it);
+				// Set trn_complete at found position to CMP_DONE
+				comm.cmp_complete[pos] = CMP_DONE;
 			}
+			
+			// Check if all trn_complete values are TRN_DONE
+			bool all_done = true;
+			for (const auto& cmp_status : comm.cmp_complete) {
+				if (cmp_status != CMP_DONE) {
+					all_done = false;
+					break;
+				}
+			}
+			if (all_done) {
+				cout << "DEBUG: All ComputeProcess() complete for taskID = " << task_ID << endl;
+				// comm.traffic_used = true;
+			}
+			break;
 		}
 	}
 }

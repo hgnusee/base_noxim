@@ -44,6 +44,20 @@ enum waitOP {
     CMP
 };
 
+// HG: transaction traffic state -- define stage of operation
+enum trnState {
+    TRN_WAIT,
+    TRN_BUSY,
+    TRN_DONE
+};
+
+// HG: compute state for transactions -- define stage of operation
+enum cmpState {
+    CMP_WAIT,
+    CMP_BUSY,
+    CMP_DONE
+};
+
 // Packet -- Packet definition
 struct Packet {
     int src_id;

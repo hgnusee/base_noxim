@@ -49,6 +49,8 @@ SC_MODULE(ProcessingElement)
     peState state;        // HG: State of the PE
     int compute_cycle;    // HG: Number of cycles to compute, aka how many cycles to stall PE
     int currentTaskID;    // HG: Current Task ID for the PE
+    // collect the last received srcID for use in computeProcess()
+    int last_recv_srcID;
 
     // Functions
     void rxProcess();		// The receiving process

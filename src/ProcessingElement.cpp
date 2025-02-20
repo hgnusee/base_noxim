@@ -18,12 +18,15 @@ int ProcessingElement::randInt(int min, int max)
 
 void ProcessingElement::rxProcess()
 {
+
+    
     if (reset.read()) {
 	ack_rx.write(0);
 	current_level_rx = 0;
     // HG: reset ProcessingElement state flag to PE_WAIT
     state = PE_READY;
     currentTaskID = -1; // HG: initialize to -1 to indicate no taskID
+    last_recv_srcID = -1; // HG: initialize -1 to indicate no srcID yet
     } else {
 
         switch (state) {
@@ -38,6 +41,7 @@ void ProcessingElement::rxProcess()
                         state = PE_BUSY; // Flag state to PE_BUSY to begin computeProcess() on next cycle
                         compute_cycle = 3; // Hard-code compute_cycle to 3 cycles // TODO: make compute_cycle a dynamic value
                         currentTaskID = flit_tmp.taskID; // set currentTaskID to taskID of received flit
+                        last_recv_srcID = flit_tmp.src_id; // set last_recv_srcID to src_id of received flit
                     }
                 }
                 ack_rx.write(current_level_rx);
@@ -105,7 +109,7 @@ Flit ProcessingElement::nextFlit()
     // HG: flag transaction trasmit is complete from src PE, when a tail flit is being created
     if (flit.flit_type == FLIT_TYPE_TAIL)
         // go to traffic_communication_table and set trn_complete = true
-        traffic_communication_table->setTransmitComplete(packet.taskID);
+        traffic_communication_table->setTransmitComplete(packet.taskID, packet.src_id);
 
     packet_queue.front().flit_left--;
 
@@ -149,25 +153,16 @@ bool ProcessingElement::canShot(Packet & packet)
         // get transaction for this PE from Traffic Communication Table
         TrafficCommunication& comm = traffic_communication_table->getTrafficCommunicationTable(local_id);
 
-        vector<int> src_tmp = {0};
-
-        // src_tmp to compare with {0} of returned empty_comm
-
-        if (comm.taskID == -1 && comm.src == src_tmp && comm.dst == 0 && comm.data_volume == 0 
+        if (comm.taskID == -1 && comm.src.empty() && comm.dst == 0 && comm.data_volume == 0 
             && comm.waitID == 0 && comm.waitOP == 0 && comm.traffic_used == true) {
-                // cout << "No Traffic Communication Table found for src_id = " << local_id << endl;
+                cout << "No Traffic Communication Table found for src_id = " << local_id << endl;
             return false;
-        } else if (comm.traffic_used == false) {
+        } else {
             shot = true;
-
-            // only set traffic_used flag to true, if trn_complete is 0, meaning all src PE has transmitted
-            if (comm.trn_complete == 0) {
-                comm.traffic_used = true;
-            }
             // HG: make2() to include waitOP information in Packet
             packet.make2(comm.taskID, local_id, comm.dst, 0, now, comm.data_volume, comm.waitOP);
         }
-        
+
     } else if (GlobalParams::traffic_distribution != TRAFFIC_TABLE_BASED) {
 	if (!transmittedAtPreviousCycle)
 	    threshold = GlobalParams::packet_injection_rate;
@@ -235,9 +230,9 @@ void ProcessingElement::computeProcess()
         cout << "PE " << local_id << " Compute Done!" << endl;
         state = PE_READY;
         cout << "PE " << local_id << " is in PE_READY state. PE is ready to receive new packets." << endl;
-
+        
         // set cmp_complete flag in Traffic Communication Table
-        traffic_communication_table->setComputeComplete(currentTaskID);
+        traffic_communication_table->setComputeComplete(currentTaskID, last_recv_srcID);
         // set currentTaskID to -1 to indicate no taskID
         currentTaskID = -1;
     }

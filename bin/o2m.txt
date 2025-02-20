@@ -15,3 +15,5 @@
 % taskID [src] dst data_vol waitID waitOP
 0 [1 2 3] 5 5 -1 0
 1 [1] 2 3 -1 0
+2 [1 4 6] 12 5 0 1
+3 [10] 15 3 0 2

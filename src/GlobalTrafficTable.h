@@ -41,10 +41,11 @@ struct TrafficCommunication {
   int waitID;
   int waitOP;
   bool traffic_used;
-  // trn/cmp_complete flag uses int to act as counter, for multiple src to control. 
+  // trn/cmp_complete flag uses int to act as state for each src id, for multiple src to control. 
   //    the values should not be less than 0
-  int trn_complete; // flag for transmit by src PE is done
-  int cmp_complete; // flag for computation complete in dst PE
+  vector < int > trn_complete; // flag for transmit by src PE is done
+  vector < int > cmp_complete; // flag for computation complete in dst PE
+
 };
 
 class GlobalTrafficTable {
@@ -74,10 +75,10 @@ class GlobalTrafficTable {
     void moveReserveToTrafficCommunicationTable(const int src_id);
     
     // HG: set trn_complete flag in Traffic Communication Table
-    void setTransmitComplete(const int task_ID);
+    void setTransmitComplete(const int task_ID, const int src_ID);
 
     // HG: set cmp_complete flag in Traffic Communication Table
-    void setComputeComplete(const int task_ID);
+    void setComputeComplete(const int task_ID, const int dst_ID);
 
     // Returns the number of occurrences of soruce src_id in the traffic
     // table
@@ -91,7 +92,7 @@ class GlobalTrafficTable {
      //  HG: reserved_traffic_communication_table for holding next PE or waiting PE
      vector < TrafficCommunication > reserved_traffic_communication_table;
      // HG: 'empty' transaction to be returned in no entry found in traffic comm table
-     TrafficCommunication empty_comm = { -1, {0}, 0, 0, 0, 0, true, true, true };
+     TrafficCommunication empty_comm = { -1, {}, 0, 0, 0, 0, true, {}, {} };
 
 };
 
