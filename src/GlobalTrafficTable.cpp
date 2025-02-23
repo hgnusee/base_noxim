@@ -115,13 +115,13 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
     if (line[0] != '\0') {
       if (line[0] != '%') {
 		int taskID;	// Mandatory
-		int data_vol, waitID, waitOP;
+		int data_vol, waitOP;
 
-		char src_str[512], dst_str[512];
+		char src_str[512], dst_str[512], waitID_str[512];
 
 		int params =
-		sscanf(line, "%d [%[^]]] [%[^]]] %d %d %d", &taskID, src_str, dst_str, &data_vol,
-			&waitID, &waitOP);
+		sscanf(line, "%d [%[^]]] [%[^]]] %d [%[^]]] %d", &taskID, src_str, dst_str, &data_vol,
+			waitID_str, &waitOP);
 		if (params == 6) {
 			// parsing src_str to vector<int> src
 			vector<int> src;
@@ -147,6 +147,21 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 				assert(false);
 			}
 
+			// Parse waitID vector
+			vector<int> waitID;
+			token = strtok(waitID_str, " ");
+			while (token != NULL) {
+				waitID.push_back(atoi(token));
+				token = strtok(NULL, " ");
+			}
+
+			// Check if waitID contains -1, it must not have more than 1 element
+			if (find(waitID.begin(), waitID.end(), -1) != waitID.end() && waitID.size() > 1) {
+				cerr << "Error: If waitID contains -1, it must not have more than 1 element" << endl;
+				assert(false);
+			}
+			
+
 			// Create a communication from the parameters read on the line
 			TrafficCommunication TrafficCommunication;
 
@@ -165,9 +180,9 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			TrafficCommunication.cmp_complete.resize(size_to_use, CMP_WAIT);
 
 			// Bucket the Traffic into reserved_traffic_communication_table or not
-			if (waitID == -1) {
+			if (waitID[0] == -1) {
 				traffic_communication_table.push_back(TrafficCommunication);
-			} else if (waitID >= 0) {
+			} else if (all_of(waitID.begin(), waitID.end(), [](int id) { return id >= 0; })) {
 				// Add to reserved traffic table
 				reserved_traffic_communication_table.push_back(TrafficCommunication);
 			} else {
@@ -293,27 +308,42 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
 			cout << "DEBUG: Found Reserved Traffic for src_id = " << src_id << endl;
 
 			// loop and compare with traffic_communication_table
+			// based on waitID vector in reserved_comm, find all matching taskID in traffic_communication_table
+			// if waitOP state reserved_comm is satisfied, move to traffic_communication_table
+
+			vector <bool> waitOP_state(reserved_comm.waitID.size(), false);
+
 			for (unsigned int j = 0; j < traffic_communication_table.size(); j++) {
 				TrafficCommunication tcomm = traffic_communication_table[j];
-
+				
 				// Check if all elements in trn_complete & cmp_complete match their respective completion states
 				bool all_trn_done = true;
 				bool all_cmp_done = true;
+				
 
 				for (size_t k = 0; k < tcomm.trn_complete.size(); k++) {
 					if (tcomm.trn_complete[k] != TRN_DONE) all_trn_done = false;
 					if (tcomm.cmp_complete[k] != CMP_DONE) all_cmp_done = false;
 				}
 
-				// If both vectors have all elements in completed state
-                if (reserved_comm.waitID == tcomm.taskID) {
-                    if ((reserved_comm.waitOP == CMP && all_cmp_done) ||
-                        (reserved_comm.waitOP == TRN && all_trn_done)) {
-                        traffic_communication_table.push_back(reserved_comm);
-                        index_to_remove.push_back(i);
-                        break;
-                    }
-                }
+
+
+				for (int l = 0; l < reserved_comm.waitID.size(); l++) {
+					if (reserved_comm.waitID[l] == tcomm.taskID){
+						if ((reserved_comm.waitOP == CMP && all_cmp_done) ||
+                        (reserved_comm.waitOP == TRN && all_trn_done)){
+							waitOP_state[l] = true;
+						}
+					}
+				}
+
+				// If all waitOP_state is true, meaining all taskID in waitID vector is satisfied
+				// 	then move reserved_comm to traffic_communication_table
+				if (all_of(waitOP_state.begin(), waitOP_state.end(), [](bool v) { return v; })) {
+					traffic_communication_table.push_back(reserved_comm);
+					index_to_remove.push_back(i);
+					break;
+				}
 			}
 		} else {
 			continue;
@@ -365,7 +395,10 @@ void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID
 				}
 			}
 			if (all_done) {
-				cout << "DEBUG: All traffic complete for taskID = " << task_ID << endl;
+				// cout << "All traffic complete for taskID = " << task_ID << endl;
+				cout << sc_time_stamp().to_double() / GlobalParams::clock_period_ps 
+				<< " GlobalTrafficTable" << "::" << __func__<< "() --> " 
+				<< "All traffic complete for taskID: " << task_ID << endl;
 				comm.traffic_used = true;
 			}
 			break;

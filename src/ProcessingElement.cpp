@@ -160,7 +160,7 @@ bool ProcessingElement::canShot(Packet & packet)
         TrafficCommunication& comm = traffic_communication_table->getTrafficCommunicationTable(local_id);
 
         if (comm.taskID == -1 && comm.src.empty() && comm.dst.empty() && comm.data_volume == 0 
-            && comm.waitID == 0 && comm.waitOP == 0 && comm.traffic_used == true) {
+            && comm.waitID.empty() && comm.waitOP == 0 && comm.traffic_used == true) {
                 // cout << "No Traffic Communication Table found for src_id = " << local_id << endl;
             return false;
         } else {
