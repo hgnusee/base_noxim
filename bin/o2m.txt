@@ -10,10 +10,27 @@
 %       1-TRN: Wait for src of waitID to complete sending TAIL flit
 %       2-CMP: Wait for dst of waitID to complete computeProcess()
 % assumptions:
+%   Either one of [src] [dst] can contain more than 1 element in each task
+%       [src]   [dst]
+%       [1 4 5] [3]      --> CORRECT
+%       [3 1 2] [3 9 11] --> WRONG
 %   PE will start computeProcess() and stop receive flits,
-%    when TAIL flit of the taskID arrives at source
-% taskID [src] dst data_vol waitID waitOP
-0 [1 2 3] 5 5 -1 0
-1 [1] 2 3 -1 0
-2 [1 4 6] 12 5 0 1
-3 [10] 15 3 0 2
+%       when TAIL flit of the taskID arrives at source
+% taskID [src] [dst] data_vol waitID waitOP
+0 [1] [5 6 7 12] 5 -1 0
+1 [9 8] [13] 3 -1 0
+2 [3] [4] 5 -1 0
+3 [12] [1 4 6] 5 1 1
+4 [13] [15 12 0] 5 1 2
+5 [4 10] [1] 5 1 1
+6 [5 7] [15] 5 1 2
+7 [12] [1 4 6] 5 0 1
+8 [13] [15 12 0] 5 0 2
+9 [4 10] [1] 5 0 1
+10 [5 7] [15] 5 0 2
+11 [12] [6] 5 1 1
+12 [13] [12] 5 1 2
+13 [4] [1] 5 0 1
+14 [7] [15] 5 0 2
+15 [12] [1 4 6] 5 2 1
+16 [13] [15 12 0] 5 2 2

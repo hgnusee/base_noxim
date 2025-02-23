@@ -4,3 +4,4 @@ bin/noxim
 *.code-workspace
 *.vscode
 bin/sim_routingTABLE.out
+bin/*.vcd

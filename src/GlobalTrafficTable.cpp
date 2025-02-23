@@ -114,28 +114,37 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 
     if (line[0] != '\0') {
       if (line[0] != '%') {
-		int taskID, dst;	// Mandatory
+		int taskID;	// Mandatory
 		int data_vol, waitID, waitOP;
 
-		char src_str[512];
+		char src_str[512], dst_str[512];
 
 		int params =
-		sscanf(line, "%d [%[^]]] %d %d %d %d", &taskID, src_str, &dst, &data_vol,
+		sscanf(line, "%d [%[^]]] [%[^]]] %d %d %d", &taskID, src_str, dst_str, &data_vol,
 			&waitID, &waitOP);
 		if (params == 6) {
 			// parsing src_str to vector<int> src
 			vector<int> src;
 			char *token = strtok(src_str, " ");
-
 			// HG: additional work to parse src_str to vector<int> src
 			while (token != NULL) {
 				src.push_back(atoi(token));
 				token = strtok(NULL, " ");
 			}
 
-			// Ensure src vector is not empty
-			if (src.empty()) {
-				assert("Wrong src format! Ensure src contains at least one value.");
+			// Parse dst vector
+			vector<int> dst;
+			token = strtok(dst_str, " ");
+			while (token != NULL) {
+				dst.push_back(atoi(token));
+				token = strtok(NULL, " ");
+			}
+
+			// Validate src/dst vector rule
+			if (!((src.size() == 1 && dst.size() >= 1) || 
+					(src.size() > 1 && dst.size() == 1))) {
+				cerr << "Error: Either src or dst must be size 1, while the other can be >1" << endl;
+				assert(false);
 			}
 
 			// Create a communication from the parameters read on the line
@@ -150,9 +159,10 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			TrafficCommunication.waitOP = waitOP;
 
 			TrafficCommunication.traffic_used = false; // HG: all new traffic are 'unused'
-			// Initialize vectors of trn_complete and cmp_complete with 0, matching src size
-			TrafficCommunication.trn_complete.resize(src.size(), TRN_WAIT);
-			TrafficCommunication.cmp_complete.resize(src.size(), CMP_WAIT);
+			// Initialize vectors of trn_complete and cmp_complete with 0, matching size of src/dst (whichever larger)
+			size_t size_to_use = max(src.size(), dst.size());
+			TrafficCommunication.trn_complete.resize(size_to_use, TRN_WAIT);
+			TrafficCommunication.cmp_complete.resize(size_to_use, CMP_WAIT);
 
 			// Bucket the Traffic into reserved_traffic_communication_table or not
 			if (waitID == -1) {
@@ -161,7 +171,7 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 				// Add to reserved traffic table
 				reserved_traffic_communication_table.push_back(TrafficCommunication);
 			} else {
-				assert("Wrong Traffic! Ensure waitID >= -1 !");
+				assert(false && "Wrong Traffic! Ensure waitID >= -1 !");
 			}
 
 		} else {
@@ -202,72 +212,91 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
 	
 	// To accomadate vector of src, use find() function
 	bool found_src = false;
+	bool found_dst = false;
 	size_t src_pos = 0;
+	size_t dst_pos = 0;
 	int check_trn_state = TRN_WAIT;  // default state
 
-	auto it = find(traffic_communication_table[i].src.begin(),
-				 traffic_communication_table[i].src.end(), src_id);
+	// store in tcomm variable for readability
+	TrafficCommunication& tcomm = traffic_communication_table[i];
+	auto it = find(tcomm.src.begin(), tcomm.src.end(), src_id);
+	found_src = (it != tcomm.src.end());
 
-	found_src = (it != traffic_communication_table[i].src.end());
-	if (found_src) {
-		src_pos = distance(traffic_communication_table[i].src.begin(), it);
-		check_trn_state = traffic_communication_table[i].trn_complete[src_pos];
-	}
-	// if (traffic_communication_table[i].src == src_id && !traffic_communication_table[i].traffic_used) {
+	if (tcomm.src.size() > 1 && tcomm.dst.size() == 1) {
 
-	if (found_src == true && check_trn_state == TRN_WAIT) {
-		// TODO: Verify this if-statement
+		if (found_src) {
+			src_pos = distance(tcomm.src.begin(), it);
+			check_trn_state = tcomm.trn_complete[src_pos];
 
-		// remove transaction from transaction communication table once used
-		// HG: Fix must check if traffic used or not
-		cout << "DEBUG: Traffic Comm Table found for src_id = " << src_id << endl;
-		// traffic_communication_table[i].traffic_used = true; // this flag is done in PE canShot() function
-		// return transaction to Processing Element to make packet
+			if (check_trn_state == TRN_WAIT) {
+
+				cout << "DEBUG: Traffic Comm Table found for src_id = " << src_id << endl;
+				// return transaction to Processing Element to make packet
+				tcomm.trn_complete[src_pos] = TRN_BUSY;
 		
-		traffic_communication_table[i].trn_complete[src_pos] = TRN_BUSY; // set trn_complete to BUSY
+			  return tcomm;
+		
+			} else if (check_trn_state != TRN_WAIT) {
+		
+				cout << "DEBUG: Traffic Comm Table found for src_id = " << src_id 
+					<< " but trn_complete is not WAIT" << endl;
+			}
+		} else {
+			continue;
+		}
 
-	  return traffic_communication_table[i];
+	} else if ((tcomm.src.size() == 1 && tcomm.dst.size() > 1) || 
+					(tcomm.src.size() == 1 && tcomm.dst.size() == 1)) {
 
-	} else if (found_src == true && check_trn_state != TRN_WAIT) {
-		cout << "DEBUG: Traffic Comm Table found for src_id = " << src_id << " but trn_complete is not WAIT" << endl;
-	
+		// One-to-One OR One-to-Many case: check if dst_id is being tagged or not
+		// 	in the tcomm trn_complete vector
+		// if trn_complete is TRN_WAIT, then tag as TRN_BUSY & return tcomm
+		// 	else, print debugg message and continue with loop
+
+		auto it = find(tcomm.trn_complete.begin(), tcomm.trn_complete.end(), TRN_WAIT);
+		found_dst = (it != tcomm.trn_complete.end());
+		dst_pos = distance(tcomm.trn_complete.begin(), it);
+
+		// return tcomm with dst found with TRN_WAIT
+		// actually dont need to check == TRN_WAIT anymore but for clarity
+		if (found_src == true && found_dst == true && tcomm.trn_complete[dst_pos] == TRN_WAIT) {
+
+			// tcomm.trn_complete[dst_pos] = TRN_BUSY;
+
+			return tcomm;
+		} else {
+			continue;
+		}
+
+	} else {
+		cerr << "Error: Only one of src OR dst can > 1" << endl;
+		assert(false);
 	}
+
   }
 
-  // HG:return empty TrafficCommunication, if not matching src_id found
-//   cout << "DEBUG: No Traffic Communication Table found for src_id = " << src_id << endl;
+  	// HG: return empty TrafficCommunication, if not matching src_id found
+	//   cout << "DEBUG: No Traffic Communication Table found for src_id = " << src_id << endl;
   return empty_comm;
 }
 
 void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id) {
-	/*
-	cout << "DEBUG: Print Reserve Table before MOVING" << endl;
-	// Print reserved_traffic_communication_table
-	for (const auto& comm : reserved_traffic_communication_table) {
-		cout << "src: " << comm.src << ", dst: " << comm.dst << ", data_volume: " << comm.data_volume
-				<< ", waitID: " << comm.waitID << ", waitOP: " << comm.waitOP << endl;
-	}
-	*/
-	// find all reserved transactions for matching src_id
-	//   and move the matching ones to compare with traff comm table
 
-	// vector <TrafficCommunication> reserved_comm = {};
 	vector <unsigned int> index_to_remove;
 
 	for (unsigned int i = 0; i < reserved_traffic_communication_table.size(); i++) {
 		TrafficCommunication reserved_comm = reserved_traffic_communication_table[i];
-		// if (reserved_comm.src == src_id) {
-		// replace with vector of src find()
-		if (find(reserved_comm.src.begin(), reserved_comm.src.end(), src_id) != reserved_comm.src.end()){
-		// TODO: Verify this if-statement
-			// reserved_comm.push_back(reserved_comm);
+		auto src_it = find(reserved_comm.src.begin(), reserved_comm.src.end(), src_id);
+
+		if (src_it != reserved_comm.src.end()){
+
 			cout << "DEBUG: Found Reserved Traffic for src_id = " << src_id << endl;
 
 			// loop and compare with traffic_communication_table
 			for (unsigned int j = 0; j < traffic_communication_table.size(); j++) {
 				TrafficCommunication tcomm = traffic_communication_table[j];
 
-				// Check if all elements in trn_complete and cmp_complete vectors match their respective completion states
+				// Check if all elements in trn_complete & cmp_complete match their respective completion states
 				bool all_trn_done = true;
 				bool all_cmp_done = true;
 
@@ -286,6 +315,8 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
                     }
                 }
 			}
+		} else {
+			continue;
 		}
 	}
 	// Erase elements in reverse order to avoid index shifting issues
@@ -293,24 +324,36 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
         reserved_traffic_communication_table.erase(reserved_traffic_communication_table.begin() + *it);
     }
 
-	// the reserved_comm should compare with traffic_communication_table
-	// 	using condition: reserved_comm.waitID == traffic_communication_table.taskID && reserved_comm.waitOP == TRANS|COMP COMPLETE
-
 }
 
-void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID) {
+void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID, const int dst_ID) {
 
 	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
 		TrafficCommunication& comm = traffic_communication_table[i];
 
 		if (comm.taskID == task_ID) {
-			// Find position of src_ID in the src vector
-			auto it = find(comm.src.begin(), comm.src.end(), src_ID);
-			if (it != comm.src.end()) {
-				// Calculate position
-				size_t pos = distance(comm.src.begin(), it);
-				// Set trn_complete at found position to TRN_DONE
-				comm.trn_complete[pos] = TRN_DONE;
+			
+			// Consider One-to-Many OR Many-to-One OR one-to-one case
+			if (comm.src.size() == 1 && comm.dst.size() >= 1) {
+				// Find position of dst_ID in the src vector
+				auto it = find(comm.dst.begin(), comm.dst.end(), dst_ID);
+				if (it != comm.dst.end()) {
+					// Calculate position
+					size_t pos = distance(comm.dst.begin(), it);
+					// Set trn_complete at found position to TRN_DONE
+					comm.trn_complete[pos] = TRN_DONE;
+				}
+
+			} else if (comm.src.size() >= 1 && comm.dst.size() == 1) {
+				// Find position of src_ID in the src vector
+				auto it = find(comm.src.begin(), comm.src.end(), src_ID);
+				if (it != comm.src.end()) {
+					// Calculate position
+					size_t pos = distance(comm.src.begin(), it);
+					// Set trn_complete at found position to TRN_DONE
+					comm.trn_complete[pos] = TRN_DONE;
+				}
+
 			}
 
 			// Check if all trn_complete values are TRN_DONE
@@ -326,25 +369,41 @@ void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID
 				comm.traffic_used = true;
 			}
 			break;
+
+		} else {
+			continue;
 		}
 	}
 }
 
-void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID) {
+void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID, const int local_ID) {
 
 	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
 		TrafficCommunication& comm = traffic_communication_table[i];
 
 		if (comm.taskID == task_ID) {
-			// Find position of src_ID in the src vector
-			auto it = find(comm.src.begin(), comm.src.end(), src_ID);
-			if (it != comm.src.end()) {
-				// Calculate position
-				size_t pos = distance(comm.src.begin(), it);
-				// Set trn_complete at found position to CMP_DONE
-				comm.cmp_complete[pos] = CMP_DONE;
+
+			// Consider One-to-Many OR Many-to-One OR one-to-one case
+			if (comm.src.size() == 1 && comm.dst.size() > 1) {
+				// Find position based on PE local_ID (aka dst vector)
+				auto it = find(comm.dst.begin(), comm.dst.end(), local_ID);
+				if (it != comm.dst.end()) {
+					// Calculate position
+					size_t pos = distance(comm.dst.begin(), it);
+					// Set trn_complete at found position to CMP_DONE
+					comm.cmp_complete[pos] = CMP_DONE;
+				}
 			}
-			
+			else if (comm.src.size() >= 1 && comm.dst.size() == 1) {
+				// Find position of src_ID in the src vector
+				auto it = find(comm.src.begin(), comm.src.end(), src_ID);
+				if (it != comm.src.end()) {
+					// Calculate position
+					size_t pos = distance(comm.src.begin(), it);
+					// Set trn_complete at found position to CMP_DONE
+					comm.cmp_complete[pos] = CMP_DONE;
+				}
+			}
 			// Check if all trn_complete values are TRN_DONE
 			bool all_done = true;
 			for (const auto& cmp_status : comm.cmp_complete) {

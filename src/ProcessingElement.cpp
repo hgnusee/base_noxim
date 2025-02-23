@@ -74,6 +74,12 @@ void ProcessingElement::txProcess()
         if (ack_tx.read() == current_level_tx) {
             if (!packet_queue.empty()) {
                 Flit flit = nextFlit();	// Generate a new flit
+                LOG << "Flit created for PE" << local_id << " Type: " << 
+                (flit.flit_type == FLIT_TYPE_HEAD ? "HEAD" : 
+                 flit.flit_type == FLIT_TYPE_TAIL ? "TAIL" : 
+                 flit.flit_type == FLIT_TYPE_BODY ? "BODY" : "UNKNOWN") <<
+                " taskID = " << flit.taskID << " " << local_id << "->" << 
+                flit.dst_id << " VC" << flit.vc_id << endl;
                 flit_tx->write(flit);	// Send the generated flit
                 current_level_tx = 1 - current_level_tx;	// Negate the old value for Alternating Bit Protocol (ABP)
                 req_tx.write(current_level_tx);
@@ -109,7 +115,7 @@ Flit ProcessingElement::nextFlit()
     // HG: flag transaction trasmit is complete from src PE, when a tail flit is being created
     if (flit.flit_type == FLIT_TYPE_TAIL)
         // go to traffic_communication_table and set trn_complete = true
-        traffic_communication_table->setTransmitComplete(packet.taskID, packet.src_id);
+        traffic_communication_table->setTransmitComplete(packet.taskID, packet.src_id, packet.dst_id);
 
     packet_queue.front().flit_left--;
 
@@ -153,14 +159,36 @@ bool ProcessingElement::canShot(Packet & packet)
         // get transaction for this PE from Traffic Communication Table
         TrafficCommunication& comm = traffic_communication_table->getTrafficCommunicationTable(local_id);
 
-        if (comm.taskID == -1 && comm.src.empty() && comm.dst == 0 && comm.data_volume == 0 
+        if (comm.taskID == -1 && comm.src.empty() && comm.dst.empty() && comm.data_volume == 0 
             && comm.waitID == 0 && comm.waitOP == 0 && comm.traffic_used == true) {
-                cout << "No Traffic Communication Table found for src_id = " << local_id << endl;
+                // cout << "No Traffic Communication Table found for src_id = " << local_id << endl;
             return false;
         } else {
             shot = true;
-            // HG: make2() to include waitOP information in Packet
-            packet.make2(comm.taskID, local_id, comm.dst, 0, now, comm.data_volume, comm.waitOP);
+            // HG: select virtual channels randomly
+            int vc = randInt(0,GlobalParams::n_virtual_channels-1);
+            
+            if (comm.src.size() == 1 && comm.dst.size() >= 1) {
+                auto it = find(comm.trn_complete.begin(), comm.trn_complete.end(), TRN_WAIT);
+                bool found_dst = (it != comm.trn_complete.end());
+                int dst_pos = distance(comm.trn_complete.begin(), it);
+                comm.trn_complete[dst_pos] = TRN_BUSY;
+        
+                // HG: make2() to include waitOP information in Packet
+                packet.make2(comm.taskID, local_id, comm.dst[dst_pos], vc, now, comm.data_volume, comm.waitOP);
+                
+                LOG << "Packet created for PE" << local_id << " taskID = " << 
+                comm.taskID << " " << local_id << "->" << comm.dst[dst_pos] << " VC" << vc << endl;
+
+            } else if (comm.src.size() >= 1 && comm.dst.size() == 1) {
+                
+                packet.make2(comm.taskID, local_id, comm.dst[0], vc, now, comm.data_volume, comm.waitOP);
+                
+                LOG << "Packet created for PE" << local_id << " taskID = " << 
+                comm.taskID << " " << local_id << "->" << comm.dst[0] << " VC" << vc << endl;
+            }
+
+
         }
 
     } else if (GlobalParams::traffic_distribution != TRAFFIC_TABLE_BASED) {
@@ -222,17 +250,17 @@ void ProcessingElement::computeProcess()
 {
     // HG: PE is in PE_BUSY state, stall PE from receiving new packets
     state = PE_BUSY;
-    cout << "PE " << local_id << " is in PE_BUSY state. PE Stalled.";
-    cout << " Compute cycle: " << compute_cycle << endl;
+    LOG << "PE " << local_id << " is in PE_BUSY state. PE Stalled.";
+    LOG << " Compute cycle: " << compute_cycle << endl;
     compute_cycle--;
 
     if (compute_cycle == 0 && currentTaskID >= 0) {
-        cout << "PE " << local_id << " Compute Done!" << endl;
+        LOG << "PE " << local_id << " Compute Done!" << endl;
         state = PE_READY;
-        cout << "PE " << local_id << " is in PE_READY state. PE is ready to receive new packets." << endl;
+        LOG << "PE " << local_id << " is in PE_READY state. PE is ready to receive new packets." << endl;
         
         // set cmp_complete flag in Traffic Communication Table
-        traffic_communication_table->setComputeComplete(currentTaskID, last_recv_srcID);
+        traffic_communication_table->setComputeComplete(currentTaskID, last_recv_srcID, local_id);
         // set currentTaskID to -1 to indicate no taskID
         currentTaskID = -1;
     }

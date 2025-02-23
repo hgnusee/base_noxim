@@ -36,7 +36,7 @@ struct TrafficCommunication {
   int taskID;
   // int src;
   vector < int > src; // replace src with vector of src
-  int dst;
+  vector < int > dst; // replcae dst with vector of dst
   int data_volume;
   int waitID;
   int waitOP;
@@ -75,10 +75,10 @@ class GlobalTrafficTable {
     void moveReserveToTrafficCommunicationTable(const int src_id);
     
     // HG: set trn_complete flag in Traffic Communication Table
-    void setTransmitComplete(const int task_ID, const int src_ID);
+    void setTransmitComplete(const int task_ID, const int src_ID, const int dst_ID);
 
     // HG: set cmp_complete flag in Traffic Communication Table
-    void setComputeComplete(const int task_ID, const int dst_ID);
+    void setComputeComplete(const int task_ID, const int dst_ID, const int local_ID);
 
     // Returns the number of occurrences of soruce src_id in the traffic
     // table
@@ -92,7 +92,7 @@ class GlobalTrafficTable {
      //  HG: reserved_traffic_communication_table for holding next PE or waiting PE
      vector < TrafficCommunication > reserved_traffic_communication_table;
      // HG: 'empty' transaction to be returned in no entry found in traffic comm table
-     TrafficCommunication empty_comm = { -1, {}, 0, 0, 0, 0, true, {}, {} };
+     TrafficCommunication empty_comm = { -1, {}, {}, 0, 0, 0, true, {}, {} };
 
 };
 
