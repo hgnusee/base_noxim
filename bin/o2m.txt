@@ -19,11 +19,44 @@
 %       [1 4 5] [3]      --> CORRECT
 %       [3 1 2] [3 9 11] --> WRONG
 %   PE will start computeProcess() and stop receive flits,
-%       when TAIL flit of the taskID arrives at source
-% taskID [src] [dst] data_vol [waitID] waitOP
-0 [1] [5 6 7] 5 [-1] 0
-1 [9] [13 15] 3 [-1] 0
-2 [3 2] [4] 5 [0 1] 1
-3 [5] [6] 5 [0 1] 2
-4 [7] [8] 5 [1 2] 2
-5 [12] [2 3 9] 5 [1 2] 2
+%       when TAIL flit of the taskID arrives at source 
+% layer: 
+%       indicates which NN layer 
+% min_vol: 
+%       2D filter size, e.g. 5x5 filter, min_vol = 5*5 = 25 
+% total_vol: 
+%       2D output size, e.g. 11x11 output, total_vol = 11*11 = ~128 
+% src_:  
+%       src_minVol: # of computed data to generate one flit in src (acts as "Compression")
+%       src_totalVol: Sum of data src PE needs to transmit (NOT same as dst_totalVol)
+%        IF (src_minVol == -1) --> packet.size == totalVol [e.g. from IFM --> Conv]
+%        src_ data is provided to src PE by traffic table
+% dst_:  
+%       dst_minVol: # of received data to begin compute in dst
+%       dst_totVol: Sum of data dst PE to receive (NOT same as src_totalVol, most of the time)
+%       if (dst_minVol == -1) --> no compute operation in dst PE [e.g. final output layer]
+%        dst_ data is SENT by src PE to dst PE
+% How does compute_data work? PE0->PE1->PE2
+%       > dst_minVol is reached at PE1, trigger compute, move the recvBytes to processedBytes, stop when dst_totalVol is hit
+%       > when procesedBytes in src_minVol of PE1 reached, send one flit to PE2 until reach src_totalVol
+% For correct pipelinig of tasks:
+%       > ensure a src-dst pair is proceeded with a subsequent relevant src-dst pair
+%       > e.g. Pipeline: PE0->PE1->PE2
+% 		> 		Traffic Table: pair#1 PE0->PE1 pair#2 PE1->PE2 
+% taskID layerID [src] [dst] src_minVol src_totalVol dst_minVol dst_totalVol [waitID] [nextID] waitOP 
+% Demo Traffic: Single Stage Pipeline
+%0 1 [0] [1] -1 9 9 9 [-1] [1] 0 
+%1 1 [1] [2] 1 1 -1 1 [0] [-1] 0 
+% taskID layerID [src] [dst] src_minVol src_totalVol dst_minVol dst_totalVol [waitID] [nextID] waitOP 
+% Demo: Two Stage Pipeline & Two Parallel Set of tasks (layerID = 1 & 2)
+% 0 1 [0] [1] -1 12 2 12 [-1] [1] 0 
+% 1 1 [1] [2] 2 6 3 6 [0] [2] 0
+% 2 1 [2] [3] 3 2 2 -1 [1] [-1] 0
+% 3 2 [4] [5] -1 12 2 12 [-1] [4] 0 
+% 4 2 [5] [6] 2 6 3 6 [3] [5] 0
+% 5 2 [6] [7] 3 2 2 -1 [4] [-1] 0
+% Demo: 3-stage Pipeline
+0 1 [0] [1] -1 12 2 12 [-1] [1] 0 
+1 1 [1] [2] 2 6 3 6 [0] [2] 0
+2 1 [2] [3] 3 2 1 1 [1] [3] 0
+3 1 [3] [4] 1 1 -1 1 [2] [-1] 0

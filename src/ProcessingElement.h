@@ -49,8 +49,18 @@ SC_MODULE(ProcessingElement)
     peState state;        // HG: State of the PE
     int compute_cycle;    // HG: Number of cycles to compute, aka how many cycles to stall PE
     int currentTaskID;    // HG: Current Task ID for the PE
+    int receivedTaskID;   // HG: Task ID of the received packet
     // collect the last received srcID for use in computeProcess()
     int last_recv_srcID;
+    // variable to track data processing in PE, and decide start/stop of transmits
+    int recvBytes; // cumulative bytes received by PE from flits
+    int processedBytes; // cunmulatve bytes processed by PE for transmit
+    int sentBytes; // cumulative bytes transmitted out by PE
+    int recv_totalBytes; // based on totalVolume
+    int recv_minBytes; // based on minVolume, used to trigger computeProcess()
+    int tran_totalBytes; // based on totalVolume
+    int tran_minBytes; // based on minVolume, used to trigger computeProcess()
+    vector<pair<int, int>> compute_queue;   // vector to hold compute parameters (processByte, delayN)
 
     // Functions
     void rxProcess();		// The receiving process
@@ -59,7 +69,10 @@ SC_MODULE(ProcessingElement)
 
     void computeProcess(); // HG: Compute Process to "stall" PE from further receive packets
     void reservedTableMonitor(); // HG: check and move transactions from reserved -> traffic comm table
+    bool packetShotbyPE(TrafficCommunication& comm, const int local_id, Packet & packet); // HG: check if packet can be created by the PE
 
+    int readyToSendBytes ();
+    void setCurrentTaskID (const int waitID); // set currentTaskID to waitID value of the current PE
     Flit nextFlit();	// Take the next flit of the current packet
     Packet trafficTest();	// used for testing traffic
     Packet trafficRandom();	// Random destination distribution
@@ -75,7 +88,7 @@ SC_MODULE(ProcessingElement)
     // HG: Reference to Traffic Communication Tables
     GlobalTrafficTable *traffic_communication_table;
     GlobalTrafficTable *reserved_traffic_communication_table;
-
+    vector<vector<int> > holdDataArray;    // 2D vector to store hold data
 
     bool never_transmit;	// true if the PE does not transmit any packet 
     //  (valid only for the table based traffic)

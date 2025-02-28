@@ -34,11 +34,15 @@ struct Communication {
 // taskID, src, dst, data_volume, waitID, waitOP, traffic_used, trn_complete, cmp_complete
 struct TrafficCommunication {
   int taskID;
-  // int src;
+  int layerID;
   vector < int > src; // replace src with vector of src
   vector < int > dst; // replace dst with vector of dst
-  int data_volume;
+  int src_minVol;
+  int src_totalVol;
+  int dst_minVol;
+  int dst_totalVol;
   vector < int >  waitID; // replace waitID with vector of waitID
+  vector < int >  nextID;
   int waitOP;
   bool traffic_used;
   // trn/cmp_complete flag uses int to act as state for each src id, for multiple src to control. 
@@ -91,8 +95,10 @@ class GlobalTrafficTable {
      vector < TrafficCommunication > traffic_communication_table;
      //  HG: reserved_traffic_communication_table for holding next PE or waiting PE
      vector < TrafficCommunication > reserved_traffic_communication_table;
-     // HG: 'empty' transaction to be returned in no entry found in traffic comm table
-     TrafficCommunication empty_comm = { -1, {}, {}, 0, {}, 0, true, {}, {} };
+
+      // HG: 'empty' transaction to be returned in no entry found in traffic comm table
+      TrafficCommunication empty_comm;
+
 
 };
 

@@ -72,6 +72,12 @@ struct Packet {
     int waitID; // determine which PE it needs to wait for, -1 if no PE
     int waitOP; // determine which PE it needs to go to next, -1 if no PE
     int taskID; // determine which taskID the transaction is associated with
+    int layerNO;
+    int src_minVol;
+    int src_totalVol;
+    int dst_minVol;
+    int dst_totalVol;
+    int nextID;
 
     // Constructors
     Packet() { }
@@ -92,11 +98,14 @@ struct Packet {
 
     // HG: Create make2() function to include waitOP access, make() is for original noxim funcitonality
 
-    Packet(const int taskID, const int s, const int d, const int vc, const double ts, const int sz, const int wtOP) {
-	make2(taskID, s, d, vc, ts, sz, wtOP);
+    Packet(const int taskID, const int s, const int d, 
+            const int vc, const double ts, const int sz,
+             const int wtOP, const int minV, const int totalV) {
+    make2(taskID, s, d, vc, ts, sz, wtOP, minV, totalV, minV, totalV);
     } 
 
-    void make2(const int tskID, const int s, const int d, const int vc, const double ts, const int sz, const int wtOP) {
+    void make2(const int tskID, const int s, const int d, const int vc, const double ts, const int sz,
+         const int wtOP, const int s_minV, const int s_totV, const int d_minV, const int d_totV) {
 	taskID = tskID;
     src_id = s;
 	dst_id = d;
@@ -106,13 +115,18 @@ struct Packet {
 	flit_left = sz;
 	use_low_voltage_path = false;
     waitOP = wtOP;
+    src_minVol = s_minV;
+    src_totalVol = s_totV;
+    dst_minVol = d_minV;
+    dst_totalVol = d_totV;
     }
 };
 
 // HG: create PE State Tracking to stall PE from receiving new packets when PE_BUSY
 enum peState {
     PE_READY,
-    PE_BUSY
+    PE_BUSY,
+    PE_RECV // state used for receive flit and decide packet creation (pipeline model)
 };
 
 // RouteData -- data required to perform routing
@@ -180,6 +194,10 @@ struct Flit {
     int waitOP; // HG: next PE to go, used in TAIL FLIT
 
     int taskID; // HG: taskID associated with the transaction (to be intherited from packet)
+    int total_vol; // HG: total volume of the transaction
+    int min_vol;
+    int waitID;
+    int nextID;
 
     int hub_relay_node;
 
