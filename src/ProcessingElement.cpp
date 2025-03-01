@@ -137,8 +137,16 @@ void ProcessingElement::rxProcess()
                             computeProcess();
                             state = PE_READY;
                         } else if (flit_tmp.flit_type == FLIT_TYPE_HEAD) {
-                            
-                            // DO Nothing
+                            // reset recv/processed/sentBytes when receivedtaskID NOT same as currentTaskID
+                            // currentTaskID is set to -1 during Reset or PE does not have a valid taskID
+                            if (receivedTaskID == currentTaskID) {
+                                recvBytes++;
+                                computeProcess();
+                            } else {
+                                // DO NOTHING, this case should not come
+                                LOG << "PE " << local_id << " received HEAD FLIT with diff taskID: "<<receivedTaskID<<" current taskID: "<<currentTaskID<<". Ignore packet." << endl;
+                                assert(receivedTaskID == currentTaskID);
+                            }
     
                             // TODO: Consider many-to-one case, multiple PE come same PE
                             //  if flit is from different from currentTaskID, then ignore packet first
@@ -151,6 +159,9 @@ void ProcessingElement::rxProcess()
                     if (recvBytes >= recv_totalBytes) {
                         LOG << "PE " << local_id << " All Flits received. Stop receiving. " << endl;
                         state = PE_READY;
+                    } else {
+                        state = PE_RECV;
+                        LOG << "PE " << local_id << " Continue receiving flits, current recBytes " << recvBytes << "|"<< recv_totalBytes << endl;
                     }
                 }
                 ack_rx.write(current_level_rx);
@@ -423,11 +434,14 @@ void ProcessingElement::computeProcess()
 {
     int compute_delayN = 1; // set fixed delay for compute process
     // FIX: compute_delayN > 1 is not working, no delay > 1 is modelled and last traffic not moving
-    if (recvBytes == recv_minBytes || (recvBytes >= recv_minBytes && (recvBytes % recv_minBytes) == 0)) {
+
+    if (recvBytes == recv_minBytes || (recvBytes > recv_minBytes && (recvBytes % tran_minBytes) == 0)) {
         // hold the "byte" for one clock cycle delay and send on the next clock
-        compute_queue.push_back(make_pair(recvBytes, compute_delayN));
+        // compute_queue.push_back(make_pair(recvBytes, compute_delayN));
+        // "Compress recvBytes of (recvBByte%tran_minByte == 0) into 1 single processedByte"
+        processedBytes ++;
     }
-    // Process completed computations
+/*     // Process completed computations
     auto it = compute_queue.begin();
     while (it != compute_queue.end()) {
         // Decrement delay counter
@@ -435,14 +449,16 @@ void ProcessingElement::computeProcess()
         
         // When delay is complete, increment processedBytes and remove from queue
         if (it->second <= 0) {
+            LOG << "PE"<< local_id << " Done Processed " << it->first << " Bytes" << endl;
             processedBytes += it->first;
             it = compute_queue.erase(it);
         } else {
             ++it;
         }
-    }
+    } */
     // Check if all processing is complete
-    if (processedBytes >= recv_totalBytes && compute_queue.empty()) {
+    // if (processedBytes >= recv_totalBytes && compute_queue.empty()) {
+    if (processedBytes >= tran_totalBytes) {
         state = PE_READY;
         LOG << "All Bytes Processed. Revert PE state --> PE_READY" << endl;
         // Notify traffic table that computation is complete
@@ -508,7 +524,9 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
             return false;
         
         // Check if we have enough processed bytes to shoot packet
-        if (readyToSendBytes() < tran_minBytes) {
+        if (readyToSendBytes() < 1) {
+            LOG << "PE" << local_id << " Not enough processed bytes "
+            <<readyToSendBytes()<<"|"<<recvBytes<<"|"<<processedBytes<<"|"<<sentBytes<< " to shoot packet." << endl;
             return false;
         }
         
@@ -532,6 +550,9 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
                 sentBytes++;
                 LOG << "Packet created for PE" << local_id << " taskID = " << 
                     comm.taskID << " " << local_id << "->" << comm.dst[dst_pos] << " VC" << vc << endl;
+                LOG << "PE" << local_id << " Send Processed bytes "
+                <<readyToSendBytes()<<"|"<<recvBytes<<"|"<<processedBytes<<"|"<<sentBytes<< " to shoot packet." << endl;
+                LOG << "PE" << local_id <<" "<< recv_minBytes <<"|"<< recv_totalBytes <<"|"<< tran_minBytes <<"|"<< tran_totalBytes << endl;
                 packet_created = true;
             }
         } else {
@@ -544,6 +565,9 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
                 sentBytes++;
                 LOG << "Packet created for PE" << local_id << " taskID = " << 
                     comm.taskID << " " << local_id << "->" << comm.dst[i] << " VC" << vc << endl;
+                LOG << "PE" << local_id << " Send Processed bytes "
+                <<readyToSendBytes()<<"|"<<recvBytes<<"|"<<processedBytes<<"|"<<sentBytes<< " to shoot packet." << endl;
+                LOG << "PE" << local_id <<" "<< recv_minBytes <<"|"<< recv_totalBytes <<"|"<< tran_minBytes <<"|"<< tran_totalBytes << endl;
                 packet_created = true;
                 break; // Only one destination in this case
             }
@@ -551,7 +575,8 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
         
         // Check if we've sent all required bytes
         if (sentBytes >= tran_totalBytes) {
-            state = PE_READY;
+            // state = PE_READY;
+            LOG << "All Bytes Sent. " <<recvBytes<<"|"<<processedBytes<<"|"<<sentBytes<< endl;
         }
         
         return packet_created;
