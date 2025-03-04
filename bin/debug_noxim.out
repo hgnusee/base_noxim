@@ -11,387 +11,989 @@ Reset for 1000 cycles...  done!
  Now running for 10000 cycles...
 1000 GlobalTrafficTable::setTransmitComplete() --> All traffic complete for taskID: 0
 1000    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: HEAD taskID = 0 0->1 VC0
-1000    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0 to shoot packet.
-1000    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1000    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1000    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE 1 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 0
+1000    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0|0 to shoot packet.
+1000    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1000    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1000    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1000    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
 1001    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (H0, 0->1 VC 0) collected from Input[4][0]
-1001    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0 to shoot packet.
-1001    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1001    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1001    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE 1 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 0
+1001    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0|0 to shoot packet.
+1001    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1001    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1001    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1001    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1002    NoC.Tile[00][00]_(#0).Router::txProcess() --> current_id= 0 for sending flit from src_id= 0 to dst_id= 1 (H0, 0->1 VC 0)
+1002    NoC.Tile[00][00]_(#0).Router::txProcess() --> Returned direction 1 for flit (H0, 0->1 VC 0)
 1002    NoC.Tile[00][00]_(#0).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 0->1 VC 0)
 1002    NoC.Tile[00][00]_(#0).Router::txProcess() -->  reserving direction 1 for flit (H0, 0->1 VC 0)
+1002    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1002    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1002    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1002    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1002    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1002    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 0->1 VC 0)
 1002    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: BODY taskID = 0 0->1 VC0
-1002    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0 to shoot packet.
-1002    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1002    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1002    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE 1 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 0
+1002    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0|0 to shoot packet.
+1002    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1002    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1002    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1002    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1003    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1003    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1003    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1003    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1003    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1003    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B1, 0->1 VC 0) collected from Input[4][0]
 1003    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 0->1 VC 0) collected from Input[3][0]
-1003    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0 to shoot packet.
-1003    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1003    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1003    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE 1 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 0
+1003    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0|0 to shoot packet.
+1003    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1003    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1003    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1003    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1004    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1004    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1004    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1004    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1004    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1004    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B1, 0->1 VC 0)
 1004    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: BODY taskID = 0 0->1 VC0
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 0 to dst_id= 1 (H0, 0->1 VC 0)
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 4 for flit (H0, 0->1 VC 0)
 1004    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 0->1 VC 0)
 1004    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 4 for flit (H0, 0->1 VC 0)
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 0->1 VC 0)
 1004    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (H0, 0->1 VC 0)
-1004    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0 to shoot packet.
-1004    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1004    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1004    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE 1 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 0
+1004    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0|0 to shoot packet.
+1004    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1004    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1004    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1004    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1005    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1005    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1005    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1005    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1005    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1005    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B2, 0->1 VC 0) collected from Input[4][0]
+1005    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1005    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1005    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1005    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1005    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1005    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B1, 0->1 VC 0) collected from Input[3][0]
-1005    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0 to shoot packet.
+1005    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE 1 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 0
+1005    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|0|0|0 to shoot packet.
 PE 1 received a HEAD flit. Begin RECEIVE!!
-1005    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1005    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1005    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1005    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1005    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1005    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1006    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1006    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1006    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1006    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1006    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1006    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B2, 0->1 VC 0)
 1006    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: BODY taskID = 0 0->1 VC0
+1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1006    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B1, 0->1 VC 0)
 1006    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B1, 0->1 VC 0)
-1006    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|1|0 to shoot packet.
-1006    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1006    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1006    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|1|0|0 to shoot packet.
+1006    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1006    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1006    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1006    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1007    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1007    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1007    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1007    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1007    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1007    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B3, 0->1 VC 0) collected from Input[4][0]
+1007    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1007    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1007    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1007    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1007    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1007    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B2, 0->1 VC 0) collected from Input[3][0]
-1007    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|1|0 to shoot packet.
+1007    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|1|0|0 to shoot packet.
 1007    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 Continue receiving flits, current recBytes 2|12
-1007    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1007    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1007    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1007    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1007    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1007    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1008    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1008    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1008    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1008    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1008    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1008    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B3, 0->1 VC 0)
 1008    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: BODY taskID = 0 0->1 VC0
+1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1008    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B2, 0->1 VC 0)
 1008    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B2, 0->1 VC 0)
-1008    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created for PE1 taskID = 1 1->2 VC0
+1008    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->2 VC0
 1008    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 0|2|1|1 to shoot packet.
 1008    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
 1008    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->2 VC0
-1008    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1008    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1008    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1008    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1008    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1008    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1009    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1009    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1009    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1009    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1009    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1009    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B4, 0->1 VC 0) collected from Input[4][0]
+1009    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1009    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1009    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1009    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1009    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1009    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B3, 0->1 VC 0) collected from Input[3][0]
 1009    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[4][0]
-1009    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|2|1 to shoot packet.
+1009    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|2|1|1 to shoot packet.
 1009    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 Continue receiving flits, current recBytes 3|12
-1009    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1009    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1009    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1009    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1009    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1009    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1010    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1010    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1010    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1010    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1010    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1010    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B4, 0->1 VC 0)
 1010    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: BODY taskID = 0 0->1 VC0
-1010    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 1->2 VC 0)
-1010    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 3 for flit (H0, 1->2 VC 0)
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 1 for flit (H0, 1->2 VC 0)
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 1->2 VC 0)
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 1 for flit (H0, 1->2 VC 0)
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B3, 0->1 VC 0)
 1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B3, 0->1 VC 0)
-1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 1->2 VC 0)
-1010    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|3|1 to shoot packet.
-1010    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1010    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1011    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[1][0]
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> (1,0) 
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 1
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 1->2 VC 0)
+1010    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1010    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|3|1|1 to shoot packet.
+1010    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1010    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1010    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1010    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1011    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1011    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1011    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1011    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1011    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1011    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B5, 0->1 VC 0) collected from Input[4][0]
+1011    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1011    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1011    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1011    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1011    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1011    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B4, 0->1 VC 0) collected from Input[3][0]
-1011    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|3|1 to shoot packet.
+1011    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|3|1|1 to shoot packet.
 1011    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 Continue receiving flits, current recBytes 4|12
-1011    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1011    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1012    NoC.Tile[00][00]_(#0).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 1->2 VC 0)
-1012    NoC.Tile[00][00]_(#0).Router::txProcess() -->  reserving direction 2 for flit (H0, 1->2 VC 0)
-1012    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 1->2 VC 0)
+1011    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[3][0]
+1011    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1011    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1011    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1011    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1012    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1012    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1012    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1012    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1012    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1012    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B5, 0->1 VC 0)
 1012    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: BODY taskID = 0 0->1 VC0
+1012    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1012    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1012    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1012    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1012    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1012    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B4, 0->1 VC 0)
 1012    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B4, 0->1 VC 0)
-1012    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created for PE1 taskID = 1 1->2 VC0
+1012    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->2 VC0
 1012    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 0|4|2|2 to shoot packet.
 1012    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
 1012    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->2 VC0
-1012    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1012    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> current_id= 2 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> Returned direction 4 for flit (H0, 1->2 VC 0)
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 1->2 VC 0)
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->2 VC 0)
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() -->  Reservations for output 3: 
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> (4,0) 
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> 
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> found reservation from input= 3_to output= 4
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1012    NoC.Tile[02][00]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
+1012    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1012    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+1012    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1012    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1013    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1013    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1013    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1013    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1013    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1013    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B6, 0->1 VC 0) collected from Input[4][0]
+1013    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1013    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1013    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1013    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1013    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1013    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B5, 0->1 VC 0) collected from Input[3][0]
 1013    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[4][0]
-1013    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|4|2 to shoot packet.
+1013    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|4|2|2 to shoot packet.
 1013    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 Continue receiving flits, current recBytes 5|12
-1013    NoC.Tile[00][01]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[0][0]
-1013    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1013    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1013    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE 2 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1013    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0|0 to shoot packet.
+PE 2 received a HEAD flit. Begin RECEIVE!!
+1013    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1013    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1014    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1014    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1014    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1014    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1014    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1014    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B6, 0->1 VC 0)
 1014    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: BODY taskID = 0 0->1 VC0
-1014    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 1->2 VC 0)
-1014    NoC.Tile[01][00]_(#1).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 3 for flit (H0, 1->2 VC 0)
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 1 for flit (H0, 1->2 VC 0)
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 1->2 VC 0)
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 1 for flit (H0, 1->2 VC 0)
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B5, 0->1 VC 0)
 1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B5, 0->1 VC 0)
-1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 1->2 VC 0)
-1014    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|5|2 to shoot packet.
-1014    NoC.Tile[00][01]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->2 VC 0)
-1014    NoC.Tile[00][01]_(#2).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->2 VC 0)
-1014    NoC.Tile[00][01]_(#2).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
-1014    NoC.Tile[00][01]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
-1014    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-1014    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1015    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[1][0]
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> (1,0) 
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 1
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 1->2 VC 0)
+1014    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1014    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|5|2|2 to shoot packet.
+1014    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|1|0|0 to shoot packet.
+1014    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1014    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1015    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1015    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1015    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1015    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1015    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1015    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B7, 0->1 VC 0) collected from Input[4][0]
+1015    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1015    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1015    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1015    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1015    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1015    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B6, 0->1 VC 0) collected from Input[3][0]
-1015    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|5|2 to shoot packet.
+1015    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|5|2|2 to shoot packet.
 1015    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 Continue receiving flits, current recBytes 6|12
-1015    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|0|0 to shoot packet.
-PE 2 received a HEAD flit. Begin RECEIVE!!
-1015    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1016    NoC.Tile[00][00]_(#0).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 1->2 VC 0)
-1016    NoC.Tile[00][00]_(#0).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 2 for flit (H0, 1->2 VC 0)
-1016    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 1->2 VC 0)
+1015    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[3][0]
+1015    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|1|0|0 to shoot packet.
+1015    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1015    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1016    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1016    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1016    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1016    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1016    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1016    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B7, 0->1 VC 0)
 1016    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: BODY taskID = 0 0->1 VC0
+1016    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1016    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1016    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1016    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1016    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1016    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B6, 0->1 VC 0)
 1016    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B6, 0->1 VC 0)
-1016    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created for PE1 taskID = 1 1->2 VC0
+1016    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->2 VC0
 1016    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 0|6|3|3 to shoot packet.
 1016    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
 1016    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->2 VC0
-1016    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|1|0 to shoot packet.
-1016    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() --> current_id= 2 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() --> Returned direction 4 for flit (H0, 1->2 VC 0)
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 1->2 VC 0)
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->2 VC 0)
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() -->  Reservations for output 3: 
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() --> (4,0) 
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() --> 
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() --> found reservation from input= 3_to output= 4
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1016    NoC.Tile[02][00]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
+1016    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|1|0|0 to shoot packet.
+1016    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1016    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1017    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1017    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1017    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1017    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1017    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1017    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B8, 0->1 VC 0) collected from Input[4][0]
+1017    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1017    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1017    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1017    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1017    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1017    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B7, 0->1 VC 0) collected from Input[3][0]
 1017    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[4][0]
-1017    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|6|3 to shoot packet.
+1017    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|6|3|3 to shoot packet.
 1017    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 Continue receiving flits, current recBytes 7|12
-1017    NoC.Tile[00][01]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[0][0]
-1017    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|1|0 to shoot packet.
-1017    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1017    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|1|0|0 to shoot packet.
+PE 2 received a HEAD flit. Begin RECEIVE!!
+1017    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1017    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1018    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1018    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1018    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1018    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1018    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1018    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B8, 0->1 VC 0)
 1018    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: BODY taskID = 0 0->1 VC0
-1018    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 1->2 VC 0)
-1018    NoC.Tile[01][00]_(#1).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 3 for flit (H0, 1->2 VC 0)
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 1 for flit (H0, 1->2 VC 0)
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 1->2 VC 0)
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 1 for flit (H0, 1->2 VC 0)
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B7, 0->1 VC 0)
 1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B7, 0->1 VC 0)
-1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 1->2 VC 0)
-1018    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|7|3 to shoot packet.
-1018    NoC.Tile[00][01]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->2 VC 0)
-1018    NoC.Tile[00][01]_(#2).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 4 for flit (H0, 1->2 VC 0)
-1018    NoC.Tile[00][01]_(#2).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
-1018    NoC.Tile[00][01]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
-1018    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|1|0 to shoot packet.
-1018    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1019    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[1][0]
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> (1,0) 
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 1
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 1->2 VC 0)
+1018    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1018    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|7|3|3 to shoot packet.
+1018    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|2|0|0 to shoot packet.
+1018    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1018    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1019    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1019    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1019    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1019    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1019    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1019    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B9, 0->1 VC 0) collected from Input[4][0]
+1019    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1019    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1019    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1019    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1019    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1019    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B8, 0->1 VC 0) collected from Input[3][0]
-1019    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|7|3 to shoot packet.
+1019    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|7|3|3 to shoot packet.
 1019    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 Continue receiving flits, current recBytes 8|12
-1019    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|1|0 to shoot packet.
-PE 2 received a HEAD flit. Begin RECEIVE!!
-1019    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1020    NoC.Tile[00][00]_(#0).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 1->2 VC 0)
-1020    NoC.Tile[00][00]_(#0).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 2 for flit (H0, 1->2 VC 0)
-1020    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 1->2 VC 0)
+1019    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[3][0]
+1019    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|2|0|0 to shoot packet.
+1019    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1019    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1020    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1020    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1020    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1020    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1020    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1020    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B9, 0->1 VC 0)
 1020    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: BODY taskID = 0 0->1 VC0
+1020    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1020    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1020    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1020    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1020    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1020    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B8, 0->1 VC 0)
 1020    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B8, 0->1 VC 0)
-1020    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created for PE1 taskID = 1 1->2 VC0
+1020    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->2 VC0
 1020    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 0|8|4|4 to shoot packet.
 1020    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
 1020    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->2 VC0
-1020    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|2|0 to shoot packet.
-1020    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() --> current_id= 2 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() --> Returned direction 4 for flit (H0, 1->2 VC 0)
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 1->2 VC 0)
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->2 VC 0)
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() -->  Reservations for output 3: 
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() --> (4,0) 
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() --> 
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() --> found reservation from input= 3_to output= 4
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1020    NoC.Tile[02][00]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
+1020    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|2|0|0 to shoot packet.
+1020    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1020    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1021    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1021    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1021    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1021    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1021    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1021    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (B10, 0->1 VC 0) collected from Input[4][0]
+1021    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1021    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1021    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1021    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1021    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1021    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B9, 0->1 VC 0) collected from Input[3][0]
 1021    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[4][0]
-1021    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|8|4 to shoot packet.
+1021    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|8|4|4 to shoot packet.
 1021    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 Continue receiving flits, current recBytes 9|12
-1021    NoC.Tile[00][01]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[0][0]
-1021    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|2|0 to shoot packet.
-1021    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1021    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|2|0|0 to shoot packet.
+PE 2 received a HEAD flit. Begin RECEIVE!!
+1021    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1021    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1022    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1022    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1022    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1022    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1022    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1022    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (B10, 0->1 VC 0)
 1022 GlobalTrafficTable::setTransmitComplete() --> All traffic complete for taskID: 0
 1022    NoC.Tile[00][00]_(#0).ProcessingElement::txProcess() --> Flit created for PE0 Type: TAIL taskID = 0 0->1 VC0
-1022    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 1->2 VC 0)
-1022    NoC.Tile[01][00]_(#1).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 3 for flit (H0, 1->2 VC 0)
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 1 for flit (H0, 1->2 VC 0)
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 1->2 VC 0)
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 1 for flit (H0, 1->2 VC 0)
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B9, 0->1 VC 0)
 1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B9, 0->1 VC 0)
-1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 1->2 VC 0)
-1022    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|9|4 to shoot packet.
-1022    NoC.Tile[00][01]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->2 VC 0)
-1022    NoC.Tile[00][01]_(#2).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 4 for flit (H0, 1->2 VC 0)
-1022    NoC.Tile[00][01]_(#2).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
-1022    NoC.Tile[00][01]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
-1022    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|2|0 to shoot packet.
-1022    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1023    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[1][0]
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> (1,0) 
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 1
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 1->2 VC 0)
+1022    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1022    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|9|4|4 to shoot packet.
+1022    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> Packet created for PE2 taskID = 2 2->3 VC0
+1022    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Send Processed bytes 0|3|1|1 to shoot packet.
+1022    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 3|6|3|2
+1022    NoC.Tile[02][00]_(#2).ProcessingElement::txProcess() --> Flit created for PE2 Type: HEAD taskID = 2 2->3 VC0
+1022    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1022    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1023    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1023    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1023    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1023    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1023    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1023    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (T11, 0->1 VC 0) collected from Input[4][0]
+1023    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1023    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1023    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1023    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1023    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1023    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (B10, 0->1 VC 0) collected from Input[3][0]
-1023    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|9|4 to shoot packet.
+1023    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|9|4|4 to shoot packet.
 1023    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 Continue receiving flits, current recBytes 10|12
-1023    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|2|0 to shoot packet.
-PE 2 received a HEAD flit. Begin RECEIVE!!
-1023    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1024    NoC.Tile[00][00]_(#0).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 1->2 VC 0)
-1024    NoC.Tile[00][00]_(#0).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 2 for flit (H0, 1->2 VC 0)
-1024    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 1->2 VC 0)
+1023    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[3][0]
+1023    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 2->3 VC 0) collected from Input[4][0]
+1023    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|3|1|1 to shoot packet.
+1023    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1023    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1024    NoC.Tile[00][00]_(#0).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1024    NoC.Tile[00][00]_(#0).Router::txProcess() -->  Reservations for output 4: 
+1024    NoC.Tile[00][00]_(#0).Router::txProcess() --> (1,0) 
+1024    NoC.Tile[00][00]_(#0).Router::txProcess() --> 
+1024    NoC.Tile[00][00]_(#0).Router::txProcess() --> found reservation from input= 4_to output= 1
 1024    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (T11, 0->1 VC 0)
+1024    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1024    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1024    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1024    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1024    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1024    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (B10, 0->1 VC 0)
 1024    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (B10, 0->1 VC 0)
-1024    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created for PE1 taskID = 1 1->2 VC0
+1024    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->2 VC0
 1024    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 0|10|5|5 to shoot packet.
 1024    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
 1024    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->2 VC0
-1024    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> Packet created for PE2 taskID = 2 2->3 VC0
-1024    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Send Processed bytes 0|3|1|1 to shoot packet.
-1024    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 3|6|3|2
-1024    NoC.Tile[00][01]_(#2).ProcessingElement::txProcess() --> Flit created for PE2 Type: HEAD taskID = 2 2->3 VC0
-1024    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> current_id= 2 for sending flit from src_id= 2 to dst_id= 3 (H0, 2->3 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> Returned direction 1 for flit (H0, 2->3 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 2->3 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 1 for flit (H0, 2->3 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> current_id= 2 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> Returned direction 4 for flit (H0, 1->2 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 1->2 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->2 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() -->  Reservations for output 3: 
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> (4,0) 
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> 
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> found reservation from input= 3_to output= 4
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() -->  Reservations for output 4: 
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> (1,0) 
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> 
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> found reservation from input= 4_to output= 1
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 2->3 VC 0)
+1024    NoC.Tile[02][00]_(#2).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 2->3 VC 0)
+1024    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|3|1|1 to shoot packet.
+1024    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1024    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1025    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1025    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1025    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1025    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1025    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1025    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (T11, 0->1 VC 0) collected from Input[3][0]
 1025    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[4][0]
-1025    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|10|5 to shoot packet.
+1025    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|10|5|5 to shoot packet.
 1025    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 Continue receiving flits, current recBytes 11|12
-1025    NoC.Tile[00][01]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[0][0]
-1025    NoC.Tile[00][01]_(#2).Router::rxProcess() -->  Flit (H0, 2->3 VC 0) collected from Input[4][0]
-1025    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|3|1 to shoot packet.
-1025    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1026    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 1->2 VC 0)
-1026    NoC.Tile[01][00]_(#1).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 3 for flit (H0, 1->2 VC 0)
+1025    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|3|1|1 to shoot packet.
+PE 2 received a HEAD flit. Begin RECEIVE!!
+1025    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (H0, 2->3 VC 0) collected from Input[3][0]
+1025    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1025    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 1 for flit (H0, 1->2 VC 0)
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 1->2 VC 0)
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 1 for flit (H0, 1->2 VC 0)
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 3: 
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> (4,0) 
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 3_to output= 4
 1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (T11, 0->1 VC 0)
 1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> Consumed flit (T11, 0->1 VC 0)
-1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 1->2 VC 0)
-1026    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|11|5 to shoot packet.
-1026    NoC.Tile[00][01]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->2 VC 0)
-1026    NoC.Tile[00][01]_(#2).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 4 for flit (H0, 1->2 VC 0)
-1026    NoC.Tile[00][01]_(#2).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 2->3 VC 0)
-1026    NoC.Tile[00][01]_(#2).Router::txProcess() -->  reserving direction 1 for flit (H0, 2->3 VC 0)
-1026    NoC.Tile[00][01]_(#2).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
-1026    NoC.Tile[00][01]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
-1026    NoC.Tile[00][01]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 2->3 VC 0)
-1026    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|3|1 to shoot packet.
-1026    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1027    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[1][0]
-1027    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|11|5 to shoot packet.
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> (1,0) 
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 1
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 1->2 VC 0)
+1026    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1026    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|11|5|5 to shoot packet.
+1026    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|4|1|1 to shoot packet.
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() --> current_id= 3 for sending flit from src_id= 2 to dst_id= 3 (H0, 2->3 VC 0)
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() --> Returned direction 4 for flit (H0, 2->3 VC 0)
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 2->3 VC 0)
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() -->  reserving direction 4 for flit (H0, 2->3 VC 0)
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() -->  Reservations for output 3: 
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() --> (4,0) 
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() --> 
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() --> found reservation from input= 3_to output= 4
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 2->3 VC 0)
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 2->3 VC 0)
+1026    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (H0, 2->3 VC 0)
+1026    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1026    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1027    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Not enough processed bytes 0|11|5|5 to shoot packet.
 1027    NoC.Tile[01][00]_(#1).ProcessingElement::computeProcess() --> All Bytes Processed. Revert PE state --> PE_READY
 DEBUG: All ComputeProcess() complete for taskID = 0
 1027    NoC.Tile[01][00]_(#1).ProcessingElement::rxProcess() --> PE 1 All Flits received. Stop receiving. 
-1027    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|3|1 to shoot packet.
-PE 2 received a HEAD flit. Begin RECEIVE!!
-1027    NoC.Tile[01][01]_(#3).Router::rxProcess() -->  Flit (H0, 2->3 VC 0) collected from Input[3][0]
-1027    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
-1028    NoC.Tile[00][00]_(#0).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 1->2 VC 0)
-1028    NoC.Tile[00][00]_(#0).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 2 for flit (H0, 1->2 VC 0)
-1028    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 1->2 VC 0)
-1028    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created for PE1 taskID = 1 1->2 VC0
+1027    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[3][0]
+1027    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|4|1|1 to shoot packet.
+PE 3 received a HEAD flit. Begin RECEIVE!!
+PE 3 received a new taskID. Resetting data counters.
+1027    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1027    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1028    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->2 VC0
 1028    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 0|12|6|6 to shoot packet.
 1028    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
-1028    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> All Bytes Sent. 12|6|6
+1028    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> All Bytes Sent. 1->2 12|6|6
 1028    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->2 VC0
-1028    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|4|1 to shoot packet.
-1028    NoC.Tile[01][01]_(#3).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 2->3 VC 0)
-1028    NoC.Tile[01][01]_(#3).Router::txProcess() -->  reserving direction 4 for flit (H0, 2->3 VC 0)
-1028    NoC.Tile[01][01]_(#3).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 2->3 VC 0)
-1028    NoC.Tile[01][01]_(#3).Router::txProcess() --> Consumed flit (H0, 2->3 VC 0)
-1028    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() --> current_id= 2 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() --> Returned direction 4 for flit (H0, 1->2 VC 0)
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 1->2 VC 0)
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->2 VC 0)
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() -->  Reservations for output 3: 
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() --> (4,0) 
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() --> 
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() --> found reservation from input= 3_to output= 4
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1028    NoC.Tile[02][00]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
+1028    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|4|1|1 to shoot packet.
+1028    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1028    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
 1029    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[4][0]
-1029    NoC.Tile[00][01]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[0][0]
-1029    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|4|1 to shoot packet.
-1029    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|0|0 to shoot packet.
+1029    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->5 VC0
+1029    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 5|12|6|1 to shoot packet.
+1029    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
+1029    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|4|1|1 to shoot packet.
+PE 2 received a HEAD flit. Begin RECEIVE!!
+1029    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1029    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 1 for flit (H0, 1->2 VC 0)
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 1->2 VC 0)
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 1 for flit (H0, 1->2 VC 0)
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() --> (1,0) 
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 1
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 1->2 VC 0)
+1030    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1030    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->5 VC0
+1030    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 4|12|6|2 to shoot packet.
+1030    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
+1030    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->5 VC0
+1030    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|5|1|1 to shoot packet.
+1030    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1030    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1031    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[4][0]
+1031    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->5 VC0
+1031    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 3|12|6|3 to shoot packet.
+1031    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
+1031    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[3][0]
+1031    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|5|1|1 to shoot packet.
+1031    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1031    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 2 for flit (H0, 1->5 VC 0)
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[2] for Input[4][0] flit (H0, 1->5 VC 0)
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 2 for flit (H0, 1->5 VC 0)
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[2][0]
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() --> (2,0) 
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 2
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (H0, 1->5 VC 0)
+1032    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1032    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->5 VC0
+1032    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 2|12|6|4 to shoot packet.
+1032    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
+1032    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->5 VC0
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() --> current_id= 2 for sending flit from src_id= 1 to dst_id= 2 (H0, 1->2 VC 0)
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() --> Returned direction 4 for flit (H0, 1->2 VC 0)
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 1->2 VC 0)
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->2 VC 0)
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() -->  Reservations for output 3: 
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() --> (4,0) 
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() --> 
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() --> found reservation from input= 3_to output= 4
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->2 VC 0)
+1032    NoC.Tile[02][00]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
+1032    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|5|1|1 to shoot packet.
+1032    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1032    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1033    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[4][0]
+1033    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->5 VC0
+1033    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 1|12|6|5 to shoot packet.
+1033    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
+1033    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|5|1|1 to shoot packet.
+PE 2 received a HEAD flit. Begin RECEIVE!!
+1033    NoC.Tile[02][00]_(#2).ProcessingElement::computeProcess() --> All Bytes Processed. Revert PE state --> PE_READY
+1033    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[0][0]
+1033    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1033    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 2 for flit (H0, 1->5 VC 0)
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[2] for Input[4][0] flit (H0, 1->5 VC 0)
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 2 for flit (H0, 1->5 VC 0)
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[2][0]
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() --> (2,0) 
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 2
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (H0, 1->5 VC 0)
+1034    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1034    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> Packet created (o2m) for PE1 taskID = 1 1->5 VC0
+1034    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 Send Processed bytes 0|12|6|6 to shoot packet.
+1034    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> PE1 2|12|2|6
+1034    NoC.Tile[01][00]_(#1).ProcessingElement::packetShotbyPE() --> All Bytes Sent. 1->5 12|6|6
+1034    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->5 VC0
+1034    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> Packet created for PE2 taskID = 2 2->3 VC0
+1034    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Send Processed bytes 0|6|2|2 to shoot packet.
+1034    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> PE2 3|6|3|2
+1034    NoC.Tile[02][00]_(#2).ProcessingElement::packetShotbyPE() --> All Bytes Sent. 2->3 6|2|2
+1034    NoC.Tile[02][00]_(#2).ProcessingElement::txProcess() --> Flit created for PE2 Type: HEAD taskID = 2 2->3 VC0
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() --> current_id= 5 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() --> Returned direction 4 for flit (H0, 1->5 VC 0)
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->5 VC 0)
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->5 VC 0)
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() --> Output[0] has reservation from Input[4][0]
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Reservations for output 0: 
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() --> (4,0) 
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() --> 
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() --> found reservation from input= 0_to output= 4
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->5 VC 0)
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1034    NoC.Tile[01][01]_(#5).Router::txProcess() --> Consumed flit (H0, 1->5 VC 0)
+1034    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1034    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+1035    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[4][0]
+1035    NoC.Tile[02][00]_(#2).Router::rxProcess() -->  Flit (H0, 2->3 VC 0) collected from Input[4][0]
+1035    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[0][0]
+1035    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE 5 received a new taskID. Resetting sentBytes. Received taskID: -1, Current taskID: 1
+1035    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|0|0|0 to shoot packet.
+PE 5 received a HEAD flit. Begin RECEIVE!!
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 2 for flit (H0, 1->5 VC 0)
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[2] for Input[4][0] flit (H0, 1->5 VC 0)
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 2 for flit (H0, 1->5 VC 0)
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[2][0]
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() --> (2,0) 
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 2
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (H0, 1->5 VC 0)
+1036    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1036    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->5 VC0
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() --> current_id= 2 for sending flit from src_id= 2 to dst_id= 3 (H0, 2->3 VC 0)
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() --> Returned direction 1 for flit (H0, 2->3 VC 0)
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 2->3 VC 0)
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() -->  reserving direction 1 for flit (H0, 2->3 VC 0)
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() -->  Reservations for output 4: 
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() --> (1,0) 
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() --> 
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() --> found reservation from input= 4_to output= 1
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 2->3 VC 0)
+1036    NoC.Tile[02][00]_(#2).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 2->3 VC 0)
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() --> current_id= 5 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() --> Returned direction 4 for flit (H0, 1->5 VC 0)
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->5 VC 0)
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->5 VC 0)
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() --> Output[0] has reservation from Input[4][0]
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Reservations for output 0: 
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() --> (4,0) 
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() --> 
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() --> found reservation from input= 0_to output= 4
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->5 VC 0)
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1036    NoC.Tile[01][01]_(#5).Router::txProcess() --> Consumed flit (H0, 1->5 VC 0)
+1036    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|1|0|0 to shoot packet.
+1037    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[4][0]
+1037    NoC.Tile[03][00]_(#3).Router::rxProcess() -->  Flit (H0, 2->3 VC 0) collected from Input[3][0]
+1037    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[0][0]
+1037    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|1|0|0 to shoot packet.
+PE 5 received a HEAD flit. Begin RECEIVE!!
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 2 for flit (H0, 1->5 VC 0)
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[2] for Input[4][0] flit (H0, 1->5 VC 0)
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 2 for flit (H0, 1->5 VC 0)
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[2][0]
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() --> (2,0) 
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 2
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (H0, 1->5 VC 0)
+1038    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1038    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->5 VC0
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() --> current_id= 3 for sending flit from src_id= 2 to dst_id= 3 (H0, 2->3 VC 0)
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() --> Returned direction 4 for flit (H0, 2->3 VC 0)
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 2->3 VC 0)
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() -->  reserving direction 4 for flit (H0, 2->3 VC 0)
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() -->  Reservations for output 3: 
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() --> (4,0) 
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() --> 
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() --> found reservation from input= 3_to output= 4
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 2->3 VC 0)
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 2->3 VC 0)
+1038    NoC.Tile[03][00]_(#3).Router::txProcess() --> Consumed flit (H0, 2->3 VC 0)
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() --> current_id= 5 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() --> Returned direction 4 for flit (H0, 1->5 VC 0)
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->5 VC 0)
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->5 VC 0)
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() --> Output[0] has reservation from Input[4][0]
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Reservations for output 0: 
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() --> (4,0) 
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() --> 
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() --> found reservation from input= 0_to output= 4
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->5 VC 0)
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1038    NoC.Tile[01][01]_(#5).Router::txProcess() --> Consumed flit (H0, 1->5 VC 0)
+1038    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|2|0|0 to shoot packet.
+1039    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[4][0]
 PE 3 received a HEAD flit. Begin RECEIVE!!
-1030    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 1->2 VC 0)
-1030    NoC.Tile[01][00]_(#1).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 3 for flit (H0, 1->2 VC 0)
-1030    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 1->2 VC 0)
-1030    NoC.Tile[00][01]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->2 VC 0)
-1030    NoC.Tile[00][01]_(#2).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 4 for flit (H0, 1->2 VC 0)
-1030    NoC.Tile[00][01]_(#2).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
-1030    NoC.Tile[00][01]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
-1030    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|4|1 to shoot packet.
-1030    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> Packet created for PE3 taskID = 3 3->4 VC0
-1030    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Send Processed bytes 0|1|1|1 to shoot packet.
-1030    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 1|2|1|2
-1030    NoC.Tile[01][01]_(#3).ProcessingElement::txProcess() --> Flit created for PE3 Type: HEAD taskID = 3 3->4 VC0
-1031    NoC.Tile[00][00]_(#0).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[1][0]
-1031    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|4|1 to shoot packet.
-PE 2 received a HEAD flit. Begin RECEIVE!!
-1031    NoC.Tile[01][01]_(#3).Router::rxProcess() -->  Flit (H0, 3->4 VC 0) collected from Input[4][0]
-1031    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-1032    NoC.Tile[00][00]_(#0).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 1->2 VC 0)
-1032    NoC.Tile[00][00]_(#0).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 2 for flit (H0, 1->2 VC 0)
-1032    NoC.Tile[00][00]_(#0).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 1->2 VC 0)
-1032    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|5|1 to shoot packet.
-1032    NoC.Tile[01][01]_(#3).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 3->4 VC 0)
-1032    NoC.Tile[01][01]_(#3).Router::txProcess() -->  reserving direction 3 for flit (H0, 3->4 VC 0)
-1032    NoC.Tile[01][01]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 3->4 VC 0)
-1032    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-1033    NoC.Tile[00][01]_(#2).Router::rxProcess() -->  Flit (H0, 1->2 VC 0) collected from Input[0][0]
-1033    NoC.Tile[00][01]_(#2).Router::rxProcess() -->  Flit (H0, 3->4 VC 0) collected from Input[1][0]
-1033    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|5|1 to shoot packet.
-1033    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-1034    NoC.Tile[00][01]_(#2).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->2 VC 0)
-1034    NoC.Tile[00][01]_(#2).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 4 for flit (H0, 1->2 VC 0)
-1034    NoC.Tile[00][01]_(#2).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 3->4 VC 0)
-1034    NoC.Tile[00][01]_(#2).Router::txProcess() -->  reserving direction 2 for flit (H0, 3->4 VC 0)
-1034    NoC.Tile[00][01]_(#2).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->2 VC 0)
-1034    NoC.Tile[00][01]_(#2).Router::txProcess() --> Consumed flit (H0, 1->2 VC 0)
-1034    NoC.Tile[00][01]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 3->4 VC 0)
-1034    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|5|1 to shoot packet.
-1034    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-1035    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Not enough processed bytes 0|5|1 to shoot packet.
-PE 2 received a HEAD flit. Begin RECEIVE!!
-1035    NoC.Tile[00][01]_(#2).ProcessingElement::computeProcess() --> All Bytes Processed. Revert PE state --> PE_READY
+PE 3 received a new taskID. Resetting data counters.
+1039    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[0][0]
+1039    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|2|0|0 to shoot packet.
+PE 5 received a HEAD flit. Begin RECEIVE!!
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 2 for flit (H0, 1->5 VC 0)
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[2] for Input[4][0] flit (H0, 1->5 VC 0)
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 2 for flit (H0, 1->5 VC 0)
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[2][0]
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() --> (2,0) 
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 2
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (H0, 1->5 VC 0)
+1040    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1040    NoC.Tile[01][00]_(#1).ProcessingElement::txProcess() --> Flit created for PE1 Type: HEAD taskID = 1 1->5 VC0
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() --> current_id= 5 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() --> Returned direction 4 for flit (H0, 1->5 VC 0)
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->5 VC 0)
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->5 VC 0)
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() --> Output[0] has reservation from Input[4][0]
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Reservations for output 0: 
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() --> (4,0) 
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() --> 
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() --> found reservation from input= 0_to output= 4
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->5 VC 0)
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1040    NoC.Tile[01][01]_(#5).Router::txProcess() --> Consumed flit (H0, 1->5 VC 0)
+1040    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> Packet created for PE5 taskID = 3 5->6 VC0
+1040    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Send Processed bytes 0|3|1|1 to shoot packet.
+1040    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 3|6|3|2
+1040    NoC.Tile[01][01]_(#5).ProcessingElement::txProcess() --> Flit created for PE5 Type: HEAD taskID = 3 5->6 VC0
+1041    NoC.Tile[01][00]_(#1).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[4][0]
+1041    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[0][0]
+1041    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 5->6 VC 0) collected from Input[4][0]
+1041    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|3|1|1 to shoot packet.
+PE 5 received a HEAD flit. Begin RECEIVE!!
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() --> current_id= 1 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() --> Returned direction 2 for flit (H0, 1->5 VC 0)
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() -->  checking availability of Output[2] for Input[4][0] flit (H0, 1->5 VC 0)
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() -->  reserving direction 2 for flit (H0, 1->5 VC 0)
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() --> Output[4] has reservation from Input[2][0]
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() -->  Reservations for output 4: 
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() --> (2,0) 
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() --> 
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() --> found reservation from input= 4_to output= 2
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() --> Input[4][0] forwarded to Output[2], flit: (H0, 1->5 VC 0)
+1042    NoC.Tile[01][00]_(#1).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> current_id= 5 for sending flit from src_id= 5 to dst_id= 6 (H0, 5->6 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> Returned direction 1 for flit (H0, 5->6 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 5->6 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 1 for flit (H0, 5->6 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> current_id= 5 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> Returned direction 4 for flit (H0, 1->5 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->5 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->5 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> Output[0] has reservation from Input[4][0]
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Reservations for output 0: 
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> (4,0) 
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> 
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> found reservation from input= 0_to output= 4
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->5 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> Consumed flit (H0, 1->5 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Reservations for output 4: 
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> (1,0) 
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> 
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> found reservation from input= 4_to output= 1
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 5->6 VC 0)
+1042    NoC.Tile[01][01]_(#5).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 5->6 VC 0)
+1042    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|4|1|1 to shoot packet.
+1043    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 1->5 VC 0) collected from Input[0][0]
+1043    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|4|1|1 to shoot packet.
+PE 5 received a HEAD flit. Begin RECEIVE!!
+1043    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (H0, 5->6 VC 0) collected from Input[3][0]
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() --> current_id= 5 for sending flit from src_id= 1 to dst_id= 5 (H0, 1->5 VC 0)
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() --> Returned direction 4 for flit (H0, 1->5 VC 0)
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 1->5 VC 0)
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 4 for flit (H0, 1->5 VC 0)
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() --> Output[0] has reservation from Input[4][0]
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Reservations for output 0: 
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() --> (4,0) 
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() --> 
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() --> found reservation from input= 0_to output= 4
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 1->5 VC 0)
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 1->5 VC 0)
+1044    NoC.Tile[01][01]_(#5).Router::txProcess() --> Consumed flit (H0, 1->5 VC 0)
+1044    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|5|1|1 to shoot packet.
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() --> current_id= 6 for sending flit from src_id= 5 to dst_id= 6 (H0, 5->6 VC 0)
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() --> Returned direction 4 for flit (H0, 5->6 VC 0)
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 5->6 VC 0)
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() -->  reserving direction 4 for flit (H0, 5->6 VC 0)
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() -->  Reservations for output 3: 
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() --> (4,0) 
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() --> 
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() --> found reservation from input= 3_to output= 4
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 5->6 VC 0)
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 5->6 VC 0)
+1044    NoC.Tile[02][01]_(#6).Router::txProcess() --> Consumed flit (H0, 5->6 VC 0)
+1045    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Not enough processed bytes 0|5|1|1 to shoot packet.
+PE 5 received a HEAD flit. Begin RECEIVE!!
+1045    NoC.Tile[01][01]_(#5).ProcessingElement::computeProcess() --> All Bytes Processed. Revert PE state --> PE_READY
 DEBUG: All ComputeProcess() complete for taskID = 1
-1035    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-1035    NoC.Tile[00][02]_(#4).Router::rxProcess() -->  Flit (H0, 3->4 VC 0) collected from Input[0][0]
-1036    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> Packet created for PE2 taskID = 2 2->3 VC0
-1036    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 Send Processed bytes 0|6|2|2 to shoot packet.
-1036    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> PE2 3|6|3|2
-1036    NoC.Tile[00][01]_(#2).ProcessingElement::packetShotbyPE() --> All Bytes Sent. 6|2|2
-1036    NoC.Tile[00][01]_(#2).ProcessingElement::txProcess() --> Flit created for PE2 Type: HEAD taskID = 2 2->3 VC0
-1036    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-1036    NoC.Tile[00][02]_(#4).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 3->4 VC 0)
-1036    NoC.Tile[00][02]_(#4).Router::txProcess() -->  reserving direction 4 for flit (H0, 3->4 VC 0)
-1036    NoC.Tile[00][02]_(#4).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 3->4 VC 0)
-1036    NoC.Tile[00][02]_(#4).Router::txProcess() --> Consumed flit (H0, 3->4 VC 0)
-1037    NoC.Tile[00][01]_(#2).Router::rxProcess() -->  Flit (H0, 2->3 VC 0) collected from Input[4][0]
-1037    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-PE 4 received a HEAD flit. Begin RECEIVE!!
-PE 4 received a new taskID. Resetting data counters.
-1038    NoC.Tile[00][01]_(#2).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 2->3 VC 0)
-1038    NoC.Tile[00][01]_(#2).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 1 for flit (H0, 2->3 VC 0)
-1038    NoC.Tile[00][01]_(#2).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 2->3 VC 0)
-1038    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-1039    NoC.Tile[01][01]_(#3).Router::rxProcess() -->  Flit (H0, 2->3 VC 0) collected from Input[3][0]
-1039    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-1040    NoC.Tile[01][01]_(#3).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 2->3 VC 0)
-1040    NoC.Tile[01][01]_(#3).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 4 for flit (H0, 2->3 VC 0)
-1040    NoC.Tile[01][01]_(#3).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 2->3 VC 0)
-1040    NoC.Tile[01][01]_(#3).Router::txProcess() --> Consumed flit (H0, 2->3 VC 0)
-1040    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-1041    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Not enough processed bytes 0|1|1 to shoot packet.
-PE 3 received a HEAD flit. Begin RECEIVE!!
-1041    NoC.Tile[01][01]_(#3).ProcessingElement::computeProcess() --> All Bytes Processed. Revert PE state --> PE_READY
-DEBUG: All ComputeProcess() complete for taskID = 2
-1042    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> Packet created for PE3 taskID = 3 3->4 VC0
-1042    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 Send Processed bytes 0|2|2|2 to shoot packet.
-1042    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> PE3 1|2|1|2
-1042    NoC.Tile[01][01]_(#3).ProcessingElement::packetShotbyPE() --> All Bytes Sent. 2|2|2
-1042    NoC.Tile[01][01]_(#3).ProcessingElement::txProcess() --> Flit created for PE3 Type: HEAD taskID = 3 3->4 VC0
-1043    NoC.Tile[01][01]_(#3).Router::rxProcess() -->  Flit (H0, 3->4 VC 0) collected from Input[4][0]
-1044    NoC.Tile[01][01]_(#3).Router::txProcess() -->  checking availability of Output[3] for Input[4][0] flit (H0, 3->4 VC 0)
-1044    NoC.Tile[01][01]_(#3).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 3 for flit (H0, 3->4 VC 0)
-1044    NoC.Tile[01][01]_(#3).Router::txProcess() --> Input[4][0] forwarded to Output[3], flit: (H0, 3->4 VC 0)
-1045    NoC.Tile[00][01]_(#2).Router::rxProcess() -->  Flit (H0, 3->4 VC 0) collected from Input[1][0]
-1046    NoC.Tile[00][01]_(#2).Router::txProcess() -->  checking availability of Output[2] for Input[1][0] flit (H0, 3->4 VC 0)
-1046    NoC.Tile[00][01]_(#2).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 2 for flit (H0, 3->4 VC 0)
-1046    NoC.Tile[00][01]_(#2).Router::txProcess() --> Input[1][0] forwarded to Output[2], flit: (H0, 3->4 VC 0)
-1047    NoC.Tile[00][02]_(#4).Router::rxProcess() -->  Flit (H0, 3->4 VC 0) collected from Input[0][0]
-1048    NoC.Tile[00][02]_(#4).Router::txProcess() -->  checking availability of Output[4] for Input[0][0] flit (H0, 3->4 VC 0)
-1048    NoC.Tile[00][02]_(#4).Router::txProcess() -->  RT_ALREADY_SAME reserved direction 4 for flit (H0, 3->4 VC 0)
-1048    NoC.Tile[00][02]_(#4).Router::txProcess() --> Input[0][0] forwarded to Output[4], flit: (H0, 3->4 VC 0)
-1048    NoC.Tile[00][02]_(#4).Router::txProcess() --> Consumed flit (H0, 3->4 VC 0)
-PE 4 received a HEAD flit. Begin RECEIVE!!
-PE 4 received a new taskID. Resetting data counters.
+PE 6 received a HEAD flit. Begin RECEIVE!!
+PE 6 received a new taskID. Resetting data counters.
+1046    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> Packet created for PE5 taskID = 3 5->6 VC0
+1046    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 Send Processed bytes 0|6|2|2 to shoot packet.
+1046    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> PE5 3|6|3|2
+1046    NoC.Tile[01][01]_(#5).ProcessingElement::packetShotbyPE() --> All Bytes Sent. 5->6 6|2|2
+1046    NoC.Tile[01][01]_(#5).ProcessingElement::txProcess() --> Flit created for PE5 Type: HEAD taskID = 3 5->6 VC0
+1047    NoC.Tile[01][01]_(#5).Router::rxProcess() -->  Flit (H0, 5->6 VC 0) collected from Input[4][0]
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() --> current_id= 5 for sending flit from src_id= 5 to dst_id= 6 (H0, 5->6 VC 0)
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() --> Returned direction 1 for flit (H0, 5->6 VC 0)
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() -->  checking availability of Output[1] for Input[4][0] flit (H0, 5->6 VC 0)
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() -->  reserving direction 1 for flit (H0, 5->6 VC 0)
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() --> Output[4] has reservation from Input[1][0]
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() -->  Reservations for output 4: 
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() --> (1,0) 
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() --> 
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() --> found reservation from input= 4_to output= 1
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() --> Input[4][0] forwarded to Output[1], flit: (H0, 5->6 VC 0)
+1048    NoC.Tile[01][01]_(#5).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 5->6 VC 0)
+1049    NoC.Tile[02][01]_(#6).Router::rxProcess() -->  Flit (H0, 5->6 VC 0) collected from Input[3][0]
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() --> current_id= 6 for sending flit from src_id= 5 to dst_id= 6 (H0, 5->6 VC 0)
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() --> Returned direction 4 for flit (H0, 5->6 VC 0)
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() -->  checking availability of Output[4] for Input[3][0] flit (H0, 5->6 VC 0)
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() -->  reserving direction 4 for flit (H0, 5->6 VC 0)
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() --> Output[3] has reservation from Input[4][0]
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() -->  Reservations for output 3: 
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() --> (4,0) 
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() --> 
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() --> found reservation from input= 3_to output= 4
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() --> Input[3][0] forwarded to Output[4], flit: (H0, 5->6 VC 0)
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() --> Single flit packet detected, releasing reservation for flit when done transit(H0, 5->6 VC 0)
+1050    NoC.Tile[02][01]_(#6).Router::txProcess() --> Consumed flit (H0, 5->6 VC 0)
+PE 6 received a HEAD flit. Begin RECEIVE!!
+PE 6 received a new taskID. Resetting data counters.
 Noxim simulation completed. (11000 cycles executed)
 
-PE[0,0]0,PE[1,0]0,PE[0,1]0,PE[1,1]0,PE[0,2]0,PE[1,2]0,
-% Total received packets: 11
-% Total received flits: 22
-% Received/Ideal flits Ratio: 0.00458333
+PE[0,0]0,PE[1,0]0,PE[2,0]0,PE[3,0]0,PE[0,1]0,PE[1,1]0,PE[2,1]0,PE[3,1]0,PE[0,2]0,PE[1,2]0,PE[2,2]0,PE[3,2]0,PE[0,3]0,PE[1,3]0,PE[2,3]0,PE[3,3]0,
+% Total received packets: 17
+% Total received flits: 28
+% Received/Ideal flits Ratio: 0.0021875
 % Average wireless utilization: 0
-% Global average delay (cycles): 5.45455
-% Max delay (cycles): 6
-% Network throughput (flits/cycle): 0.0022
-% Average IP throughput (flits/cycle/IP): 0.000366667
-% Total energy (J): 7.40881e-07
-% 	Dynamic energy (J): 1.62177e-10
-% 	Static energy (J): 7.40719e-07
+% Global average delay (cycles): 5.23529
+% Max delay (cycles): 10
+% Network throughput (flits/cycle): 0.0028
+% Average IP throughput (flits/cycle/IP): 0.000175
+% Total energy (J): 1.97543e-06
+% 	Dynamic energy (J): 1.74272e-10
+% 	Static energy (J): 1.97525e-06

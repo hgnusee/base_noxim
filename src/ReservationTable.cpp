@@ -62,6 +62,11 @@ int ReservationTable::checkReservation(const TReservation r, const int port_out)
 	    // In the current implementation this should never happen
 	    if (o!=port_out && rtable[o].reservations[i] == r)
 	    {
+			cout << "Found same input/VC in different outputs: o=" << o
+				<< ", port_out=" << port_out
+				<< ", reservation=[in:" << rtable[o].reservations[i].input
+				<< ", vc:" << rtable[o].reservations[i].vc << "]" << endl;
+			cout << "r = " << r.input << "," << r.vc << endl;
 		return RT_ALREADY_OTHER_OUT;
 	    }
 	}

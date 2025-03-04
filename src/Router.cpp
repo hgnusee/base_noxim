@@ -127,7 +127,7 @@ void Router::txProcess()
 		      // prepare data for routing
 		      RouteData route_data;
 		      route_data.current_id = local_id;
-		      //LOG<< "current_id= "<< route_data.current_id <<" for sending " << flit << endl;
+			  LOG<< "current_id= "<< route_data.current_id <<" for sending flit from src_id= " << flit.src_id << " to dst_id= " << flit.dst_id << " " << flit << endl;
 		      route_data.src_id = flit.src_id;
 		      route_data.dst_id = flit.dst_id;
 		      route_data.dir_in = i;
@@ -135,6 +135,7 @@ void Router::txProcess()
 
 		      // TODO: see PER POSTERI (adaptive routing should not recompute route if already reserved)
 		      int o = route(route_data);
+			  LOG << "Returned direction " << o << " for flit " << flit << endl;
 
 		      // manage special case of target hub not directly connected to destination
 		      if (o>=DIRECTION_HUB_RELAY)
@@ -150,6 +151,8 @@ void Router::txProcess()
 		      r.vc = vc;
 
 		      LOG << " checking availability of Output[" << o << "] for Input[" << i << "][" << vc << "] flit " << flit << endl;
+
+
 
 		      int rt_status = reservation_table.checkReservation(r,o);
 
@@ -184,6 +187,12 @@ void Router::txProcess()
       for (int i = 0; i < DIRECTIONS + 2; i++) 
       { 
 	  vector<pair<int,int> > reservations = reservation_table.getReservations(i);
+	// Debug: Print out the reservation values
+	for (unsigned int idx = 0; idx < reservations.size(); idx++) {
+		int input_dir = reservations[idx].first;
+		int input_vc = reservations[idx].second;
+		LOG << "Output[" << i << "] has reservation from Input[" << input_dir << "][" << input_vc << "]" << endl;
+	}
 	  
 	  if (reservations.size()!=0)
 	  {
@@ -192,7 +201,13 @@ void Router::txProcess()
 
 	      int o = reservations[rnd_idx].first;
 	      int vc = reservations[rnd_idx].second;
-	     // LOG<< "found reservation from input= " << i << "_to output= "<<o<<endl;
+		// Debug: Print reservations vector pair
+		LOG << " Reservations for output " << i << ": \n";
+		for (unsigned int j = 0; j < reservations.size(); j++) {
+			LOG << "(" << reservations[j].first << "," << reservations[j].second << ") \n";
+		}
+		LOG << endl;
+	     LOG<< "found reservation from input= " << i << "_to output= "<<o<<endl;
 	      // can happen
 	      if (!buffer[i][vc].IsEmpty())  
 	      {
@@ -212,7 +227,14 @@ void Router::txProcess()
 		      req_tx[o].write(current_level_tx[o]);
 		      buffer[i][vc].Pop();
 
-		      if (flit.flit_type == FLIT_TYPE_TAIL)
+			  // consider the case of a single flit packet, must release researvation when done transit
+			  // fix applied for one-to-many traffic to prevent RT_ALREADY_OTHER_OUT
+			  bool singleFlitPacket = (flit.flit_type == FLIT_TYPE_HEAD) && (flit.sequence_length == 1);
+			  if (singleFlitPacket) {
+				LOG << "Single flit packet detected, releasing reservation for flit when done transit" << flit << endl;
+			  }
+
+		      if (flit.flit_type == FLIT_TYPE_TAIL || singleFlitPacket)
 		      {
 			  TReservation r;
 			  r.input = i;

@@ -55,7 +55,8 @@ SC_MODULE(ProcessingElement)
     // variable to track data processing in PE, and decide start/stop of transmits
     int recvBytes; // cumulative bytes received by PE from flits
     int processedBytes; // cunmulatve bytes processed by PE for transmit
-    int sentBytes; // cumulative bytes transmitted out by PE
+    // int sentBytes; // cumulative bytes transmitted out by PE
+    vector < int > sentBytes;
     int recv_totalBytes; // based on totalVolume
     int recv_minBytes; // based on minVolume, used to trigger computeProcess()
     int tran_totalBytes; // based on totalVolume
@@ -71,7 +72,7 @@ SC_MODULE(ProcessingElement)
     void reservedTableMonitor(); // HG: check and move transactions from reserved -> traffic comm table
     bool packetShotbyPE(TrafficCommunication& comm, const int local_id, Packet & packet); // HG: check if packet can be created by the PE
 
-    int readyToSendBytes ();
+    int readyToSendBytes (const int dst_pos);
     void setCurrentTaskID (const int waitID); // set currentTaskID to waitID value of the current PE
     Flit nextFlit();	// Take the next flit of the current packet
     Packet trafficTest();	// used for testing traffic
