@@ -84,6 +84,12 @@ class GlobalTrafficTable {
     // HG: set cmp_complete flag in Traffic Communication Table
     void setComputeComplete(const int task_ID, const int dst_ID, const int local_ID);
 
+    // HG: get vector of src_id from Traffic Communication Table
+    TrafficCommunication getsrcID(const int task_ID);
+
+    // HG: get empty comm from other functions
+    TrafficCommunication getEmptyComm();
+
     // Returns the number of occurrences of soruce src_id in the traffic
     // table
     int occurrencesAsSource(const int src_id);

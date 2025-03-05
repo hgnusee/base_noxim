@@ -127,7 +127,7 @@ void Router::txProcess()
 		      // prepare data for routing
 		      RouteData route_data;
 		      route_data.current_id = local_id;
-			  LOG<< "current_id= "<< route_data.current_id <<" for sending flit from src_id= " << flit.src_id << " to dst_id= " << flit.dst_id << " " << flit << endl;
+			//   LOG<< "current_id= "<< route_data.current_id <<" for sending flit from src_id= " << flit.src_id << " to dst_id= " << flit.dst_id << " " << flit << endl;
 		      route_data.src_id = flit.src_id;
 		      route_data.dst_id = flit.dst_id;
 		      route_data.dir_in = i;
@@ -202,12 +202,12 @@ void Router::txProcess()
 	      int o = reservations[rnd_idx].first;
 	      int vc = reservations[rnd_idx].second;
 		// Debug: Print reservations vector pair
-		LOG << " Reservations for output " << i << ": \n";
-		for (unsigned int j = 0; j < reservations.size(); j++) {
-			LOG << "(" << reservations[j].first << "," << reservations[j].second << ") \n";
-		}
-		LOG << endl;
-	     LOG<< "found reservation from input= " << i << "_to output= "<<o<<endl;
+		// LOG << " Reservations for output " << i << ": \n";
+		// for (unsigned int j = 0; j < reservations.size(); j++) {
+		// 	LOG << "(" << reservations[j].first << "," << reservations[j].second << ") \n";
+		// }
+		// LOG << endl;
+	    //  LOG<< "found reservation from input= " << i << "_to output= "<<o<<endl;
 	      // can happen
 	      if (!buffer[i][vc].IsEmpty())  
 	      {

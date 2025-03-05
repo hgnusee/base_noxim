@@ -52,12 +52,15 @@ void ProcessingElement::rxProcess()
         currentTaskID = -1; // HG: initialize to -1 to indicate no taskID
         receivedTaskID = -1;
         last_recv_srcID = -1; // HG: initialize -1 to indicate no srcID yet
-        recvBytes = 0;
+        recvBytes.clear();
         processedBytes = 0;
         sentBytes.clear();
         recv_totalBytes = 0;
         recv_minBytes = 0;
         compute_queue.clear(); // clear all compute queue pairs
+        rcv_comm = traffic_communication_table->getEmptyComm(); // reset rcv_comm to empty_comm
+        src_pos = -1;
+
     } else {
         // LOG << "In rxProcess() for PE " << local_id << endl;
         switch (state) {
@@ -74,21 +77,35 @@ void ProcessingElement::rxProcess()
                         last_recv_srcID = flit_tmp.src_id; // set last_recv_srcID to srcID of received flit
                         receivedTaskID = flit_tmp.taskID;
                         
-
+                        rcv_comm = traffic_communication_table->getsrcID(currentTaskID);
                         // reset recv/processed/sentBytes when receivedtaskID NOT same as currentTaskID
                         // currentTaskID is set to -1 during Reset or PE does not have a valid taskID
                         if (receivedTaskID != currentTaskID) {
                             cout << "PE " << local_id << " received a new taskID. Resetting data counters." << endl;
-                            recvBytes = 0; // reset recvBytes to 0
+                            recvBytes.clear(); // reset recvBytes to empty vector
                             processedBytes = 0; // reset processedBytes to 0
+
+                            
+                             // resize recvBytes to size of src vector of taskID of received flit
+                            recvBytes.resize(rcv_comm.src.size(), 0);
                         }
+
+                        if (recvBytes.size() != rcv_comm.src.size()) {
+                            cout << "PE " << local_id << " received a new taskID. Resizing recvBytes." << endl;
+                            recvBytes.resize(rcv_comm.src.size(), 0);
+                        }
+
+
+                        src_pos = distance(rcv_comm.src.begin(), find(rcv_comm.src.begin(), rcv_comm.src.end(), last_recv_srcID));
 
                         recv_totalBytes = flit_tmp.total_vol; // set totalBytes to totalVol of received flit
                         recv_minBytes = flit_tmp.min_vol; // set minBytes to minVol of received flit
                         // currentTaskID = flit_tmp.taskID; // set currentTaskID to taskID of received flit
 
                         // start increment recvBytes, assume one flit is one byte
-                        recvBytes ++;
+                        if (!recvBytes.empty()) {
+                            recvBytes[src_pos] ++;
+                        }
 
                         if (recv_minBytes != -1) {
                         // run compute process delay if enough flits are received
@@ -123,23 +140,31 @@ void ProcessingElement::rxProcess()
                     current_level_rx = 1 - current_level_rx;	// Negate the old value for Alternating Bit Protocol (ABP)
                     
                     receivedTaskID = flit_tmp.taskID;
+                    
+                    // same as ComputeProcess() sum_recvBytes, just different name for clarity
+                    int sum_recvBytesRx = 0;
+                    for (int i = 0; i < recvBytes.size(); i++) {
+                        sum_recvBytesRx += recvBytes[i];
+                    }
+                    
+                    sum_recvBytesRx = recvBytes.size() > 0 ? sum_recvBytesRx / recvBytes.size() : 0;
 
                     if (recv_minBytes != -1) {
                         if (flit_tmp.flit_type == FLIT_TYPE_BODY) {
-                            recvBytes ++;
+                            recvBytes[src_pos] ++;
                             computeProcess();
                         } else if (flit_tmp.flit_type == FLIT_TYPE_TAIL && receivedTaskID == currentTaskID && flit_tmp.waitID != -1) {
-                            recvBytes ++;
+                            recvBytes[src_pos] ++;
                             computeProcess();
                         } else if (flit_tmp.flit_type == FLIT_TYPE_TAIL && receivedTaskID == currentTaskID && flit_tmp.waitID == -1) {
-                            recvBytes ++;
+                            recvBytes[src_pos] ++;
                             computeProcess();
                             state = PE_READY;
                         } else if (flit_tmp.flit_type == FLIT_TYPE_HEAD) {
                             // reset recv/processed/sentBytes when receivedtaskID NOT same as currentTaskID
                             // currentTaskID is set to -1 during Reset or PE does not have a valid taskID
                             if (receivedTaskID == currentTaskID) {
-                                recvBytes++;
+                                recvBytes[src_pos]++;
                                 computeProcess();
                             } else {
                                 // DO NOTHING, this case should not come
@@ -152,15 +177,15 @@ void ProcessingElement::rxProcess()
                             // state = PE_READY
                         }
                     } else {
-                        recvBytes ++;
+                        recvBytes[src_pos] ++;
                     }
 
-                    if (recvBytes >= recv_totalBytes) {
+                    if (sum_recvBytesRx >= recv_totalBytes) {
                         LOG << "PE " << local_id << " All Flits received. Stop receiving. " << endl;
                         state = PE_READY;
                     } else {
                         state = PE_RECV;
-                        LOG << "PE " << local_id << " Continue receiving flits, current recBytes " << recvBytes << "|"<< recv_totalBytes << endl;
+                        LOG << "PE " << local_id << " Continue receiving flits, current recBytes " << sum_recvBytesRx << "|"<< recv_totalBytes << endl;
                     }
                 }
                 ack_rx.write(current_level_rx);
@@ -323,6 +348,7 @@ bool ProcessingElement::canShot(Packet & packet)
                 return false;
             // set currentTaskID to waitID value of the current PE
             // FIX: Future Implementation, allow multiple waitID by just passing the whole waitID vector
+            // FIX: Need to update this for many-to-one traffic support
             setCurrentTaskID(comm.waitID[0]);
             
             if (comm.src.size() == 1 && comm.dst.size() > 1) {
@@ -443,11 +469,21 @@ void ProcessingElement::computeProcess()
     int compute_delayN = 1; // set fixed delay for compute process
     // FIX: compute_delayN > 1 is not working, no delay > 1 is modelled and last traffic not moving
 
-    if (recvBytes == recv_minBytes || (recvBytes > recv_minBytes && (recvBytes % tran_minBytes) == 0)) {
+    int sum_recvBytes = 0;
+    for (int i = 0; i < recvBytes.size(); i++) {
+        sum_recvBytes += recvBytes[i];
+    }
+    sum_recvBytes = recvBytes.size() > 0 ? sum_recvBytes / recvBytes.size() : 0;
+
+    // Print log of sum_recvBytes values
+    LOG << "PE" << local_id << " sum_recvBytes: " << sum_recvBytes << endl;
+    if (sum_recvBytes == recv_minBytes || (sum_recvBytes > recv_minBytes && (sum_recvBytes % tran_minBytes) == 0)) {
         // hold the "byte" for one clock cycle delay and send on the next clock
         // compute_queue.push_back(make_pair(recvBytes, compute_delayN));
         // "Compress recvBytes of (recvBByte%tran_minByte == 0) into 1 single processedByte"
+
         processedBytes ++;
+        LOG << "PE" << local_id << " Processed " << processedBytes << " Bytes" << endl;
     }
 /*     // Process completed computations
     auto it = compute_queue.begin();
@@ -549,6 +585,12 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
         }
     }
 
+    // same as sum_recBytes in computeProcess() just different name for clarity
+    int sum_recvBytesPE = 0;
+    for (int i = 0; i < recvBytes.size(); i++) {
+        sum_recvBytesPE += recvBytes[i];
+    }
+    sum_recvBytesPE = recvBytes.size() > 0 ? sum_recvBytesPE / recvBytes.size() : 0;
     if (comm.waitID[0] != -1 && found_waitID && dst_target != -1) {
         // Extra check to stop sending this traffic if traffic has been used or reach tran_totalBytes
         if (comm.traffic_used == true || sentBytes[dst_target] >= tran_totalBytes)
@@ -557,7 +599,7 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
         // Check if we have enough processed bytes to shoot packet
         if (readyToSendBytes(dst_target) < 1) {
             LOG << "PE" << local_id << " Not enough processed bytes "
-            <<readyToSendBytes(dst_target)<<"|"<<recvBytes<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
+            <<readyToSendBytes(dst_target)<<"|"<<sum_recvBytesPE<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
             return false;
         }
         
@@ -591,7 +633,7 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
                 LOG << "Packet created (o2m) for PE" << local_id << " taskID = " << 
                     comm.taskID << " " << local_id << "->" << comm.dst[dst_pos] << " VC" << vc << endl;
                 LOG << "PE" << local_id << " Send Processed bytes "
-                <<readyToSendBytes(dst_target)<<"|"<<recvBytes<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
+                <<readyToSendBytes(dst_target)<<"|"<<sum_recvBytesPE<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
                 LOG << "PE" << local_id <<" "<< recv_minBytes <<"|"<< recv_totalBytes <<"|"<< tran_minBytes <<"|"<< tran_totalBytes << endl;
                 packet_created = true;
             }
@@ -606,7 +648,7 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
                 LOG << "Packet created for PE" << local_id << " taskID = " << 
                     comm.taskID << " " << local_id << "->" << comm.dst[i] << " VC" << vc << endl;
                 LOG << "PE" << local_id << " Send Processed bytes "
-                <<readyToSendBytes(dst_target)<<"|"<<recvBytes<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
+                <<readyToSendBytes(dst_target)<<"|"<<sum_recvBytesPE<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
                 LOG << "PE" << local_id <<" "<< recv_minBytes <<"|"<< recv_totalBytes <<"|"<< tran_minBytes <<"|"<< tran_totalBytes << endl;
                 packet_created = true;
                 break; // Only one destination in this case
@@ -617,7 +659,7 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
         if (sentBytes[dst_target] >= tran_totalBytes) {
             // state = PE_READY;
             LOG << "All Bytes Sent. "<<local_id<<"->"<<comm.dst[dst_target]<<" "
-            <<recvBytes<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< endl;
+            <<sum_recvBytesPE<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< endl;
             // only set trn_complete to TRN_BUSY when dst received all required Bytes
             comm.trn_complete[dst_target] = TRN_BUSY;
         }

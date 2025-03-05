@@ -482,6 +482,22 @@ void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID,
 	}
 }
 
+TrafficCommunication GlobalTrafficTable::getsrcID(const int task_ID) {
+
+	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
+		TrafficCommunication comm = traffic_communication_table[i];
+		if (comm.taskID == task_ID) {
+			return comm;
+		}
+	}
+	// HG: return empty TrafficCommunication, if not matching task_ID found
+	assert("Error in Traffic Table, no such taskID!");
+	return empty_comm;
+}
+
+TrafficCommunication GlobalTrafficTable::getEmptyComm() {
+	return empty_comm;
+}
 
 int GlobalTrafficTable::occurrencesAsSource(const int src_id)
 {

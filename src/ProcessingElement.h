@@ -53,7 +53,8 @@ SC_MODULE(ProcessingElement)
     // collect the last received srcID for use in computeProcess()
     int last_recv_srcID;
     // variable to track data processing in PE, and decide start/stop of transmits
-    int recvBytes; // cumulative bytes received by PE from flits
+    // int recvBytes; // cumulative bytes received by PE from flits
+    vector < int > recvBytes;
     int processedBytes; // cunmulatve bytes processed by PE for transmit
     // int sentBytes; // cumulative bytes transmitted out by PE
     vector < int > sentBytes;
@@ -62,6 +63,8 @@ SC_MODULE(ProcessingElement)
     int tran_totalBytes; // based on totalVolume
     int tran_minBytes; // based on minVolume, used to trigger computeProcess()
     vector<pair<int, int>> compute_queue;   // vector to hold compute parameters (processByte, delayN)
+    TrafficCommunication rcv_comm; // hold Traffic Info of current received packet
+    int src_pos; // find src PE position in vector of sources in the traffic table
 
     // Functions
     void rxProcess();		// The receiving process
