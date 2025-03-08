@@ -63,6 +63,13 @@ void ProcessingElement::rxProcess()
 
     } else {
         // LOG << "In rxProcess() for PE " << local_id << endl;
+
+        // // Debug prompt for PE 1
+        // if (local_id == 1) {
+        //     std::cout << "PE 1 rxProcess is being executed. Press Enter to continue..." << std::endl;
+        //     std::cin.get();
+        // }
+
         switch (state) {
             case PE_READY:
                 if (req_rx.read() == 1 - current_level_rx) {
@@ -347,9 +354,19 @@ bool ProcessingElement::canShot(Packet & packet)
             if (comm.traffic_used == true)
                 return false;
             // set currentTaskID to waitID value of the current PE
-            // FIX: Future Implementation, allow multiple waitID by just passing the whole waitID vector
+            // DONEFIX: Future Implementation, allow multiple waitID by just passing the whole waitID vector
             // FIX: Need to update this for many-to-one traffic support
             setCurrentTaskID(comm.waitID[0]);
+            
+            // ###### Sat Mar 8 15:18:23 SGT 2025
+            // re-update currentTaskID based on src_pos, if waitID.size() > 1
+            // we have to match src_pos with waitID position as they are directly related
+            if (comm.waitID.size() > 1) {
+                int srcPE_pos = distance(comm.src.begin(), find(comm.src.begin(), comm.src.end(), local_id));
+                setCurrentTaskID(comm.waitID[srcPE_pos]);
+                LOG << "PE" << local_id << " waitID.size() > 1. Update currentTaskID to waitID["<<srcPE_pos<<"]" << endl;
+                
+            }
             
             if (comm.src.size() == 1 && comm.dst.size() > 1) {
                 // one-to-many case
@@ -361,7 +378,6 @@ bool ProcessingElement::canShot(Packet & packet)
                 int dst_pos = distance(comm.trn_complete.begin(), it);
                 // comm.trn_complete[dst_pos] = TRN_BUSY;
 
-                
                 // if taskID no need wait for other PE, just send to dst
                 if (comm.waitID[0] == -1){
                     // HG: make2() with values from comm object
@@ -381,19 +397,19 @@ bool ProcessingElement::canShot(Packet & packet)
                 
 
             } else if (comm.src.size() >= 1 && comm.dst.size() == 1) {
-                    // one-to-one & many-to-one case
-                    
-                    // if taskID no need wait for other PE, just send to dst
-                    if (comm.src_minVol == -1 && comm.waitID[0] == -1) {
-                        // use comm.dst[0] as destination since is o2o or m2o case
-                        packet.make2(comm.taskID, local_id, comm.dst[0], vc, now,
-                            comm.src_totalVol, comm.waitOP, comm.src_minVol, comm.src_totalVol, 
-                            comm.dst_minVol, comm.dst_totalVol);
-                    // waitID=-1 is a one-off transfer, flag this traffic as complete and dont use it anymore
-                    traffic_communication_table->setTransmitComplete(comm.taskID, local_id, comm.dst[0]);
-                    } else {
-                        shot = packetShotbyPE(comm, local_id, packet);
-                    }
+                // one-to-one & many-to-one case
+                
+                // if taskID no need wait for other PE, just send to dst
+                if (comm.src_minVol == -1 && comm.waitID[0] == -1) {
+                    // use comm.dst[0] as destination since is o2o or m2o case
+                    packet.make2(comm.taskID, local_id, comm.dst[0], vc, now,
+                        comm.src_totalVol, comm.waitOP, comm.src_minVol, comm.src_totalVol, 
+                        comm.dst_minVol, comm.dst_totalVol);
+                // waitID=-1 is a one-off transfer, flag this traffic as complete and dont use it anymore
+                traffic_communication_table->setTransmitComplete(comm.taskID, local_id, comm.dst[0]);
+                } else {
+                    shot = packetShotbyPE(comm, local_id, packet);
+                }
             }
             
         }
@@ -476,7 +492,7 @@ void ProcessingElement::computeProcess()
     int norm_sum_recvBytes = recvBytes.size() > 0 ? sum_recvBytes / recvBytes.size() : 0;
     
 
-    int readyBytes = readyToProcessBytes(norm_sum_recvBytes, recvBytes.size());
+    // int readyBytes = readyToProcessBytes(norm_sum_recvBytes, recvBytes.size());
 
     // Print log of sum_recvBytes values
     LOG << "PE" << local_id << " sum_recvBytes: " << sum_recvBytes << " processedBytes: " << processedBytes<<endl;
@@ -610,7 +626,8 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
         // Check if we have enough processed bytes to shoot packet
         if (readyToSendBytes(dst_target) < 1) {
             LOG << "PE" << local_id << " Not enough processed bytes "
-            <<readyToSendBytes(dst_target)<<"|"<<sum_recvBytesPE<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
+            <<readyToSendBytes(dst_target)<<"|"<<sum_recvBytesPE<<"|"
+            <<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
             return false;
         }
         
@@ -628,8 +645,7 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
                     assert(dst_target == dst_pos && "DST target/pos mismatch in one-to-many case");
                     return false;
                 }
-                
-                
+                                
                 // Create packet for this destination
                 packet.make2(comm.taskID, local_id, comm.dst[dst_pos], vc, now, 
                     1, comm.waitOP, comm.src_minVol, comm.src_totalVol, 
@@ -659,8 +675,10 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
                 LOG << "Packet created for PE" << local_id << " taskID = " << 
                     comm.taskID << " " << local_id << "->" << comm.dst[i] << " VC" << vc << endl;
                 LOG << "PE" << local_id << " Send Processed bytes "
-                <<readyToSendBytes(dst_target)<<"|"<<sum_recvBytesPE<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
-                LOG << "PE" << local_id <<" "<< recv_minBytes <<"|"<< recv_totalBytes <<"|"<< tran_minBytes <<"|"<< tran_totalBytes << endl;
+                    <<readyToSendBytes(dst_target)<<"|"<<sum_recvBytesPE<<"|"<<processedBytes<<
+                    "|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
+                LOG << "PE" << local_id <<" "<< recv_minBytes <<"|"<< recv_totalBytes <<
+                    "|"<< tran_minBytes <<"|"<< tran_totalBytes << endl;
                 packet_created = true;
                 break; // Only one destination in this case
             }
@@ -671,8 +689,10 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
             // state = PE_READY;
             LOG << "All Bytes Sent. "<<local_id<<"->"<<comm.dst[dst_target]<<" "
             <<sum_recvBytesPE<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< endl;
-            // only set trn_complete to TRN_BUSY when dst received all required Bytes
-            comm.trn_complete[dst_target] = TRN_BUSY;
+            // set trn_complete = TRN_DONE when dst received all required Bytes
+            // ###### Sat Mar 8 17:22:58 SGT 2025 previously we use comm.trn_complete[dst_target] = TRN_DONE, but not appropritate for m2o traffic 
+            // comm.trn_complete[dst_target] = TRN_DONE;
+            traffic_communication_table->setTransmitComplete(comm.taskID, local_id, comm.dst[dst_target]);
         }
         
         return packet_created;

@@ -273,17 +273,26 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
 
 				if (check_trn_state == TRN_WAIT) {
 
-					cout << "DEBUG: Traffic Comm Table found for src_id = " << src_id << endl;
+					cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
+						<< " return traffic" << endl;
 					// return transaction to Processing Element to make packet
 					tcomm.trn_complete[src_pos] = TRN_BUSY;
 			
-				return tcomm;
+					return tcomm;
+		
+				} else if (check_trn_state == TRN_BUSY) {
+					cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
+						<< " trn_complete = TRN_BUSY, return traffic" << endl;	
+					return tcomm;
+
+				} else if (check_trn_state == TRN_DONE) {
 			
-				} else if (check_trn_state != TRN_WAIT) {
-			
-					cout << "DEBUG: Traffic Comm Table found for src_id = " << src_id 
-						<< " but trn_complete is not WAIT" << endl;
+					cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
+						<< " but trn_complete = TRN_DONE" << endl;
+				} else {
+					assert("Error: Unknown trn_state!");
 				}
+
 			} else {
 				continue;
 			}
