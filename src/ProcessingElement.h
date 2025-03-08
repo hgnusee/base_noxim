@@ -77,6 +77,7 @@ SC_MODULE(ProcessingElement)
 
     int readyToSendBytes (const int dst_pos);
     void setCurrentTaskID (const int waitID); // set currentTaskID to waitID value of the current PE
+    int readyToProcessBytes(int sum_recvBytes,int src_size); // chec ready to process bytes (siilar to readyToSendBytes)
     Flit nextFlit();	// Take the next flit of the current packet
     Packet trafficTest();	// used for testing traffic
     Packet trafficRandom();	// Random destination distribution

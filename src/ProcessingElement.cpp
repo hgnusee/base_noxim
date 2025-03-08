@@ -473,58 +473,69 @@ void ProcessingElement::computeProcess()
     for (int i = 0; i < recvBytes.size(); i++) {
         sum_recvBytes += recvBytes[i];
     }
-    sum_recvBytes = recvBytes.size() > 0 ? sum_recvBytes / recvBytes.size() : 0;
+    int norm_sum_recvBytes = recvBytes.size() > 0 ? sum_recvBytes / recvBytes.size() : 0;
+    
+
+    int readyBytes = readyToProcessBytes(norm_sum_recvBytes, recvBytes.size());
 
     // Print log of sum_recvBytes values
-    LOG << "PE" << local_id << " sum_recvBytes: " << sum_recvBytes << endl;
-    if (sum_recvBytes == recv_minBytes || (sum_recvBytes > recv_minBytes && (sum_recvBytes % tran_minBytes) == 0)) {
-        // hold the "byte" for one clock cycle delay and send on the next clock
-        // compute_queue.push_back(make_pair(recvBytes, compute_delayN));
+    LOG << "PE" << local_id << " sum_recvBytes: " << sum_recvBytes << " processedBytes: " << processedBytes<<endl;
+
+
+    // Two Conditions to decide if enough sum_recvBytes can be processed
+    // #1 If processedBytes == 0, then check if sum_recvBytes == minBytes
+    //      - this means the first-ever processing of bytes for this taskID
+    // # If processedBytes > 0, then check if (sum_recvBytes - processedBytes) > minBytes
+    //      - need to check if we fulfill tran_minBytes condition to process more bytes
+    //      - the divide by tran_minBytes is used to prevent "double counting" of processedBytes
+    if (processedBytes == 0) {
+        if (norm_sum_recvBytes == recv_minBytes) {
+            if (norm_sum_recvBytes % tran_minBytes == 0) {
+                // "Compress recvBytes of (recvByte%tran_minByte == 0) into 1 single processedByte"
+                processedBytes ++;
+            }
+        }
+    }
+    else if (processedBytes < tran_totalBytes) {
+        if ((norm_sum_recvBytes - processedBytes) > recv_minBytes) {
+            if ((norm_sum_recvBytes % tran_minBytes == 0) && (processedBytes != norm_sum_recvBytes / tran_minBytes)) {
+                // "Compress recvBytes of (recvByte%tran_minByte == 0) into 1 single processedByte"
+                processedBytes ++;
+            }
+        }
+    }
+    LOG << "PE" << local_id << " [sum|norm|proc] " << sum_recvBytes << "|"
+    << norm_sum_recvBytes << "|" << processedBytes << endl;
+
+/*     if ((processedBytes == 0 && sum_recvBytes == recv_minBytes ) ||
+        (processedBytes < tran_totalBytes && 
+            (sum_recvBytes > processedBytes && (sum_recvBytes % tran_minBytes) == 0)
+        )) {
+
         // "Compress recvBytes of (recvBByte%tran_minByte == 0) into 1 single processedByte"
 
         processedBytes ++;
         LOG << "PE" << local_id << " Processed " << processedBytes << " Bytes" << endl;
     }
-/*     // Process completed computations
-    auto it = compute_queue.begin();
-    while (it != compute_queue.end()) {
-        // Decrement delay counter
-        it->second--;
-        
-        // When delay is complete, increment processedBytes and remove from queue
-        if (it->second <= 0) {
-            LOG << "PE"<< local_id << " Done Processed " << it->first << " Bytes" << endl;
-            processedBytes += it->first;
-            it = compute_queue.erase(it);
-        } else {
-            ++it;
-        }
-    } */
+ */
     // Check if all processing is complete
-    // if (processedBytes >= recv_totalBytes && compute_queue.empty()) {
     if (processedBytes >= tran_totalBytes) {
         state = PE_READY;
         LOG << "All Bytes Processed. Revert PE state --> PE_READY" << endl;
         // Notify traffic table that computation is complete
         traffic_communication_table->setComputeComplete(currentTaskID, last_recv_srcID, local_id);
     }
-    /*     // HG: PE is in PE_BUSY state, stall PE from receiving new packets
-        state = PE_BUSY;
-        LOG << "PE " << local_id << " is in PE_BUSY state. PE Stalled.";
-        LOG << " Compute cycle: " << compute_cycle << endl;
-        compute_cycle--;
 
-        if (compute_cycle == 0 && currentTaskID >= 0) {
-            LOG << "PE " << local_id << " Compute Done!" << endl;
-            state = PE_READY;
-            LOG << "PE " << local_id << " is in PE_READY state. PE is ready to receive new packets." << endl;
-            
-            // set cmp_complete flag in Traffic Communication Table
-            traffic_communication_table->setComputeComplete(currentTaskID, last_recv_srcID, local_id);
-            // set currentTaskID to -1 to indicate no taskID
-            currentTaskID = -1;
-    } 
-    */
+}
+
+int ProcessingElement::readyToProcessBytes(int sum_recvBytes, int src_size)
+{
+    
+    // Return available bytes for processing (unprocessed bytes)
+    LOG << "PE" << local_id << " readyToProcess bytes = "
+     << sum_recvBytes - processedBytes << endl;
+        
+    return sum_recvBytes - processedBytes;
 }
 
 int ProcessingElement::readyToSendBytes(const int dst_pos){
