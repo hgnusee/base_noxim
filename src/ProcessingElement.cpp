@@ -513,7 +513,7 @@ void ProcessingElement::computeProcess()
         }
     }
     else if (processedBytes < tran_totalBytes) {
-        if ((norm_sum_recvBytes - processedBytes) > recv_minBytes) {
+        if ((norm_sum_recvBytes - processedBytes) >= recv_minBytes) {
             if ((norm_sum_recvBytes % tran_minBytes == 0) && (processedBytes != norm_sum_recvBytes / tran_minBytes)) {
                 // "Compress recvBytes of (recvByte%tran_minByte == 0) into 1 single processedByte"
                 processedBytes ++;
@@ -625,7 +625,7 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
         
         // Check if we have enough processed bytes to shoot packet
         if (readyToSendBytes(dst_target) < 1) {
-            LOG << "PE" << local_id << " Not enough processed bytes "
+            LOG << "PE" << local_id << " Not enough processed bytes [rdy|sum|proc|sent] "
             <<readyToSendBytes(dst_target)<<"|"<<sum_recvBytesPE<<"|"
             <<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
             return false;
