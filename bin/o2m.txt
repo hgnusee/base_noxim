@@ -47,9 +47,12 @@
 %		> e.g. src [1 2], waitID [3 4]; Implies that srcPE_1 is waiting taskID 3, srcPE_2 waiting takdID 4;
 % taskID layerID [src] [dst] src_minVol src_totalVol dst_minVol dst_totalVol [waitID] [nextID] waitOP 
 % Demo Traffic: Single Stage Pipeline
-%0 1 [0] [1] -1 9 9 9 [-1] [1] 0 
-%1 1 [1] [2] 1 1 -1 1 [0] [-1] 0 
+% 0 1 [0] [1] -1 9 9 9 [-1] [1] 0 
+% 1 1 [1] [2] 1 1 -1 1 [0] [-1] 0 
 % taskID layerID [src] [dst] src_minVol src_totalVol dst_minVol dst_totalVol [waitID] [nextID] waitOP 
+0 0 [4] [0] -1 1 1 1 [-1] [1] 0
+1 0 [0] [1] 1 1 1 1 [0] [2] 0
+2 0 [1] [2 3 4] 1 1 -1 1 [0] [-1] 0
 % Demo: Two Stage Pipeline & Two Parallel Set of tasks (layerID = 1 & 2)
 % 0 1 [0] [1] -1 12 2 12 [-1] [1] 0 
 % 1 1 [1] [2] 2 6 3 6 [0] [2] 0
@@ -57,12 +60,12 @@
 % 3 2 [4] [5] -1 12 2 12 [-1] [4] 0 
 % 4 2 [5] [6] 2 6 3 6 [3] [5] 0
 % 5 2 [6] [7] 3 2 2 -1 [4] [-1] 0
-% Demo: 3-stage Pipeline
+% % Demo: 3-stage Pipeline
 % 0 1 [0] [1] -1 12 2 12 [-1] [1] 0 
 % 1 1 [1] [2] 2 6 3 6 [0] [2] 0
 % 2 1 [2] [3] 3 2 1 2 [1] [3] 0
 % 3 1 [3] [4] 1 2 -1 2 [2] [-1] 0
-% Demo: 8-stage Pipeline
+% % Demo: 8-stage Pipeline
 % 0 1 [0] [1] -1 256 2 256 [-1] [1] 0 
 % 1 1 [1] [2] 2 128 2 128 [0] [2] 0
 % 2 1 [2] [3] 2 64 2 64 [1] [3] 0
@@ -72,85 +75,68 @@
 % 6 1 [6] [7] 2 4 2 4 [5] [7] 0
 % 7 1 [7] [8] 2 2 2 2 [6] [8] 0
 % 8 1 [8] [9] 2 1 -1 1 [7] [-1] 0
-% Demo: Simple one-to-many traffic
+% % Demo: Simple one-to-many traffic
 % 0 1 [0] [1 4] -1 12 2 12 [-1] [1 2] 0 
 % 1 1 [1] [2] 2 6 3 6 [0] [3] 0
 % 2 1 [4] [5] 2 6 3 6 [0] [4] 0
 % 3 1 [2] [3] 3 2 -1 2 [1] [-1] 0
 % 4 1 [5] [6] 3 2 -1 2 [2] [-1] 0
-% Demo: Traffic with "contention", unless VC >= 4
+% % Demo: Traffic with "contention", unless VC >= 4
 % 0 1 [0] [1 2] -1 12 2 12 [-1] [1 2] 0 
 % 1 1 [1] [3] 2 6 3 6 [0] [-1] 0
 % 2 1 [2] [4] 2 6 3 6 [0] [-1] 0
-% % Demo: Simple one-to-many traffic (Type II)
+% % % Demo: Simple one-to-many traffic (Type II)
 % 0 1 [0] [1] -1 12 2 12 [-1] [1] 0 
 % 1 1 [1] [2 5] 2 6 3 6 [0] [2 3] 0
 % 2 1 [2] [3] 3 2 -1 2 [1] [-1] 0
 % 3 1 [5] [6] 3 2 -1 2 [1] [-1] 0
-% Demo: Simple one-to-many traffic (Type II, different route)
+% % Demo: Simple one-to-many traffic (Type II, different route)
 % 0 1 [4] [5] -1 12 2 12 [-1] [1] 0 
 % 1 1 [5] [6 9] 2 6 3 6 [0] [2 3] 0
 % 2 1 [6] [7] 3 2 -1 2 [1] [-1] 0
 % 3 1 [9] [10] 3 2 -1 2 [1] [-1] 0
-% Demo: Simple many-to-one traffic (Type I)
+% % Demo: Simple many-to-one traffic (Type I)
 % 0 1 [0 4 8] [1] -1 12 2 12 [-1] [1] 0 
 % 1 1 [1] [2] 2 6 3 6 [0] [2] 0
 % 2 1 [2] [3] 3 2 -1 2 [1] [-1] 0
-% Demo: Simple many-to-one traffic (Type II)
+% % Demo: Simple many-to-one traffic (Type II)
 % 0 1 [0] [1] -1 12 2 12 [-1] [2] 0 
 % 1 1 [4] [5] -1 12 2 12 [-1] [2] 0
 % 2 1 [8] [9] -1 12 2 12 [-1] [2] 0
 % 3 1 [1 5 9] [2] 2 6 3 6 [0 1 2] [4] 0
 % 4 1 [2] [3] 3 2 -1 2 [3] [-1] 0
-% Demo: Simple many-to-one traffic (Type II, extended)
+% % Demo: Simple many-to-one traffic (Type II, extended)
 % 0 1 [0] [1] -1 12 2 12 [-1] [2] 0 
 % 1 1 [4] [5] -1 12 2 12 [-1] [3] 0
 % 2 1 [1] [2] 2 6 3 6 [0] [4] 0
 % 3 1 [5] [6] 2 6 3 6 [1] [4] 0
 % 4 1 [2 6] [3] 3 2 -1 2 [2 3] [-1] 0
-% Demo: o2m -> m2o traffic
+% % Demo: o2m -> m2o traffic
 % 0 1 [0] [1 4 5] -1 12 2 12 [-1] [1] 0 
 % 1 1 [1 4 5] [2] 2 6 3 6 [0] [2] 0
 % 2 1 [2] [3] 3 2 -1 2 [1] [-1] 0
-% Demo: m2o -> o2m traffic
+% % Demo: m2o -> o2m traffic
 % 0 1 [0 4 8] [1] -1 12 2 12 [-1] [1] 0 
 % 1 1 [1] [2 5] 2 6 3 6 [0] [2 3] 0
 % 2 1 [2] [3] 3 2 -1 2 [1] [-1] 0
 % 3 1 [2] [6] 3 2 -1 2 [1] [-1] 0
-% Demo: o2m -> m2o traffic (extended)
+% % Demo: o2m -> m2o traffic (extended)
 % 0 1 [0] [1] -1 24 2 24 [-1] [1] 0 
 % 1 1 [1] [2 5] 2 12 2 12 [0] [1] 0 
 % 2 1 [2 5] [3] 2 6 3 6 [1] [3] 0
 % 3 1 [3] [7] 3 2 -1 2 [2] [-1] 0
-% Demo: m2o -> o2m traffic (extended)
+% % Demo: m2o -> o2m traffic (extended)
 % 0 1 [0] [1] -1 24 2 24 [-1] [2] 0 
 % 1 1 [4] [5] -1 24 2 24 [-1] [2] 0 
 % 2 1 [1 5] [2] 2 12 2 12 [0 1] [3] 0 
 % 3 1 [2] [6] 2 6 3 6 [2] [4] 0
 % 4 1 [6] [7 10] 3 2 -1 2 [3] [-1] 0
 % Demo: m2o -> o2m traffic (extended) + PE4 Reuse 
-% 0 1 [0] [1] -1 24 2 24 [-1] [2] 0 
-% 1 1 [4] [5] -1 24 2 24 [-1] [2] 0 
-% 2 1 [1 5] [2] 2 12 2 12 [0 1] [3] 0 
-% 3 1 [2] [6] 2 6 3 6 [2] [4] 0
-% 4 1 [6] [7 10] 3 2 -1 2 [3] [-1] 0
-% 5 2 [4] [8] -1 24 2 24 [-1] [6] 0
-% 6 2 [8] [12] 2 12 2 12 [5] [7] 0
-% 7 3 [12] [10] 2 6 -1 6 [6] [-1] 0
-% Zig-Zag Traffic Pattern for 4x4 Mesh NoC [Work In Progress]
-% taskID layerID [src] [dst] src_minVol src_totalVol dst_minVol dst_totalVol [waitID] [nextID] waitOP 
-0 1 [0] [1] -1 100 1 100 [-1] [1] 0 
-1 1 [1] [2] 1 100 1 100 [0] [2] 0
-2 1 [2] [3] 1 100 1 100 [1] [3] 0
-3 1 [3] [7] 1 100 1 100 [2] [4] 0
-4 1 [7] [6] 1 100 1 100 [3] [5] 0
-5 1 [6] [5] 1 100 1 100 [4] [6] 0
-6 1 [5] [4] 1 100 1 100 [5] [7] 0
-7 1 [4] [8] 1 100 1 100 [6] [8] 0
-8 1 [8] [9] 1 100 1 100 [7] [9] 0
-9 1 [9] [10] 1 100 1 100 [8] [10] 0
-10 1 [10] [11] 1 100 1 100 [9] [11] 0
-11 1 [11] [15] 1 100 1 100 [10] [12] 0
-12 1 [15] [14] 1 100 1 100 [11] [13] 0
-13 1 [14] [13] 1 100 1 100 [12] [14] 0
-14 1 [13] [12] 1 100 -1 100 [13] [-1] 0
+0 1 [0] [1] -1 24 2 24 [-1] [2] 0 
+1 1 [4] [5] -1 24 2 24 [-1] [2] 0 
+2 1 [1 5] [2] 2 12 2 12 [0 1] [3] 0 
+3 1 [2] [6] 2 6 3 6 [2] [4] 0
+4 1 [6] [7 10] 3 2 -1 2 [3] [-1] 0
+5 2 [4] [8] -1 24 2 24 [-1] [6] 0
+6 2 [8] [12] 2 12 2 12 [5] [7] 0
+7 3 [12] [10] 2 6 -1 6 [6] [-1] 0

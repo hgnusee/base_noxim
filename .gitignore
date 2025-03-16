@@ -6,3 +6,8 @@ bin/noxim
 bin/sim_routingTABLE.out
 bin/*.vcd
 bin/*.out
+bin/*.json
+bin/*.txt
+
+# Except the following files
+!o2m.txt

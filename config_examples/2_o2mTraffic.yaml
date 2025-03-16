@@ -13,8 +13,8 @@
 #   BUTTERFLY, BASELINE, and OMEGA are Delta Network topologies
 topology: MESH
 # X and Y mesh sizes
-mesh_dim_x: 50
-mesh_dim_y: 50
+mesh_dim_x: 4
+mesh_dim_y: 4
 # number of flits for each router buffer
 buffer_depth: 4
 # size of flits, in bits
@@ -165,4 +165,4 @@ probability_of_retransmission: 0.01
 traffic_distribution: TRAFFIC_COMMUNICATION_TABLE
 # when traffic table based is specified, use the following
 # configuration file
-traffic_table_filename: "mesh50by50.txt"
+traffic_table_filename: "o2m.txt"
