@@ -166,3 +166,6 @@ traffic_distribution: TRAFFIC_COMMUNICATION_TABLE
 # when traffic table based is specified, use the following
 # configuration file
 traffic_table_filename: "o2m.txt"
+
+# Define Traffic in Bytes (only for TRAFFIC_COMMUNICATION_TABLE)
+traffic_in_bytes: false

@@ -187,10 +187,11 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			TrafficCommunication.taskID = taskID;
 			TrafficCommunication.src = src; // HG: src is now a vector
 			TrafficCommunication.dst = dst;
-			TrafficCommunication.src_minVol = src_minVol;
-			TrafficCommunication.src_totalVol = src_totalVol;
-			TrafficCommunication.dst_minVol = dst_minVol;
-			TrafficCommunication.dst_totalVol = dst_totalVol;
+			// Convert byte-based volumes to data_volume units
+			TrafficCommunication.src_minVol = bytesToDataVolume(src_minVol);
+			TrafficCommunication.src_totalVol = bytesToDataVolume(src_totalVol);
+			TrafficCommunication.dst_minVol = bytesToDataVolume(dst_minVol);
+			TrafficCommunication.dst_totalVol = bytesToDataVolume(dst_totalVol);
 			TrafficCommunication.waitID = waitID;
 			TrafficCommunication.waitOP = waitOP;
 			TrafficCommunication.nextID = nextID;
@@ -506,6 +507,20 @@ TrafficCommunication GlobalTrafficTable::getsrcID(const int task_ID) {
 
 TrafficCommunication GlobalTrafficTable::getEmptyComm() {
 	return empty_comm;
+}
+
+// Convert bytes to data_volume units based on flit size
+int GlobalTrafficTable::bytesToDataVolume(int bytes) {
+    // If traffic_in_bytes flag is false, return the original value (backward compatibility)
+    if (!GlobalParams::traffic_in_bytes)
+        return bytes;
+
+    // Calculate flit size in bytes (from bits)
+    int flit_size_bytes = GlobalParams::flit_size / 8;
+    
+    // Round up to ensure all data is transmitted (ceiling division)
+    // This converts bytes to equivalent data_volume units
+    return (bytes + flit_size_bytes - 1) / flit_size_bytes;
 }
 
 int GlobalTrafficTable::occurrencesAsSource(const int src_id)

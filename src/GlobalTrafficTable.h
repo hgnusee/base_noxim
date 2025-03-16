@@ -87,12 +87,17 @@ class GlobalTrafficTable {
     // HG: get vector of src_id from Traffic Communication Table
     TrafficCommunication getsrcID(const int task_ID);
 
+    // HG: Convert bytes to data volume (in flits)
+    int bytesToDataVolume(int bytes);
+    
     // HG: get empty comm from other functions
     TrafficCommunication getEmptyComm();
 
     // Returns the number of occurrences of soruce src_id in the traffic
     // table
     int occurrencesAsSource(const int src_id);
+
+
 
   private:
 
