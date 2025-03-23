@@ -105,78 +105,135 @@ void Router::txProcess()
   else 
     { 
       // 1st phase: Reservation
-      for (int j = 0; j < DIRECTIONS + 2; j++) 
-	{
-	  int i = (start_from_port + j) % (DIRECTIONS + 2);
+      for (int j = 0; j < DIRECTIONS + 2; j++) {
+	  
+		int i = (start_from_port + j) % (DIRECTIONS + 2);
 
-	  for (int k = 0;k < GlobalParams::n_virtual_channels; k++)
-	  {
-	      int vc = (start_from_vc[i]+k)%(GlobalParams::n_virtual_channels);
-	      
-	      // Uncomment to enable deadlock checking on buffers. 
-	      // Please also set the appropriate threshold.
-	      // buffer[i].deadlockCheck();
+		for (int k = 0;k < GlobalParams::n_virtual_channels; k++) {
+			int vc = (start_from_vc[i]+k)%(GlobalParams::n_virtual_channels);
+			
+			// Uncomment to enable deadlock checking on buffers. 
+			// Please also set the appropriate threshold.
+			// buffer[i].deadlockCheck();
 
-	      if (!buffer[i][vc].IsEmpty()) 
-	      {
-		  Flit flit = buffer[i][vc].Front();
-		  power.bufferRouterFront();
+			if (!buffer[i][vc].IsEmpty()) 
+			{
+			Flit flit = buffer[i][vc].Front();
+			power.bufferRouterFront();
 
-		  if (flit.flit_type == FLIT_TYPE_HEAD) 
-		    {
-		      // prepare data for routing
-		      RouteData route_data;
-		      route_data.current_id = local_id;
-			//   LOG<< "current_id= "<< route_data.current_id <<" for sending flit from src_id= " << flit.src_id << " to dst_id= " << flit.dst_id << " " << flit << endl;
-		      route_data.src_id = flit.src_id;
-		      route_data.dst_id = flit.dst_id;
-		      route_data.dir_in = i;
-		      route_data.vc_id = flit.vc_id;
+				if (flit.flit_type == FLIT_TYPE_HEAD) {
+					// Check for multicast flit
+					if (flit.traffic_type == T_MULTICAST) {
+						LOG << "Processing multicast HEAD flit " << flit << endl;
+						
+						// Get destination groups based on our algorithm
+						map<int, vector<int>> direction_groups = splitMulticastDestinations(flit.dst_ids);
 
-		      // TODO: see PER POSTERI (adaptive routing should not recompute route if already reserved)
-		      int o = route(route_data);
-			  LOG << "Returned direction " << o << " for flit " << flit << endl;
+						// Print out direction groups for debugging
+						LOG << "Multicast direction groups for flit " << flit << ":" << endl;
+						for (auto& group : direction_groups) {
+							LOG << "  Direction " << group.first << ": [";
+							for (size_t i = 0; i < group.second.size(); i++) {
+								LOG << group.second[i];
+								if (i < group.second.size() - 1) LOG << ", ";
+							}
+							LOG << "]" << endl;
+						}
+						// Create list of output ports to reserve
+						vector<int> output_ports;
+						for (auto& group : direction_groups) {
+							output_ports.push_back(group.first);
+						}
+						
+						// Create reservation
+						TReservation r;
+						r.input = i;
+						r.vc = vc;
+						
+						// Reserve multiple outputs for this multicast flit and get which ones were successful
+						if (!output_ports.empty()) {
+							// Create session key
+							auto session_key = make_tuple(flit.src_id, flit.sequence_length, flit.timestamp, flit.dst_id);							
+							// Check if we already have a session (should be created in handleMulticastFlit)
+							if (multicast_sessions.find(session_key) == multicast_sessions.end()) {
+								// Create a new session if it doesn't exist yet
+								MulticastSession session;
+								session.src_id = flit.src_id;
+								session.sequence_no = flit.sequence_no;
+								session.directions = direction_groups;
+								session.has_initialized = true;
+								multicast_sessions[session_key] = session;
+							}
+							
+							// Get the session and store the successfully reserved directions
+							vector<int> reserved_directions = reservation_table.reserveMultiple(r, output_ports);
+							
+							// Store the reserved directions in the session
+							for (int dir : reserved_directions) {
+								multicast_sessions[session_key].reserved_directions.insert(dir);
+							}
+							
+							string output_str = "Reserved multiple directions for multicast flit: ";
+							for (unsigned int j = 0; j < reserved_directions.size(); j++)
+								output_str += to_string(reserved_directions[j]) + ", ";
+							LOG << output_str << endl;
+						}
+					} else {
+						// original unicast logic
+						// prepare data for routing
+						RouteData route_data;
+						route_data.current_id = local_id;
+						// LOG<< "current_id= "<< route_data.current_id <<" for sending flit from src_id= " << flit.src_id << " to dst_id= " << flit.dst_id << " " << flit << endl;
+						route_data.src_id = flit.src_id;
+						route_data.dst_id = flit.dst_id;
+						route_data.dir_in = i;
+						route_data.vc_id = flit.vc_id;
 
-		      // manage special case of target hub not directly connected to destination
-		      if (o>=DIRECTION_HUB_RELAY)
-			  {
-		      	Flit f = buffer[i][vc].Pop();
-		      	f.hub_relay_node = o-DIRECTION_HUB_RELAY;
-		      	buffer[i][vc].Push(f);
-		      	o = DIRECTION_HUB;
-			  }
+						// TODO: see PER POSTERI (adaptive routing should not recompute route if already reserved)
+						int o = route(route_data);
+						LOG << "Returned direction " << o << " for flit " << flit << endl;
 
-		      TReservation r;
-		      r.input = i;
-		      r.vc = vc;
+						// manage special case of target hub not directly connected to destination
+						if (o>=5000)
+						{
+							Flit f = buffer[i][vc].Pop();
+							f.hub_relay_node = o-DIRECTION_HUB_RELAY;
+							buffer[i][vc].Push(f);
+							o = DIRECTION_HUB;
+						}
 
-		      LOG << " checking availability of Output[" << o << "] for Input[" << i << "][" << vc << "] flit " << flit << endl;
+						TReservation r;
+						r.input = i;
+						r.vc = vc;
 
+						LOG << " checking availability of Output[" << o << "] for Input[" << i << "][" << vc << "] flit " << flit << endl;
 
+						int rt_status = reservation_table.checkReservation(r,o);
 
-		      int rt_status = reservation_table.checkReservation(r,o);
-
-		      if (rt_status == RT_AVAILABLE) 
-		      {
-			  LOG << " reserving direction " << o << " for flit " << flit << endl;
-			  reservation_table.reserve(r, o);
-		      }
-		      else if (rt_status == RT_ALREADY_SAME)
-		      {
-			  LOG << " RT_ALREADY_SAME reserved direction " << o << " for flit " << flit << endl;
-		      }
-		      else if (rt_status == RT_OUTVC_BUSY)
-		      {
-			  LOG << " RT_OUTVC_BUSY reservation direction " << o << " for flit " << flit << endl;
-		      }
-		      else if (rt_status == RT_ALREADY_OTHER_OUT)
-		      {
-			  LOG  << "RT_ALREADY_OTHER_OUT: another output previously reserved for the same flit " << endl;
-		      }
-		      else assert(false); // no meaningful status here
-		    }
+						if (rt_status == RT_AVAILABLE) 
+						{
+						LOG << " reserving direction " << o << " for flit " << flit << endl;
+						reservation_table.reserve(r, o);
+						}
+						else if (rt_status == RT_ALREADY_SAME)
+						{
+						LOG << " RT_ALREADY_SAME reserved direction " << o << " for flit " << flit << endl;
+						}
+						else if (rt_status == RT_OUTVC_BUSY)
+						{
+						LOG << " RT_OUTVC_BUSY reservation direction " << o << " for flit " << flit << endl;
+						}
+						else if (rt_status == RT_ALREADY_OTHER_OUT)
+						{
+						LOG  << "RT_ALREADY_OTHER_OUT: another output previously reserved for the same flit " << endl;
+						}
+						else {
+						assert(false); // no meaningful status here
+						}
+					}
+				}
+			}
 		}
-	  }
 	    start_from_vc[i] = (start_from_vc[i]+1)%GlobalParams::n_virtual_channels;
 	}
 
@@ -184,113 +241,302 @@ void Router::txProcess()
 
       // 2nd phase: Forwarding
       //if (local_id==6) LOG<<"*TX*****local_id="<<local_id<<"__ack_tx[0]= "<<ack_tx[0].read()<<endl;
-      for (int i = 0; i < DIRECTIONS + 2; i++) 
-      { 
-	  vector<pair<int,int> > reservations = reservation_table.getReservations(i);
-	// Debug: Print out the reservation values
-	for (unsigned int idx = 0; idx < reservations.size(); idx++) {
-		int input_dir = reservations[idx].first;
-		int input_vc = reservations[idx].second;
-		LOG << "Output[" << i << "] has reservation from Input[" << input_dir << "][" << input_vc << "]" << endl;
-	}
-	  
-	  if (reservations.size()!=0)
-	  {
 
-	      int rnd_idx = rand()%reservations.size();
+	  	// Check for special multicast handling first
+		for (int i = 0; i < DIRECTIONS + 2; i++) {
+			for (int vc = 0; vc < GlobalParams::n_virtual_channels; vc++) {
+				if (!buffer[i][vc].IsEmpty()) {
+					Flit flit = buffer[i][vc].Front();
+					if (flit.traffic_type == T_MULTICAST) {
+						handleMulticastFlit(i, vc);
+					}
+				}
+			}
+		}
 
-	      int o = reservations[rnd_idx].first;
-	      int vc = reservations[rnd_idx].second;
-		// Debug: Print reservations vector pair
-		// LOG << " Reservations for output " << i << ": \n";
-		// for (unsigned int j = 0; j < reservations.size(); j++) {
-		// 	LOG << "(" << reservations[j].first << "," << reservations[j].second << ") \n";
-		// }
-		// LOG << endl;
-	    //  LOG<< "found reservation from input= " << i << "_to output= "<<o<<endl;
-	      // can happen
-	      if (!buffer[i][vc].IsEmpty())  
-	      {
-		  // power contribution already computed in 1st phase
-		  Flit flit = buffer[i][vc].Front();
-		  //LOG<< "*****TX***Direction= "<<i<< "************"<<endl;
-		  //LOG<<"_cl_tx="<<current_level_tx[o]<<"req_tx="<<req_tx[o].read()<<" _ack= "<<ack_tx[o].read()<< endl;
-		  
-		  if ( (current_level_tx[o] == ack_tx[o].read()) &&
-		       (buffer_full_status_tx[o].read().mask[vc] == false) ) 
-		  {
-		      //if (GlobalParams::verbose_mode > VERBOSE_OFF) 
-		      LOG << "Input[" << i << "][" << vc << "] forwarded to Output[" << o << "], flit: " << flit << endl;
+		for (int i = 0; i < DIRECTIONS + 2; i++) { 
+			vector<pair<int,int> > reservations = reservation_table.getReservations(i);
+			// Skip if this port has no reservations
+			if (reservations.size() == 0)
+			continue;
+		
+			int rnd_idx = rand() % reservations.size();
+			int o = reservations[rnd_idx].first;
+			int vc = reservations[rnd_idx].second;
+			// Skip if buffer is empty (could happen if it was a multicast flit already processed)
+			if (buffer[i][vc].IsEmpty())
+			continue;
+			
+			// Skip if this is a multicast flit (we already handled those)
+			Flit flit = buffer[i][vc].Front();
+			if (flit.traffic_type == T_MULTICAST)
+				continue;
 
-		      flit_tx[o].write(flit);
-		      current_level_tx[o] = 1 - current_level_tx[o];
-		      req_tx[o].write(current_level_tx[o]);
-		      buffer[i][vc].Pop();
+			// Debug: Print out the reservation values
+			for (unsigned int idx = 0; idx < reservations.size(); idx++) {
+				int input_dir = reservations[idx].first;
+				int input_vc = reservations[idx].second;
+				LOG << "Output[" << i << "] has reservation from Input[" << input_dir << "][" << input_vc << "]" << endl;
+			}
+		
+			if (reservations.size()!=0)
+			{	// HG: comment out this rnd_idx, to make sure we use rnd_idx from before this if-statement
+				// int rnd_idx = rand()%reservations.size();
 
-			  // consider the case of a single flit packet, must release researvation when done transit
-			  // fix applied for one-to-many traffic to prevent RT_ALREADY_OTHER_OUT
-			  bool singleFlitPacket = (flit.flit_type == FLIT_TYPE_HEAD) && (flit.sequence_length == 1);
-			  if (singleFlitPacket) {
-				LOG << "Single flit packet detected, releasing reservation for flit when done transit" << flit << endl;
-			  }
+				int o = reservations[rnd_idx].first;
+				int vc = reservations[rnd_idx].second;
+				// Debug: Print reservations vector pair
+				// LOG << " Reservations for output " << i << ": \n";
+				// for (unsigned int j = 0; j < reservations.size(); j++) {
+				// 	LOG << "(" << reservations[j].first << "," << reservations[j].second << ") \n";
+				// }
+				// LOG << endl;
+				//  LOG<< "found reservation from input= " << i << "_to output= "<<o<<endl;
+				// can happen
+				if (!buffer[i][vc].IsEmpty())  
+				{
+					// power contribution already computed in 1st phase
+					Flit flit = buffer[i][vc].Front();
+					//LOG<< "*****TX***Direction= "<<i<< "************"<<endl;
+					//LOG<<"_cl_tx="<<current_level_tx[o]<<"req_tx="<<req_tx[o].read()<<" _ack= "<<ack_tx[o].read()<< endl;
+					
+					if ( (current_level_tx[o] == ack_tx[o].read()) &&
+						(buffer_full_status_tx[o].read().mask[vc] == false) ) 
+					{
+						//if (GlobalParams::verbose_mode > VERBOSE_OFF) 
+						LOG << "Input[" << i << "][" << vc << "] forwarded to Output[" << o << "], flit: " << flit << endl;
 
-		      if (flit.flit_type == FLIT_TYPE_TAIL || singleFlitPacket)
-		      {
-			  TReservation r;
-			  r.input = i;
-			  r.vc = vc;
-			  reservation_table.release(r,o);
-		      }
+						flit_tx[o].write(flit);
+						current_level_tx[o] = 1 - current_level_tx[o];
+						req_tx[o].write(current_level_tx[o]);
+						buffer[i][vc].Pop();
 
-		      /* Power & Stats ------------------------------------------------- */
-		      if (o == DIRECTION_HUB) power.r2hLink();
-		      else
-			  power.r2rLink();
+						// consider the case of a single flit packet, must release researvation when done transit
+						// fix applied for one-to-many traffic to prevent RT_ALREADY_OTHER_OUT
+						bool singleFlitPacket = (flit.flit_type == FLIT_TYPE_HEAD) && (flit.sequence_length == 1);
+						if (singleFlitPacket) {
+							LOG << "Single flit packet detected, releasing reservation for flit when done transit" << flit << endl;
+						}
 
-		      power.bufferRouterPop();
-		      power.crossBar();
+						if (flit.flit_type == FLIT_TYPE_TAIL || singleFlitPacket){
+							TReservation r;
+							r.input = i;
+							r.vc = vc;
+							reservation_table.release(r,o);
+						}
 
-		      if (o == DIRECTION_LOCAL) 
-		      {
-			  power.networkInterface();
-			  LOG << "Consumed flit " << flit << endl;
-			  stats.receivedFlit(sc_time_stamp().to_double() / GlobalParams::clock_period_ps, flit);
-			  if (GlobalParams:: max_volume_to_be_drained) 
-			  {
-			      if (drained_volume >= GlobalParams:: max_volume_to_be_drained)
-				  sc_stop();
-			      else 
-			      {
-				  drained_volume++;
-				  local_drained++;
-			      }
-			  }
-		      } 
-		      else if (i != DIRECTION_LOCAL) // not generated locally
-			  routed_flits++;
-		      /* End Power & Stats ------------------------------------------------- */
-			 //LOG<<"END_OK_cl_tx="<<current_level_tx[o]<<"_req_tx="<<req_tx[o].read()<<" _ack= "<<ack_tx[o].read()<< endl;
-		  }
-		  else
-		  {
-		      LOG << " Cannot forward Input[" << i << "][" << vc << "] to Output[" << o << "], flit: " << flit << endl;
-		      //LOG << " **DEBUG APB: current_level_tx: " << current_level_tx[o] << " ack_tx: " << ack_tx[o].read() << endl;
-		      LOG << " **DEBUG buffer_full_status_tx " << buffer_full_status_tx[o].read().mask[vc] << endl;
+						/* Power & Stats ------------------------------------------------- */
+						if (o == DIRECTION_HUB) power.r2hLink();
+						else
+						power.r2rLink();
 
-		  	//LOG<<"END_NO_cl_tx="<<current_level_tx[o]<<"_req_tx="<<req_tx[o].read()<<" _ack= "<<ack_tx[o].read()<< endl;
-		      /*
-		      if (flit.flit_type == FLIT_TYPE_HEAD)
-			  reservation_table.release(i,flit.vc_id,o);
-			  */
-		  }
-	      }
-	  } // if not reserved 
-	 // else LOG<<"we have no reservation for direction "<<i<< endl;
-      } // for loop directions
+						power.bufferRouterPop();
+						power.crossBar();
 
-      if ((int)(sc_time_stamp().to_double() / GlobalParams::clock_period_ps)%2==0)
-	  reservation_table.updateIndex();
+						if (o == DIRECTION_LOCAL) 
+						{
+							power.networkInterface();
+							LOG << "Consumed flit " << flit << endl;
+							stats.receivedFlit(sc_time_stamp().to_double() / GlobalParams::clock_period_ps, flit);
+							if (GlobalParams:: max_volume_to_be_drained) 
+							{
+								if (drained_volume >= GlobalParams:: max_volume_to_be_drained)
+									sc_stop();
+								else 
+								{
+									drained_volume++;
+									local_drained++;
+								}
+							}
+						} 
+						else if (i != DIRECTION_LOCAL) // not generated locally
+							routed_flits++;
+						/* End Power & Stats ------------------------------------------------- */
+						//LOG<<"END_OK_cl_tx="<<current_level_tx[o]<<"_req_tx="<<req_tx[o].read()<<" _ack= "<<ack_tx[o].read()<< endl;
+					}
+					else
+					{
+						LOG << " Cannot forward Input[" << i << "][" << vc << "] to Output[" << o << "], flit: " << flit << endl;
+						//LOG << " **DEBUG APB: current_level_tx: " << current_level_tx[o] << " ack_tx: " << ack_tx[o].read() << endl;
+						LOG << " **DEBUG buffer_full_status_tx " << buffer_full_status_tx[o].read().mask[vc] << endl;
+
+						//LOG<<"END_NO_cl_tx="<<current_level_tx[o]<<"_req_tx="<<req_tx[o].read()<<" _ack= "<<ack_tx[o].read()<< endl;
+						/*
+						if (flit.flit_type == FLIT_TYPE_HEAD)
+						reservation_table.release(i,flit.vc_id,o);
+						*/
+					}
+				}
+			} // if not reserved 
+			// else LOG<<"we have no reservation for direction "<<i<< endl;
+		} // for loop directions
+
+		if ((int)(sc_time_stamp().to_double() / GlobalParams::clock_period_ps)%2==0)
+			reservation_table.updateIndex();
     }   
+}
+
+void Router::handleMulticastFlit(int i, int vc) {
+    // Skip if buffer is empty
+    if (buffer[i][vc].IsEmpty()) 
+        return;
+    
+    Flit flit = buffer[i][vc].Front();
+    
+    // Only process multicast traffic
+    if (flit.traffic_type != T_MULTICAST)
+        return;
+    
+    // Session key uses sequence_length - sequence_no - timestamp to uniquely identify the packet
+    // This handles the case where multiple packets from same source might be in flight
+    // Create a more robust session key with timestamp to handle multiple packets with same length
+	auto session_key = make_tuple(flit.src_id, flit.sequence_length, flit.timestamp, flit.dst_id);    
+    // For HEAD flits, initialize the session
+    if (flit.flit_type == FLIT_TYPE_HEAD) {
+        // Create or update the session
+        MulticastSession session;
+        session.src_id = flit.src_id;
+        session.sequence_no = flit.sequence_no;
+        session.directions = splitMulticastDestinations(flit.dst_ids);
+        session.has_initialized = true;
+
+        // Store the session
+        multicast_sessions[session_key] = session;
+        
+        LOG << "Created new multicast session for HEAD flit " << flit << " with " 
+            << session.directions.size() << " directions" << endl;
+    }
+    
+    // Ensure we have a valid session
+	if (multicast_sessions.find(session_key) == multicast_sessions.end()) {
+		LOG << "WARNING: No multicast session found for " 
+			<< (flit.flit_type == FLIT_TYPE_HEAD ? "HEAD" : 
+				flit.flit_type == FLIT_TYPE_TAIL ? "TAIL" : "BODY") 
+			<< " flit " << flit << endl;
+		
+		// Pop the flit from buffer to prevent infinite processing loops
+		buffer[i][vc].Pop();
+		LOG << "Removed orphaned multicast flit from buffer: dst_id=" << flit.dst_id << endl;
+		return;
+	}
+    
+    MulticastSession &session = multicast_sessions[session_key];
+    
+    // Process flit to all directions in session
+    vector<int> completed_directions;
+    bool any_sent = false;
+    
+    for (auto it = session.directions.begin(); it != session.directions.end(); ++it) {
+        int direction = it->first;
+        vector<int> &destinations = it->second;
+        
+        // Skip empty destination lists
+        if (destinations.empty()) continue;
+        
+        // Check if we can send to this direction
+        if ((current_level_tx[direction] == ack_tx[direction].read()) &&
+            (buffer_full_status_tx[direction].read().mask[vc] == false)) {
+            
+            // Create a copy with destinations for this direction
+            Flit flit_copy = flit;
+            flit_copy.dst_ids = destinations;
+            flit_copy.dst_id = destinations[0]; // Primary destination
+            
+            // Forward the copy
+            flit_tx[direction].write(flit_copy);
+            current_level_tx[direction] = 1 - current_level_tx[direction];
+            req_tx[direction].write(current_level_tx[direction]);
+            
+            LOG << "Forwarded multicast " << (flit.flit_type == FLIT_TYPE_HEAD ? "HEAD" : 
+                                             flit.flit_type == FLIT_TYPE_TAIL ? "TAIL" : "BODY") 
+                << " flit to Output[" << direction << "]" << endl;
+            
+            // Add this direction to completed directions
+            completed_directions.push_back(direction);
+            any_sent = true;
+
+			// // Debug check: if we're at specific node 6, wait for user to press enter
+			// if (local_id == 6) {
+			// 	LOG << "*** Reached NODE 6! Waiting for user input before continuing..." << endl;
+			// 	cout << "Press ENTER to continue from node 6..." << endl;
+			// 	cin.get();
+			// }
+            
+            // Power tracking
+            if (direction == DIRECTION_HUB) power.r2hLink();
+            else power.r2rLink();
+            
+            power.crossBar();
+            
+            if (direction == DIRECTION_LOCAL) {
+                power.networkInterface();
+                LOG << "Consumed multicast flit locally " << flit_copy << endl;
+                stats.receivedFlit(sc_time_stamp().to_double() / GlobalParams::clock_period_ps, flit_copy);
+                if (GlobalParams::max_volume_to_be_drained) {
+                    if (drained_volume >= GlobalParams::max_volume_to_be_drained)
+                        sc_stop();
+                    else {
+                        drained_volume++;
+                        local_drained++;
+                    }
+                }
+            } 
+            else if (i != DIRECTION_LOCAL) // not generated locally
+                routed_flits++;
+        }
+    }
+    
+    // If we successfully sent to at least one direction, remove from buffer
+	if (any_sent) {
+		buffer[i][vc].Pop();
+		power.bufferRouterPop();
+		
+		// Check if this is a TAIL flit OR a single-flit packet (HEAD with sequence_length==1)
+		bool singleFlitPacket = (flit.flit_type == FLIT_TYPE_HEAD) && (flit.sequence_length == 1);
+		
+		if (flit.flit_type == FLIT_TYPE_TAIL || singleFlitPacket) {
+			for (int dir : completed_directions) {
+				// Remove this direction from the pending destinations
+				session.directions.erase(dir);
+				
+				// Only release if we actually reserved this direction
+				if (session.reserved_directions.find(dir) != session.reserved_directions.end()) {
+					TReservation r;
+					r.input = i;
+					r.vc = vc;
+					
+					LOG << "Releasing multicast reservation for reserved direction " << dir << endl;
+					reservation_table.release(r, dir);
+					
+					// Remove from reserved set after release
+					session.reserved_directions.erase(dir);
+				} else {
+					LOG << "Direction " << dir << " was not reserved, skipping release" << endl;
+				}
+			}
+			
+			// If no more directions to handle, remove the session
+			if (session.directions.empty()) {
+				// Double-check if there are any unreleased reservations
+				if (!session.reserved_directions.empty()) {
+					LOG << "WARNING: Session being removed has " << session.reserved_directions.size() 
+						<< " unreleased reservations" << endl;
+					
+					// Clean up any remaining reservations
+					for (int dir : session.reserved_directions) {
+						TReservation r;
+						r.input = i;
+						r.vc = vc;
+						reservation_table.release(r, dir);
+						LOG << "Cleaned up remaining reservation for direction " << dir << endl;
+					}
+				}
+				
+				multicast_sessions.erase(session_key);
+				LOG << "Multicast session completed and removed" << endl;
+			}
+		}
+	}
 }
 
 NoP_data Router::getCurrentNoPData()
@@ -679,4 +925,70 @@ bool Router::connectedHubs(int src_hub, int dst_hub) {
         return false;
     else
         return true;
+}
+
+// multicast support
+map<int, vector<int>> Router::splitMulticastDestinations(const vector<int>& destinations)
+{
+    map<int, vector<int>> direction_groups;
+    
+    for (unsigned int i = 0; i < destinations.size(); i++) {
+        int dst_id = destinations[i];
+        
+        // If this router is the destination, add to local group
+        if (dst_id == local_id) {
+            if (direction_groups.find(DIRECTION_LOCAL) == direction_groups.end())
+                direction_groups[DIRECTION_LOCAL] = vector<int>();
+            direction_groups[DIRECTION_LOCAL].push_back(dst_id);
+            continue;
+        }
+        
+        // Calculate delta distances
+        Coord current = id2Coord(local_id);
+        Coord target = id2Coord(dst_id);
+        int deltaX = target.x - current.x;
+        int deltaY = target.y - current.y;
+        
+        // Implement the specified algorithm
+        int direction;
+        if (deltaX == 0 && deltaY == 0) {
+            direction = DIRECTION_LOCAL;
+        } else if (abs(deltaX) == abs(deltaY)) {
+            direction = (deltaX < 0) ? DIRECTION_WEST : DIRECTION_EAST;
+        } else if (abs(deltaY) > abs(deltaX)) {
+            direction = (deltaY > 0) ? DIRECTION_SOUTH : DIRECTION_NORTH;
+        } else {
+            direction = (deltaX < 0) ? DIRECTION_WEST : DIRECTION_EAST;
+        }
+
+		// Check if the calculated direction is available for this router
+		int direction_check = direction;
+
+		// Check mesh boundaries
+		if (direction == DIRECTION_NORTH && current.y == 0) {
+			LOG << "WARNING: Trying to route NORTH at top edge of mesh, redirecting to SOUTH" << endl;
+			direction_check = DIRECTION_SOUTH;
+		} else if (direction == DIRECTION_SOUTH && current.y == GlobalParams::mesh_dim_y - 1) {
+			LOG << "WARNING: Trying to route SOUTH at bottom edge of mesh, redirecting to NORTH" << endl;
+			direction_check = DIRECTION_NORTH;
+		} else if (direction == DIRECTION_EAST && current.x == GlobalParams::mesh_dim_x - 1) {
+			LOG << "WARNING: Trying to route EAST at right edge of mesh, redirecting to WEST" << endl;
+			direction_check = DIRECTION_WEST;
+		} else if (direction == DIRECTION_WEST && current.x == 0) {
+			LOG << "WARNING: Trying to route WEST at left edge of mesh, redirecting to EAST" << endl;
+			direction_check = DIRECTION_EAST;
+		}
+
+		// Use the validated direction
+		direction = direction_check;
+        
+        // Create the group if it doesn't exist
+        if (direction_groups.find(direction) == direction_groups.end())
+            direction_groups[direction] = vector<int>();
+        
+        // Add to the appropriate direction group
+        direction_groups[direction].push_back(dst_id);
+    }
+    
+    return direction_groups;
 }

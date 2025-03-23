@@ -29,7 +29,14 @@
 using namespace std;
 
 extern unsigned int drained_volume;
-
+// Add multicast session tracking structure
+struct MulticastSession {
+  int src_id;
+  int sequence_no;
+  map<int, vector<int>> directions; // Maps output direction to destination IDs
+  bool has_initialized;
+  set<int> reserved_directions;     // Tracks which directions were successfully reserved
+};
 SC_MODULE(Router)
 {
     friend class Selection_NOP;
@@ -85,6 +92,10 @@ SC_MODULE(Router)
 
     unsigned long getRoutedFlits();	// Returns the number of routed flits 
 
+    // Add multicast helper functions
+    map<int, vector<int>> splitMulticastDestinations(const vector<int>& destinations);
+    void handleMulticastFlit(int input_port, int vc);
+
     // Constructor
 
     SC_CTOR(Router) {
@@ -134,6 +145,10 @@ SC_MODULE(Router)
     int start_from_vc[DIRECTIONS+2]; // VC from which to start the reservation cycle for the specific port
 
     vector<int> nextDeltaHops(RouteData rd);
+
+    // Track multicast sessions by (src_id, sequence_length - sequence_no)
+    map<tuple<int, int, double, int>, MulticastSession> multicast_sessions;
+
   public:
     unsigned int local_drained;
 

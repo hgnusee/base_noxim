@@ -64,12 +64,22 @@ class ReservationTable {
 
     void print();
 
+    // methods for multicast
+    int checkMulticastReservation(const TReservation r, const int port_out);
+    // update from void to vector<int> 
+    vector<int> reserveMultiple(const TReservation r, const vector<int>& ports);
+    vector<int> getMulticastReservations(const int port_in, const int vc);
+    void releaseMulticastOutput(const TReservation r, const int port_out);
+
   private:
 
      TRTEntry *rtable;	// reservation vector: rtable[i] gives a RTEntry containing the set of input/VC 
 			// which reserved output port
 
      int n_outputs;
+
+    // Track multicast reservations
+    map<pair<int,int>, vector<int>> multicast_reservations; // Maps (input, vc) to vector of outputs
 };
 
 #endif

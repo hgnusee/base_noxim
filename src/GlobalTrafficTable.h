@@ -50,6 +50,13 @@ struct TrafficCommunication {
   vector < int > trn_complete; // flag for transmit by src PE is done
   vector < int > cmp_complete; // flag for computation complete in dst PE
 
+  // multicast support
+  int traffic_type;  // Type of traffic: unicast, multicast, broadcast
+  
+  TrafficCommunication() {
+    traffic_type = T_UNICAST;
+  }
+
 };
 
 class GlobalTrafficTable {

@@ -267,6 +267,12 @@ Flit ProcessingElement::nextFlit()
 
     flit.hub_relay_node = NOT_VALID;
 
+    // Copy multicast-specific data
+    flit.traffic_type = packet.traffic_type;
+    if (packet.traffic_type == T_MULTICAST || packet.traffic_type == T_BROADCAST) {
+        flit.dst_ids = packet.multicast_dst_ids;
+    }
+
     if (packet.size == packet.flit_left)
         flit.flit_type = FLIT_TYPE_HEAD;
     else if (packet.flit_left == 1)
@@ -276,9 +282,26 @@ Flit ProcessingElement::nextFlit()
 
     // HG: flag transaction trasmit is complete from src PE, when a tail flit is being created
     // go to traffic_communication_table and set trn_complete = true
-    if (flit.flit_type == FLIT_TYPE_TAIL)
-        traffic_communication_table->setTransmitComplete(packet.taskID, packet.src_id, packet.dst_id);
+    // if (flit.flit_type == FLIT_TYPE_TAIL)
+    //     traffic_communication_table->setTransmitComplete(packet.taskID, packet.src_id, packet.dst_id);
     
+
+    // Set transmit complete when tail flit is created
+    // ###### Wed Mar 19 24:08:30 MYT 2025
+    if (flit.flit_type == FLIT_TYPE_TAIL) {
+        if (flit.traffic_type == T_MULTICAST || flit.traffic_type == T_BROADCAST) {
+            // For multicast, mark all destinations as complete
+            for (int dst_id : packet.multicast_dst_ids) {
+                traffic_communication_table->setTransmitComplete(
+                    packet.taskID, packet.src_id, dst_id);
+            }
+        } else {
+            // Original unicast handling
+            traffic_communication_table->setTransmitComplete(
+                packet.taskID, packet.src_id, packet.dst_id);
+        }
+    }
+
     // Encode total_vol and min_vol data to receive into HEAD Flit
     if (flit.flit_type == FLIT_TYPE_HEAD) {
         flit.total_vol = packet.dst_totalVol;
@@ -370,6 +393,7 @@ bool ProcessingElement::canShot(Packet & packet)
             
             if (comm.src.size() == 1 && comm.dst.size() > 1) {
                 // one-to-many case
+
                 auto it = find(comm.trn_complete.begin(), comm.trn_complete.end(), TRN_WAIT);
                 bool found_dst = (it != comm.trn_complete.end());
                 // if (found_dst == true)
@@ -378,16 +402,45 @@ bool ProcessingElement::canShot(Packet & packet)
                 int dst_pos = distance(comm.trn_complete.begin(), it);
                 // comm.trn_complete[dst_pos] = TRN_BUSY;
 
-                // if taskID no need wait for other PE, just send to dst
-                if (comm.waitID[0] == -1){
-                    // HG: make2() with values from comm object
-                    packet.make2(comm.taskID, local_id, comm.dst[dst_pos], vc, now, 
-                            comm.src_totalVol, comm.waitOP, comm.src_minVol, 
-                            comm.src_totalVol, comm.dst_minVol, comm.dst_totalVol);
-                    // waitID=-1 is a one-off transfer, flag this traffic as complete and dont use it anymore
-                    traffic_communication_table->setTransmitComplete(comm.taskID, local_id, comm.dst[dst_pos]);
-                } else if (comm.waitID[0] != -1) {
-                    shot = packetShotbyPE(comm, local_id, packet);
+                // multicast falls under one to many case
+                if (comm.traffic_type == T_MULTICAST) {
+                    
+                    LOG << "Processing multicast traffic from PE" << local_id << endl;
+                
+                    if (comm.waitID[0] == -1) {
+                        // No need to wait, create multicast packet immediately
+                        vector<int> destinations = comm.dst;
+                        packet.makeMulticast(comm.taskID, local_id, destinations, 
+                                        vc, now, comm.src_totalVol, comm.waitOP, 
+                                        comm.src_minVol, comm.src_totalVol, 
+                                        comm.dst_minVol, comm.dst_totalVol);
+                        
+                        // Mark all destinations as complete since this is one-off
+                        for (size_t i = 0; i < comm.dst.size(); i++) {
+                            traffic_communication_table->setTransmitComplete(
+                                comm.taskID, local_id, comm.dst[i]);
+                        }
+                        
+                        LOG << "Created multicast packet from PE" << local_id << 
+                            " to " << comm.dst.size() << " destinations" << endl;
+                    } else if (comm.waitID[0] != -1) {
+                        // Need to wait for processing, use packetShotbyPE
+                        shot = packetShotbyPE(comm, local_id, packet);
+                    }
+
+                } else {    
+                    // the original one to many case (not multicast)
+                    // if taskID no need wait for other PE, just send to dst
+                    if (comm.waitID[0] == -1){
+                        // HG: make2() with values from comm object
+                        packet.make2(comm.taskID, local_id, comm.dst[dst_pos], vc, now, 
+                                comm.src_totalVol, comm.waitOP, comm.src_minVol, 
+                                comm.src_totalVol, comm.dst_minVol, comm.dst_totalVol);
+                        // waitID=-1 is a one-off transfer, flag this traffic as complete and dont use it anymore
+                        traffic_communication_table->setTransmitComplete(comm.taskID, local_id, comm.dst[dst_pos]);
+                    } else if (comm.waitID[0] != -1) {
+                        shot = packetShotbyPE(comm, local_id, packet);
+                    }
                 }
                 
                 if (shot == true && comm.waitID[0] == -1) {
@@ -638,32 +691,63 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
         if (comm.src.size() == 1 && comm.dst.size() > 1) {
             // One-to-many case: Find a destination that hasn't been processed yet
             auto it = find(comm.trn_complete.begin(), comm.trn_complete.end(), TRN_WAIT);
-            if (it != comm.trn_complete.end()) {
-                int dst_pos = distance(comm.trn_complete.begin(), it);
-                if (dst_target != dst_pos) {
-                    // Destination has already been processed
-                    assert(dst_target == dst_pos && "DST target/pos mismatch in one-to-many case");
-                    return false;
+
+            // Check if this is a multicast traffic
+            if (comm.traffic_type == T_MULTICAST) {
+                auto it = find(comm.trn_complete.begin(), comm.trn_complete.end(), TRN_WAIT);
+                if (it != comm.trn_complete.end()) {
+                    // Create multicast packet with all destinations that are still waiting
+                    vector<int> pending_destinations;
+                    for (size_t i = 0; i < comm.dst.size(); i++) {
+                        if (comm.trn_complete[i] == TRN_WAIT) {
+                            pending_destinations.push_back(comm.dst[i]);
+                        }
+                    }
+                    
+                    if (!pending_destinations.empty()) {
+                        // Create multicast packet
+                        packet.makeMulticast(
+                            comm.taskID, local_id, pending_destinations, 
+                            vc, now, 1, comm.waitOP, 
+                            comm.src_minVol, comm.src_totalVol, 
+                            comm.dst_minVol, comm.dst_totalVol);
+                        
+                        // Update sentBytes and mark all destinations as in progress
+                        sentBytes[dst_target]++;
+                        
+                        LOG << "Packet created (multicast) for PE" << local_id << 
+                            " taskID = " << comm.taskID << " to " << 
+                            pending_destinations.size() << " destinations" << endl;
+                        
+                        packet_created = true;
+                    }
                 }
-                                
-                // Create packet for this destination
-                packet.make2(comm.taskID, local_id, comm.dst[dst_pos], vc, now, 
-                    1, comm.waitOP, comm.src_minVol, comm.src_totalVol, 
-                    comm.dst_minVol, comm.dst_totalVol);
-                // When destination is 5, ask user to press enter to continue
-                // if (comm.dst[dst_pos] == 5) {
-                //     cout << "PE " << local_id << " is sending packet to PE 5. Press Enter to continue..." << endl;
-                //     cin.get();
-                // }
-                // Update sentBytes and log
-                sentBytes[dst_target]++;
-                LOG << "Packet created (o2m) for PE" << local_id << " taskID = " << 
-                    comm.taskID << " " << local_id << "->" << comm.dst[dst_pos] << " VC" << vc << endl;
-                LOG << "PE" << local_id << " Send Processed bytes "
-                <<readyToSendBytes(dst_target)<<"|"<<sum_recvBytesPE<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
-                LOG << "PE" << local_id <<" "<< recv_minBytes <<"|"<< recv_totalBytes <<"|"<< tran_minBytes <<"|"<< tran_totalBytes << endl;
-                packet_created = true;
-            }
+            } else {
+                // one to many (not multicast)
+                auto it = find(comm.trn_complete.begin(), comm.trn_complete.end(), TRN_WAIT);
+                if (it != comm.trn_complete.end()) {
+                    int dst_pos = distance(comm.trn_complete.begin(), it);
+                    if (dst_target != dst_pos) {
+                        // Destination has already been processed
+                        assert(dst_target == dst_pos && "DST target/pos mismatch in one-to-many case");
+                        return false;
+                    }
+                                    
+                    // Create packet for this destination
+                    packet.make2(comm.taskID, local_id, comm.dst[dst_pos], vc, now, 
+                        1, comm.waitOP, comm.src_minVol, comm.src_totalVol, 
+                        comm.dst_minVol, comm.dst_totalVol);
+
+                    // Update sentBytes and log
+                    sentBytes[dst_target]++;
+                    LOG << "Packet created (o2m) for PE" << local_id << " taskID = " << 
+                        comm.taskID << " " << local_id << "->" << comm.dst[dst_pos] << " VC" << vc << endl;
+                    LOG << "PE" << local_id << " Send Processed bytes "
+                    <<readyToSendBytes(dst_target)<<"|"<<sum_recvBytesPE<<"|"<<processedBytes<<"|"<<sentBytes[dst_target]<< " to shoot packet." << endl;
+                    LOG << "PE" << local_id <<" "<< recv_minBytes <<"|"<< recv_totalBytes <<"|"<< tran_minBytes <<"|"<< tran_totalBytes << endl;
+                    packet_created = true;
+                }
+            } 
         } else {
             // One-to-one case: Process the single destination
             for (size_t i = 0; i < comm.dst.size(); i++) {
@@ -692,7 +776,18 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
             // set trn_complete = TRN_DONE when dst received all required Bytes
             // ###### Sat Mar 8 17:22:58 SGT 2025 previously we use comm.trn_complete[dst_target] = TRN_DONE, but not appropritate for m2o traffic 
             // comm.trn_complete[dst_target] = TRN_DONE;
-            traffic_communication_table->setTransmitComplete(comm.taskID, local_id, comm.dst[dst_target]);
+
+            // For multicast, mark all destinations as complete ###### Tue Mar 18 23:58:20 MYT 2025
+            if (comm.traffic_type == T_MULTICAST) {
+                for (size_t i = 0; i < comm.dst.size(); i++) {
+                    traffic_communication_table->setTransmitComplete(
+                        comm.taskID, local_id, comm.dst[i]);
+                }
+            } else {
+                // Original unicast handling
+                traffic_communication_table->setTransmitComplete(
+                    comm.taskID, local_id, comm.dst[dst_target]);
+            }
         }
         
         return packet_created;

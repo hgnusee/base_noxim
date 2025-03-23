@@ -40,6 +40,7 @@ using namespace std;
 #define RT_ALREADY_SAME -1
 #define RT_ALREADY_OTHER_OUT -2
 #define RT_OUTVC_BUSY -3
+#define RT_MULTICAST_OK 2 // New status for multicast
 
 // Generic not reserved resource
 #define NOT_RESERVED          -2

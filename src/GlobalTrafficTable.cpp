@@ -124,14 +124,16 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
       if (line[0] != '%') {
 		int taskID, layerID;	// Mandatory
 		int src_minVol, src_totalVol, dst_minVol, dst_totalVol, waitOP;
+		char traffic_type_str[4] = ""; // u, m, b
 
 		char src_str[512], dst_str[512], waitID_str[512], nextID_str[512];
 
 		int params =
-		sscanf(line, "%d %d [%[^]]] [%[^]]] %d %d %d %d [%[^]]] [%[^]]] %d", 
+		sscanf(line, "%d %d [%[^]]] [%[^]]] %d %d %d %d [%[^]]] [%[^]]] %d %s", 
 			&taskID, &layerID, src_str, dst_str, &src_minVol,
-			&src_totalVol, &dst_minVol, &dst_totalVol, waitID_str, nextID_str, &waitOP);
-		if (params == 11) {
+			&src_totalVol, &dst_minVol, &dst_totalVol, waitID_str, nextID_str, &waitOP, 
+			traffic_type_str);
+		if (params >= 11) {
 			// parsing src_str to vector<int> src
 			vector<int> src;
 			char *token = strtok(src_str, " ");
@@ -171,7 +173,7 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 				nextID.push_back(atoi(token));
 				token = strtok(NULL, " ");
 			}
-
+			
 			// Check if waitID contains -1, it must not have more than 1 element
 			if (find(waitID.begin(), waitID.end(), -1) != waitID.end() && waitID.size() > 1) {
 				cerr << "Error: If waitID contains -1, it must not have more than 1 element" << endl;
@@ -200,6 +202,28 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			size_t size_to_use = max(src.size(), dst.size());
 			TrafficCommunication.trn_complete.resize(size_to_use, TRN_WAIT);
 			TrafficCommunication.cmp_complete.resize(size_to_use, CMP_WAIT);
+			
+            // Handle traffic_type - check if the parameter was provided (12 params total)
+            if (params < 12 || traffic_type_str[0] == '\0') {
+                // Default to unicast if not specified or empty
+                TrafficCommunication.traffic_type = T_UNICAST;
+            } else {
+                if (strcmp(traffic_type_str, "u") == 0)
+                    TrafficCommunication.traffic_type = T_UNICAST;
+                else if (strcmp(traffic_type_str, "m") == 0) {
+					TrafficCommunication.traffic_type = T_MULTICAST;
+					cout << "Multicast traffic recorded" << endl;
+				}
+                else if (strcmp(traffic_type_str, "b") == 0)
+                    TrafficCommunication.traffic_type = T_BROADCAST;
+                else {
+                    cerr << "Error parsing traffic file " << fname  
+                         << ": invalid traffic_type '" << traffic_type_str 
+                         << "'. Must be 'u', 'm', or 'b'" << endl;
+                    assert(false);
+                    return false;
+                }
+            }
 
 			// All traffic goes to main comm table, since pipeline model decides who to go next
 			if (waitID[0] >= -1) {
@@ -213,7 +237,7 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 
 		} else {
 			// ensure all params must be present in traffic communication file
-			assert(params == 11);
+			assert(params >= 11);
 		}
       }
     }

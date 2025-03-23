@@ -8,6 +8,6 @@ bin/*.vcd
 bin/*.out
 bin/*.json
 bin/*.txt
-
+/*.json*
 # Except the following files
 !o2m.txt

@@ -58,6 +58,13 @@ enum cmpState {
     CMP_DONE
 };
 
+// Add traffic type enum
+enum TrafficType {
+    T_UNICAST = 0,
+    T_MULTICAST = 1,
+    T_BROADCAST = 2
+};
+
 // Packet -- Packet definition
 struct Packet {
     int src_id;
@@ -78,9 +85,16 @@ struct Packet {
     int dst_minVol;
     int dst_totalVol;
     int nextID;
+    // multicast support
+    int traffic_type;                 // Type of traffic
+    vector<int> multicast_dst_ids;    // Destination IDs for multicast
 
     // Constructors
-    Packet() { }
+    Packet() { 
+        // multicast support
+        traffic_type = T_UNICAST;
+        multicast_dst_ids.clear();
+    }
 
     Packet(const int s, const int d, const int vc, const double ts, const int sz) {
 	make(s, d, vc, ts, sz);
@@ -119,6 +133,33 @@ struct Packet {
     src_totalVol = s_totV;
     dst_minVol = d_minV;
     dst_totalVol = d_totV;
+    }
+
+     // Add makeMulticast method
+    void makeMulticast(
+        const int task_id, const int src, const vector<int>& dsts, 
+        const int vc, const double ts, const int sz, const int wait_id, 
+        const int src_min, const int src_total, const int dst_min, const int dst_total) 
+    {
+        // Set basic properties
+        taskID = task_id;
+        src_id = src;
+        dst_id = dsts[0];  // Primary destination
+        multicast_dst_ids = dsts;
+        vc_id = vc;
+        timestamp = ts;
+        size = sz;
+        flit_left = sz;
+        waitID = wait_id;
+        
+        // Set volume info
+        src_minVol = src_min;
+        src_totalVol = src_total;
+        dst_minVol = dst_min;
+        dst_totalVol = dst_total;
+        
+        // Set multicast flag
+        traffic_type = T_MULTICAST;
     }
 };
 
@@ -200,6 +241,22 @@ struct Flit {
     int nextID;
 
     int hub_relay_node;
+
+    // multicast support
+    int traffic_type;                     // Type of traffic: unicast, multicast, broadcast
+    vector<int> dst_ids;                  // Destination IDs for multicast
+    bool has_pending;                     // Flag to track if flit has pending destinations
+    map<int, vector<int>> pending_directions;  // Map of directions to their destinations not yet sent
+    bool copies_sent; // initial design
+
+    // Initialize in constructor
+    Flit() {
+        traffic_type = T_UNICAST;
+        dst_ids.clear();
+        has_pending = false;
+        copies_sent = false; // initial design
+    }
+    
 
     inline bool operator ==(const Flit & flit) const {
 	return (flit.src_id == src_id && flit.dst_id == dst_id

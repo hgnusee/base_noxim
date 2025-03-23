@@ -152,4 +152,88 @@ void ReservationTable::updateIndex()
     }
 }
 
+// Below are methods for multicast support
+// - checkMulticastReservation
+// - reserveMultiple
+// - getMulticsatReservations
+// - releaseMulticastOutput
 
+int ReservationTable::checkMulticastReservation(const TReservation r, const int port_out)
+{
+    // For multicast, we skip the check for same input in different outputs
+    // We only check if this specific output port is available
+    
+    int n_reservations = rtable[port_out].reservations.size();
+    for (int i = 0; i < n_reservations; i++)
+    {
+        // If same reservation already exists
+        if (rtable[port_out].reservations[i] == r)
+            return RT_ALREADY_SAME;
+        
+        // If VC is already taken for this output by another input
+        if (rtable[port_out].reservations[i].input != r.input &&
+            rtable[port_out].reservations[i].vc == r.vc)
+            return RT_OUTVC_BUSY;
+    }
+    return RT_AVAILABLE;
+}
+
+vector<int> ReservationTable::reserveMultiple(const TReservation r, const vector<int>& ports)
+{
+    vector<int> reserved_ports;
+    
+    for (unsigned int i = 0; i < ports.size(); i++) {
+        int port_out = ports[i];
+        
+        // Check if output is available
+        int status = checkReservation(r, port_out);
+        
+        // For multicast, we allow the same input to reserve multiple outputs
+        if (status == RT_AVAILABLE || status == RT_ALREADY_SAME) {
+            if (status == RT_AVAILABLE) {
+                rtable[port_out].reservations.push_back(r);
+                reserved_ports.push_back(port_out);
+                LOG << "Successfully reserved output " << port_out << " for multicast" << endl;
+            } else if (status == RT_ALREADY_SAME) {
+                // Already reserved by same input/vc, count it as reserved
+                reserved_ports.push_back(port_out);
+                LOG << "RT_ALREADY_SAME Output " << port_out << " already reserved by same input/vc" << endl;
+            }
+        } else if (status == RT_ALREADY_OTHER_OUT) {
+            // For multicast, we want to allow the same input to reserve multiple outputs
+            rtable[port_out].reservations.push_back(r);
+            reserved_ports.push_back(port_out);
+            LOG << "RT_ALREADY_OTHER_OUT Reserved additional output " << port_out << " for multicast (multi-output)" << endl;
+        }
+        // Skip if the output VC is busy
+    }
+    
+    return reserved_ports;
+}
+vector<int> ReservationTable::getMulticastReservations(const int port_in, const int vc)
+{
+    pair<int, int> key = make_pair(port_in, vc);
+    if (multicast_reservations.find(key) != multicast_reservations.end()) {
+        return multicast_reservations[key];
+    }
+    return vector<int>();
+}
+
+void ReservationTable::releaseMulticastOutput(const TReservation r, const int port_out)
+{
+    // Release the specific output from the reservation table
+    release(r, port_out);
+    
+    // Update multicast tracking
+    pair<int, int> key = make_pair(r.input, r.vc);
+    if (multicast_reservations.find(key) != multicast_reservations.end()) {
+        // Remove this output from the vector
+        vector<int> &outputs = multicast_reservations[key];
+        outputs.erase(remove(outputs.begin(), outputs.end(), port_out), outputs.end());
+        
+        // If no more outputs, remove the entire entry
+        if (outputs.empty()) {
+            multicast_reservations.erase(key);
+        }
+    }
+}
