@@ -152,10 +152,14 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			}
 
 			// Validate src/dst vector rule
-			if (!((src.size() == 1 && dst.size() >= 1) || 
-					(src.size() > 1 && dst.size() == 1))) {
-				cerr << "Error: Either src or dst must be size 1, while the other can be >1" << endl;
-				assert(false);
+			// if (!((src.size() == 1 && dst.size() >= 1) || 
+			// 		(src.size() > 1 && dst.size() == 1))) {
+			// 	cerr << "Error: Either src or dst must be size 1, while the other can be >1" << endl;
+			// 	assert(false);
+			// }
+			// Allow src/dst to be mutliple values for many to many case
+			if (src.size() > 1 && dst.size() > 1) {
+				cout << "INFO: Detected Many to Many Traffic at taskID = "<< taskID << endl;
 			}
 
 			// Parse waitID vector
@@ -198,10 +202,15 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			TrafficCommunication.nextID = nextID;
 
 			TrafficCommunication.traffic_used = false; // HG: all new traffic are 'unused'
+			TrafficCommunication.compute_used = false; // HG: all new traffic initial compute status is 'false'
 			// Initialize vectors of trn_complete and cmp_complete with 0, matching size of src/dst (whichever larger)
-			size_t size_to_use = max(src.size(), dst.size());
+			/*size_t size_to_use = max(src.size(), dst.size());
 			TrafficCommunication.trn_complete.resize(size_to_use, TRN_WAIT);
 			TrafficCommunication.cmp_complete.resize(size_to_use, CMP_WAIT);
+			*/
+			size_t size_to_use = src.size() * dst.size();
+			TrafficCommunication.trn_complete.resize(size_to_use, TRN_WAIT);
+			TrafficCommunication.cmp_complete.resize(size_to_use, TRN_WAIT);
 			
             // Handle traffic_type - check if the parameter was provided (12 params total)
             if (params < 12 || traffic_type_str[0] == '\0') {
@@ -269,91 +278,107 @@ double GlobalTrafficTable::getCumulativePirPor(const int src_id,const int ccycle
 
 TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int src_id)
 {
-	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
-		
-		// To accomadate vector of src, use find() function
-		bool found_src = false;
-		bool found_dst = false;
-		size_t src_pos = 0;
-		size_t dst_pos = 0;
-		int check_trn_state = TRN_WAIT;  // default state
+    for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
+        // To accommodate vector of src, use find() function
+        bool found_src = false;
+        bool found_dst = false;
+        size_t src_pos = 0;
+        size_t dst_pos = 0;
+        int check_trn_state = TRN_WAIT;  // default state
 
-		// store in tcomm variable for readability
-		TrafficCommunication& tcomm = traffic_communication_table[i];
+        // store in tcomm variable for readability
+        TrafficCommunication& tcomm = traffic_communication_table[i];
 
-		// skip traffic row if traffic_used == true
-		if (tcomm.traffic_used == true) {
-			continue;
-		}
+        // skip traffic row if traffic_used == true
+        if (tcomm.traffic_used == true) {
+            continue;
+        }
 
-		auto it = find(tcomm.src.begin(), tcomm.src.end(), src_id);
-		found_src = (it != tcomm.src.end());
+        auto it = find(tcomm.src.begin(), tcomm.src.end(), src_id);
+        found_src = (it != tcomm.src.end());
+        
+        if (!found_src) {
+            continue;  // Skip if source not found
+        }
+        
+        src_pos = distance(tcomm.src.begin(), it);
+        
+        // Handle Many-to-Many case
+        if (tcomm.src.size() > 1 && tcomm.dst.size() > 1) {
+            // Check if this source has any destinations in WAIT state
+            bool has_wait_destinations = false;
+            size_t wait_dst_pos = 0;
+            
+            for (size_t d = 0; d < tcomm.dst.size(); d++) {
+                size_t idx = src_pos * tcomm.dst.size() + d;
+                if (idx < tcomm.trn_complete.size() && tcomm.trn_complete[idx] == TRN_WAIT) {
+                    has_wait_destinations = true;
+                    wait_dst_pos = d;
+                    break;
+                }
+            }
+            
+            if (has_wait_destinations) {
+                // Found destination in WAIT state - mark as BUSY and return
+                size_t idx = src_pos * tcomm.dst.size() + wait_dst_pos;
+                cout << "DEBUG: (m2m) Traffic found for src_id = " << src_id 
+                     << " to dst_id = " << tcomm.dst[wait_dst_pos] << " - return with TRN_WAIT" << endl;
+                // tcomm.trn_complete[idx] = TRN_BUSY; // like PE handle TRN_BUSY tagging
+                return tcomm;
+            }
+            
+            // If no WAIT destinations but source is BUSY with any destination, return traffic
+            for (size_t d = 0; d < tcomm.dst.size(); d++) {
+                size_t idx = src_pos * tcomm.dst.size() + d;
+                if (idx < tcomm.trn_complete.size() && tcomm.trn_complete[idx] == TRN_BUSY) {
+                    cout << "DEBUG: (m2m) Source " << src_id << " already BUSY with destination "
+                         << tcomm.dst[d] << " - returning traffic" << endl;
+						// if (tcomm.dst[d] == 1) {
+						// 	cout << "Press Enter to continue...";
+						// 	cin.get();
+						// }
+                    return tcomm;
+                }
+            }
+            
+            // All destinations for this source are DONE - continue to next traffic
+            continue;
+        }
+        // Handle Many-to-One case (existing logic)
+        else if (tcomm.src.size() > 1 && tcomm.dst.size() == 1) {
+            check_trn_state = tcomm.trn_complete[src_pos];
 
-		if (tcomm.src.size() > 1 && tcomm.dst.size() == 1) {
+            if (check_trn_state == TRN_WAIT) {
+                cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
+                    << " return traffic" << endl;
+                tcomm.trn_complete[src_pos] = TRN_BUSY;
+                return tcomm;
+            } 
+            else if (check_trn_state == TRN_BUSY) {
+                cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
+                    << " trn_complete = TRN_BUSY, return traffic" << endl;
+                return tcomm;
+            }
+            else if (check_trn_state == TRN_DONE) {
+                cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
+                    << " but trn_complete = TRN_DONE" << endl;
+            }
+        }
+        // Handle One-to-Many or One-to-One case (existing logic)
+        else if ((tcomm.src.size() == 1 && tcomm.dst.size() > 1) || 
+                 (tcomm.src.size() == 1 && tcomm.dst.size() == 1)) {
+            // Check if dst_id is being tagged or not in the trn_complete vector
+            auto it = find(tcomm.trn_complete.begin(), tcomm.trn_complete.end(), TRN_WAIT);
+            found_dst = (it != tcomm.trn_complete.end());
+            dst_pos = distance(tcomm.trn_complete.begin(), it);
 
-			if (found_src) {
-				src_pos = distance(tcomm.src.begin(), it);
-				check_trn_state = tcomm.trn_complete[src_pos];
-
-				if (check_trn_state == TRN_WAIT) {
-
-					cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
-						<< " return traffic" << endl;
-					// return transaction to Processing Element to make packet
-					tcomm.trn_complete[src_pos] = TRN_BUSY;
-			
-					return tcomm;
-		
-				} else if (check_trn_state == TRN_BUSY) {
-					cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
-						<< " trn_complete = TRN_BUSY, return traffic" << endl;	
-					return tcomm;
-
-				} else if (check_trn_state == TRN_DONE) {
-			
-					cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
-						<< " but trn_complete = TRN_DONE" << endl;
-				} else {
-					assert("Error: Unknown trn_state!");
-				}
-
-			} else {
-				continue;
-			}
-
-		} else if ((tcomm.src.size() == 1 && tcomm.dst.size() > 1) || 
-						(tcomm.src.size() == 1 && tcomm.dst.size() == 1)) {
-
-			// One-to-One OR One-to-Many case: check if dst_id is being tagged or not
-			// 	in the tcomm trn_complete vector
-			// if trn_complete is TRN_WAIT, then tag as TRN_BUSY & return tcomm
-			// 	else, print debugg message and continue with loop
-
-			auto it = find(tcomm.trn_complete.begin(), tcomm.trn_complete.end(), TRN_WAIT);
-			found_dst = (it != tcomm.trn_complete.end());
-			dst_pos = distance(tcomm.trn_complete.begin(), it);
-
-			// return tcomm with dst found with TRN_WAIT
-			// actually dont need to check == TRN_WAIT anymore but for clarity
-			if (found_src == true && found_dst == true && tcomm.trn_complete[dst_pos] == TRN_WAIT) {
-
-				// tcomm.trn_complete[dst_pos] = TRN_BUSY;
-
-				return tcomm;
-			} else {
-				continue;
-			}
-
-		} else {
-			cerr << "Error: Only one of src OR dst can > 1" << endl;
-			assert(false);
-		}
-
-	}
-
-  	// HG: return empty TrafficCommunication, if not matching src_id found
-	//   cout << "DEBUG: No Traffic Communication Table found for src_id = " << src_id << endl;
-  return empty_comm;
+            if (found_dst && tcomm.trn_complete[dst_pos] == TRN_WAIT) {
+                return tcomm;
+            }
+        }
+    }
+    
+    return empty_comm;
 }
 
 void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id) {
@@ -418,101 +443,121 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
 }
 
 void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID, const int dst_ID) {
+    for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
+        TrafficCommunication& comm = traffic_communication_table[i];
 
-	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
-		TrafficCommunication& comm = traffic_communication_table[i];
+        if (comm.taskID == task_ID && comm.traffic_used == false) {
+            // Many-to-Many case
+            if (comm.src.size() > 1 && comm.dst.size() > 1) {
+                auto src_it = find(comm.src.begin(), comm.src.end(), src_ID);
+                auto dst_it = find(comm.dst.begin(), comm.dst.end(), dst_ID);
+                
+                if (src_it != comm.src.end() && dst_it != comm.dst.end()) {
+                    size_t src_pos = distance(comm.src.begin(), src_it);
+                    size_t dst_pos = distance(comm.dst.begin(), dst_it);
+                    
+                    // Calculate serialized index and mark as done
+                    size_t idx = src_pos * comm.dst.size() + dst_pos;
+                    if (idx < comm.trn_complete.size()) {
+                        comm.trn_complete[idx] = TRN_DONE;
+                        cout << "DEBUG: M2M transmission complete for task " << task_ID
+                             << " from src=" << src_ID << " to dst=" << dst_ID << endl;
+                    }
+                }
+            }
+            // One-to-Many Case (existing logic)
+            else if (comm.src.size() == 1 && comm.dst.size() > 1) {
+                auto it = find(comm.dst.begin(), comm.dst.end(), dst_ID);
+                if (it != comm.dst.end()) {
+                    size_t pos = distance(comm.dst.begin(), it);
+                    comm.trn_complete[pos] = TRN_DONE;
+                }
+            }
+            // Many-to-One OR one-to-one case (existing logic)
+            else if (comm.src.size() >= 1 && comm.dst.size() == 1) {
+                auto it = find(comm.src.begin(), comm.src.end(), src_ID);
+                if (it != comm.src.end()) {
+                    size_t pos = distance(comm.src.begin(), it);
+                    comm.trn_complete[pos] = TRN_DONE;
+                }
+            }
 
-		if (comm.taskID == task_ID) {
-			
-			// One-to-Many Case 
-			if (comm.src.size() == 1 && comm.dst.size() > 1) {
-				// Find position of dst_ID in the src vector
-				auto it = find(comm.dst.begin(), comm.dst.end(), dst_ID);
-				if (it != comm.dst.end()) {
-					// Calculate position
-					size_t pos = distance(comm.dst.begin(), it);
-					// Set trn_complete at found position to TRN_DONE
-					comm.trn_complete[pos] = TRN_DONE;
-				}
-			//  Many-to-One OR one-to-one case
-			} else if (comm.src.size() >= 1 && comm.dst.size() == 1) {
-				// Find position of src_ID in the src vector
-				auto it = find(comm.src.begin(), comm.src.end(), src_ID);
-				if (it != comm.src.end()) {
-					// Calculate position
-					size_t pos = distance(comm.src.begin(), it);
-					// Set trn_complete at found position to TRN_DONE
-					comm.trn_complete[pos] = TRN_DONE;
-				}
-
-			}
-
-			// Check if all trn_complete values are TRN_DONE
-			bool all_done = true;
-			for (const auto& trn_status : comm.trn_complete) {
-				if (trn_status != TRN_DONE) {
-					all_done = false;
-					break;
-				}
-			}
-			if (all_done) {
-				// cout << "All traffic complete for taskID = " << task_ID << endl;
-				cout << sc_time_stamp().to_double() / GlobalParams::clock_period_ps 
-				<< " GlobalTrafficTable" << "::" << __func__<< "() --> " 
-				<< "All traffic complete for taskID: " << task_ID << endl;
-				comm.traffic_used = true;
-			}
-			break;
-
-		} else {
-			continue;
-		}
-	}
+            // Check if all transmissions are complete
+            bool all_done = true;
+            for (const auto& trn_status : comm.trn_complete) {
+                if (trn_status != TRN_DONE) {
+                    all_done = false;
+                    break;
+                }
+            }
+            
+            if (all_done) {
+                cout << sc_time_stamp().to_double() / GlobalParams::clock_period_ps 
+                     << " GlobalTrafficTable" << "::" << __func__ << "() --> " 
+                     << "All traffic complete for taskID: " << task_ID << endl;
+                comm.traffic_used = true;
+            }
+            break;
+        }
+    }
 }
 
 void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID, const int local_ID) {
+    for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
+        TrafficCommunication& comm = traffic_communication_table[i];
 
-	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
-		TrafficCommunication& comm = traffic_communication_table[i];
-
-		if (comm.taskID == task_ID) {
-
-			// Consider One-to-Many OR Many-to-One OR one-to-one case
-			if (comm.src.size() == 1 && comm.dst.size() > 1) {
-				// Find position based on PE local_ID (aka dst vector)
-				auto it = find(comm.dst.begin(), comm.dst.end(), local_ID);
-				if (it != comm.dst.end()) {
-					// Calculate position
-					size_t pos = distance(comm.dst.begin(), it);
-					// Set trn_complete at found position to CMP_DONE
-					comm.cmp_complete[pos] = CMP_DONE;
-				}
-			}
-			else if (comm.src.size() >= 1 && comm.dst.size() == 1) {
-				// Find position of src_ID in the src vector
-				auto it = find(comm.src.begin(), comm.src.end(), src_ID);
-				if (it != comm.src.end()) {
-					// Calculate position
-					size_t pos = distance(comm.src.begin(), it);
-					// Set trn_complete at found position to CMP_DONE
-					comm.cmp_complete[pos] = CMP_DONE;
-				}
-			}
-			// Check if all trn_complete values are TRN_DONE
-			bool all_done = true;
-			for (const auto& cmp_status : comm.cmp_complete) {
-				if (cmp_status != CMP_DONE) {
-					all_done = false;
-					break;
-				}
-			}
-			if (all_done) {
-				cout << "DEBUG: All ComputeProcess() complete for taskID = " << task_ID << endl;
-				// comm.traffic_used = true;
-			}
-			break;
-		}
-	}
+        if (comm.taskID == task_ID && comm.compute_used == false) {
+            // Many-to-Many case
+            if (comm.src.size() > 1 && comm.dst.size() > 1) {
+                auto src_it = find(comm.src.begin(), comm.src.end(), src_ID);
+                auto dst_it = find(comm.dst.begin(), comm.dst.end(), local_ID);
+                
+                if (src_it != comm.src.end() && dst_it != comm.dst.end()) {
+                    size_t src_pos = distance(comm.src.begin(), src_it);
+                    size_t dst_pos = distance(comm.dst.begin(), dst_it);
+                    
+                    // Calculate serialized index and mark computation as done
+                    size_t idx = src_pos * comm.dst.size() + dst_pos;
+                    if (idx < comm.cmp_complete.size()) {
+                        comm.cmp_complete[idx] = CMP_DONE;
+                        cout << "DEBUG: M2M computation complete for task " << task_ID
+                             << " from src=" << src_ID << " at dst=" << local_ID << endl;
+                    }
+                }
+            }
+            // One-to-Many case (existing logic)
+            else if (comm.src.size() == 1 && comm.dst.size() > 1) {
+                auto it = find(comm.dst.begin(), comm.dst.end(), local_ID);
+                if (it != comm.dst.end()) {
+                    size_t pos = distance(comm.dst.begin(), it);
+                    comm.cmp_complete[pos] = CMP_DONE;
+                }
+            }
+            // Many-to-One or One-to-One case (existing logic)
+            else if (comm.src.size() >= 1 && comm.dst.size() == 1) {
+                auto it = find(comm.src.begin(), comm.src.end(), src_ID);
+                if (it != comm.src.end()) {
+                    size_t pos = distance(comm.src.begin(), it);
+                    comm.cmp_complete[pos] = CMP_DONE;
+                }
+            }
+            
+            // Check if all computation is complete
+            bool all_done = true;
+            for (const auto& cmp_status : comm.cmp_complete) {
+                if (cmp_status != CMP_DONE) {
+                    all_done = false;
+                    break;
+                }
+            }
+            
+            if (all_done) {
+                cout << "DEBUG: All ComputeProcess() complete for taskID = " << task_ID << endl;
+				comm.compute_used = true;
+            }
+            break;
+        }
+    }
 }
 
 TrafficCommunication GlobalTrafficTable::getsrcID(const int task_ID) {

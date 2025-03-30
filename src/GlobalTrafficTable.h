@@ -45,6 +45,7 @@ struct TrafficCommunication {
   vector < int >  nextID;
   int waitOP;
   bool traffic_used;
+  bool compute_used;
   // trn/cmp_complete flag uses int to act as state for each src id, for multiple src to control. 
   //    the values should not be less than 0
   vector < int > trn_complete; // flag for transmit by src PE is done
@@ -55,6 +56,32 @@ struct TrafficCommunication {
   
   TrafficCommunication() {
     traffic_type = T_UNICAST;
+  }
+
+  // HG: Below are all heper functions for setting up index based src-dst pair status tracking
+  // ###### Sat Mar 29 14:24:37 SGT 2025
+  // Helper function to calculate index from src_pos and dst_pos
+  size_t getIndex(size_t src_pos, size_t dst_pos) const {
+      return src_pos * dst.size() + dst_pos;
+  }
+  
+  // Helper function to get transaction state for specific src-dst pair
+  int getTrnState(size_t src_pos, size_t dst_pos) const {
+      return trn_complete[getIndex(src_pos, dst_pos)];
+  }
+  
+  // Helper function to set transaction state for specific src-dst pair
+  void setTrnState(size_t src_pos, size_t dst_pos, int state) {
+      trn_complete[getIndex(src_pos, dst_pos)] = state;
+  }
+  
+  // Similar helpers for compute state
+  int getCmpState(size_t src_pos, size_t dst_pos) const {
+      return cmp_complete[getIndex(src_pos, dst_pos)];
+  }
+  
+  void setCmpState(size_t src_pos, size_t dst_pos, int state) {
+      cmp_complete[getIndex(src_pos, dst_pos)] = state;
   }
 
 };

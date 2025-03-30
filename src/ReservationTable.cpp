@@ -84,8 +84,13 @@ int ReservationTable::checkReservation(const TReservation r, const int port_out)
 
 	// the same VC for that output has been reserved by another input
 	if (rtable[port_out].reservations[i].input != r.input &&
-	    rtable[port_out].reservations[i].vc == r.vc)
+	    rtable[port_out].reservations[i].vc == r.vc) {
+            cout << "VC conflict on output port " << port_out 
+                << " - Input " << r.input << " (VC " << r.vc 
+                << ") conflicts with input " << rtable[port_out].reservations[i].input 
+                << " (VC " << rtable[port_out].reservations[i].vc << ")" << endl;
 	    return RT_OUTVC_BUSY;
+        }
     }
     return RT_AVAILABLE;
 }

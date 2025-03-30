@@ -493,14 +493,31 @@ void Router::handleMulticastFlit(int i, int vc) {
 		
 		// Check if this is a TAIL flit OR a single-flit packet (HEAD with sequence_length==1)
 		bool singleFlitPacket = (flit.flit_type == FLIT_TYPE_HEAD) && (flit.sequence_length == 1);
-		
+		// Log the directions that were successfully completed
+		string completed_dirs = "";
+		for (size_t d = 0; d < completed_directions.size(); d++) {
+			switch(completed_directions[d]) {
+				case DIRECTION_NORTH: completed_dirs += "N"; break;
+				case DIRECTION_SOUTH: completed_dirs += "S"; break;
+				case DIRECTION_EAST: completed_dirs += "E"; break;
+				case DIRECTION_WEST: completed_dirs += "W"; break;
+				case DIRECTION_LOCAL: completed_dirs += "L"; break;
+				case DIRECTION_HUB: completed_dirs += "H"; break;
+				default: completed_dirs += to_string(completed_directions[d]);
+			}
+			if (session.reserved_directions.find(completed_directions[d]) != session.reserved_directions.end())
+				completed_dirs += "(R)";
+			if (d < completed_directions.size() - 1) completed_dirs += " ";
+		}
+		LOG << "Completed directions for multicast flit " << flit << ": [" << completed_dirs << "]" << endl;
 		if (flit.flit_type == FLIT_TYPE_TAIL || singleFlitPacket) {
 			for (int dir : completed_directions) {
 				// Remove this direction from the pending destinations
 				session.directions.erase(dir);
-				
+
 				// Only release if we actually reserved this direction
 				if (session.reserved_directions.find(dir) != session.reserved_directions.end()) {
+					// TODO: check why there is no reserved_directions??
 					TReservation r;
 					r.input = i;
 					r.vc = vc;
@@ -510,7 +527,24 @@ void Router::handleMulticastFlit(int i, int vc) {
 					
 					// Remove from reserved set after release
 					session.reserved_directions.erase(dir);
-				} else {
+				} else if (find(completed_directions.begin(), completed_directions.end(), DIRECTION_LOCAL) != completed_directions.end()) {
+					// Special case for local direction which might not need reservation
+					// Apply fix to release DIRECTION_LOCAL if found in completed directions ###### Sun Mar 30 13:04:17 SGT 2025
+					TReservation r;
+					r.input = i;
+					r.vc = vc;
+					LOG << "Local direction completed but not reserved, release it!" << endl;
+					reservation_table.release(r, dir);
+				} else if (dir == DIRECTION_NORTH || dir == DIRECTION_SOUTH || dir == DIRECTION_EAST || dir == DIRECTION_WEST) {
+					// Handle cardinal directions that might not be reserved but need to be released
+					// ###### Sun Mar 30 13:51:39 SGT 2025
+					TReservation r;
+					r.input = i;
+					r.vc = vc;
+					LOG << "Cardinal direction " << dir << " completed but not reserved, releasing it!" << endl;
+					reservation_table.release(r, dir);
+				}
+				else {
 					LOG << "Direction " << dir << " was not reserved, skipping release" << endl;
 				}
 			}
@@ -534,6 +568,8 @@ void Router::handleMulticastFlit(int i, int vc) {
 				
 				multicast_sessions.erase(session_key);
 				LOG << "Multicast session completed and removed" << endl;
+				LOG << "DEBUG: Final session state - directions remaining: " << session.directions.size() 
+    				<< ", reserved_directions remaining: " << session.reserved_directions.size() << endl;
 			}
 		}
 	}
