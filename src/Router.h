@@ -37,6 +37,26 @@ struct MulticastSession {
   bool has_initialized;
   set<int> reserved_directions;     // Tracks which directions were successfully reserved
 };
+
+
+struct StallStats {
+  // PE<->Router stalls by direction
+  unsigned long pe_to_router_stalls[DIRECTIONS + 2];
+  
+  // Router<->Router stalls by direction
+  unsigned long router_to_router_stalls[DIRECTIONS + 2];
+  
+  // Categorized by stall reason
+  unsigned long reservation_stalls;
+  unsigned long buffer_full_stalls;
+  unsigned long vc_busy_stalls;
+  unsigned long already_reserved_stalls;
+  
+  StallStats() {
+      // Initialize counters to zero
+  }
+};
+
 SC_MODULE(Router)
 {
     friend class Selection_NOP;
@@ -79,6 +99,8 @@ SC_MODULE(Router)
     unsigned long routed_flits;
     RoutingAlgorithm * routingAlgorithm; 
     SelectionStrategy * selectionStrategy; 
+
+    StallStats stall_stats; // router stall statistics
     
     // Functions
 

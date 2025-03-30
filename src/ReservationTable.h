@@ -34,6 +34,14 @@ typedef struct RTEntry
     vector<TReservation>::size_type index;
 } TRTEntry;
 
+// to track both successful and failed reservations with reasons in multicast
+struct MulticastReservationResult {
+    vector<int> reserved_ports;
+    map<int, int> failed_ports; // port -> reason code (RT_OUTVC_BUSY, etc.)
+
+    MulticastReservationResult() {} // Default constructor
+};
+
 class ReservationTable {
   public:
 
@@ -67,7 +75,7 @@ class ReservationTable {
     // methods for multicast
     int checkMulticastReservation(const TReservation r, const int port_out);
     // update from void to vector<int> 
-    vector<int> reserveMultiple(const TReservation r, const vector<int>& ports);
+    MulticastReservationResult reserveMultiple(const TReservation r, const vector<int>& ports);
     vector<int> getMulticastReservations(const int port_in, const int vc);
     void releaseMulticastOutput(const TReservation r, const int port_out);
 

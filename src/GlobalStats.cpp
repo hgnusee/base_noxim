@@ -503,6 +503,15 @@ void GlobalStats::showStats(std::ostream & out, bool detailed)
     out << "% Total energy (J): " << getTotalPower() << endl;
     out << "% \tDynamic energy (J): " << getDynamicPower() << endl;
     out << "% \tStatic energy (J): " << getStaticPower() << endl;
+	
+	// Collect and show stall statistics
+	collectStallStats();
+	out << "%" << endl;
+	generateStallHeatmap(out);
+	out << "%" << endl;
+	showStallStats(out);
+	out << "%" << endl;
+    showStallsByReasonPerNode(out);
 
     if (GlobalParams::show_buffer_stats)
       showBufferStats(out);
@@ -696,4 +705,286 @@ double GlobalStats::getReceivedIdealFlitRatio()
 		    GlobalParams::max_packet_size)/2 * total_cycles * GlobalParams::n_delta_tiles);
     }
     return ratio;
+}
+
+void GlobalStats::collectStallStats() {
+    // Initialize matrices
+    // For each router:
+    //   1. Collect stall counts by direction
+    //   2. Collect stall counts by reason
+    //   3. Update heatmap matrices
+
+    // Create matrices for storing stall data
+    vector<vector<unsigned long>> pe_to_router_stalls;
+    vector<vector<unsigned long>> router_to_router_stalls;
+    vector<vector<unsigned long>> total_stalls;
+    
+    // Direction-specific aggregates
+    unsigned long pe_to_router_stalls_by_direction[DIRECTIONS + 2] = {0};
+    unsigned long router_to_router_stalls_by_direction[DIRECTIONS + 2] = {0};
+    
+    // Reason-specific aggregates
+    unsigned long total_buffer_full_stalls = 0;
+    unsigned long total_reservation_stalls = 0;
+    unsigned long total_vc_busy_stalls = 0;
+	unsigned long total_already_reserved_stalls = 0;
+
+    
+    // Initialize matrices based on topology
+    if (GlobalParams::topology == TOPOLOGY_MESH) {
+        pe_to_router_stalls.resize(GlobalParams::mesh_dim_y);
+        router_to_router_stalls.resize(GlobalParams::mesh_dim_y);
+        total_stalls.resize(GlobalParams::mesh_dim_y);
+        
+        for (int y = 0; y < GlobalParams::mesh_dim_y; y++) {
+            pe_to_router_stalls[y].resize(GlobalParams::mesh_dim_x, 0);
+            router_to_router_stalls[y].resize(GlobalParams::mesh_dim_x, 0);
+            total_stalls[y].resize(GlobalParams::mesh_dim_x, 0);
+        }
+        
+        // Collect data from each router in the mesh
+        for (int y = 0; y < GlobalParams::mesh_dim_y; y++) {
+            for (int x = 0; x < GlobalParams::mesh_dim_x; x++) {
+                Router* router = noc->t[x][y]->r;
+                
+                // Collect stalls by direction
+                for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
+                    pe_to_router_stalls_by_direction[dir] += router->stall_stats.pe_to_router_stalls[dir];
+                    router_to_router_stalls_by_direction[dir] += router->stall_stats.router_to_router_stalls[dir];
+                    
+                    // Add to position-based matrices
+                    pe_to_router_stalls[y][x] += router->stall_stats.pe_to_router_stalls[dir];
+                    router_to_router_stalls[y][x] += router->stall_stats.router_to_router_stalls[dir];
+                }
+                
+                // Collect stalls by reason
+                total_buffer_full_stalls += router->stall_stats.buffer_full_stalls;
+                total_reservation_stalls += router->stall_stats.reservation_stalls;
+                total_vc_busy_stalls += router->stall_stats.vc_busy_stalls;
+				total_already_reserved_stalls += router->stall_stats.already_reserved_stalls;
+                
+                // Calculate total stalls for heatmap
+                total_stalls[y][x] = pe_to_router_stalls[y][x] + router_to_router_stalls[y][x];
+            }
+        }
+    }
+    else { // Delta topologies
+        int stg = log2(GlobalParams::n_delta_tiles);
+        int sw = GlobalParams::n_delta_tiles/2; // switches per stage
+        
+        // Dimensions of delta switch network
+        int dimX = stg; 
+        int dimY = sw;
+        
+        // Resize matrices for delta topology
+        pe_to_router_stalls.resize(GlobalParams::n_delta_tiles);
+        router_to_router_stalls.resize(GlobalParams::n_delta_tiles);
+        total_stalls.resize(GlobalParams::n_delta_tiles);
+        
+        for (int i = 0; i < GlobalParams::n_delta_tiles; i++) {
+            pe_to_router_stalls[i].resize(1, 0);
+            router_to_router_stalls[i].resize(1, 0);
+            total_stalls[i].resize(1, 0);
+        }
+        
+        // Collect stalls from processing elements
+        for (int i = 0; i < GlobalParams::n_delta_tiles; i++) {
+            Router* router = noc->core[i]->r;
+            
+            // Collect stalls by direction
+            for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
+                pe_to_router_stalls_by_direction[dir] += router->stall_stats.pe_to_router_stalls[dir];
+                router_to_router_stalls_by_direction[dir] += router->stall_stats.router_to_router_stalls[dir];
+                
+                pe_to_router_stalls[i][0] += router->stall_stats.pe_to_router_stalls[dir];
+                router_to_router_stalls[i][0] += router->stall_stats.router_to_router_stalls[dir];
+            }
+            
+            // Collect stalls by reason
+            total_buffer_full_stalls += router->stall_stats.buffer_full_stalls;
+            total_reservation_stalls += router->stall_stats.reservation_stalls;
+            total_vc_busy_stalls += router->stall_stats.vc_busy_stalls;
+			total_already_reserved_stalls += router->stall_stats.already_reserved_stalls;
+
+            // Calculate total stalls for heatmap
+            total_stalls[i][0] = pe_to_router_stalls[i][0] + router_to_router_stalls[i][0];
+        }
+        
+        // Handle switches in delta networks
+        for (int y = 0; y < dimY; y++) {
+            for (int x = 0; x < dimX; x++) {
+                Router* router = noc->t[x][y]->r;
+                
+                // Accumulate switch stalls to total counts
+                for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
+                    pe_to_router_stalls_by_direction[dir] += router->stall_stats.pe_to_router_stalls[dir];
+                    router_to_router_stalls_by_direction[dir] += router->stall_stats.router_to_router_stalls[dir];
+                }
+                
+                total_buffer_full_stalls += router->stall_stats.buffer_full_stalls;
+                total_reservation_stalls += router->stall_stats.reservation_stalls;
+                total_vc_busy_stalls += router->stall_stats.vc_busy_stalls;
+            }
+        }
+    }
+    
+    // Store the collected statistics
+    stall_matrices.pe_to_router_stalls = pe_to_router_stalls;
+    stall_matrices.router_to_router_stalls = router_to_router_stalls;
+    stall_matrices.total_stalls = total_stalls;
+    
+    // Store direction aggregates
+    for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
+        stall_stats.pe_to_router_stalls_by_direction[dir] = pe_to_router_stalls_by_direction[dir];
+        stall_stats.router_to_router_stalls_by_direction[dir] = router_to_router_stalls_by_direction[dir];
+    }
+    
+    // Store reason aggregates
+    stall_stats.buffer_full_stalls = total_buffer_full_stalls;
+    stall_stats.reservation_stalls = total_reservation_stalls;
+    stall_stats.vc_busy_stalls = total_vc_busy_stalls;
+	stall_stats.already_reserved_stalls = total_already_reserved_stalls;
+}
+
+void GlobalStats::showStallStats(std::ostream & out) {
+    // Calculate total stalls
+    unsigned long total_pe_router_stalls = 0;
+    unsigned long total_router_router_stalls = 0;
+    
+    for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
+        total_pe_router_stalls += stall_stats.pe_to_router_stalls_by_direction[dir];
+        total_router_router_stalls += stall_stats.router_to_router_stalls_by_direction[dir];
+    }
+    
+    unsigned long total_stalls = total_pe_router_stalls + total_router_router_stalls;
+    
+    // Print summary
+    out << "% === Stall Statistics Summary ===" << endl;
+    out << "% Total stalls: " << total_stalls << endl;
+    out << "% PE→Router stalls: " << total_pe_router_stalls 
+        << " (" << fixed << setprecision(2) 
+        << (total_stalls > 0 ? 100.0 * total_pe_router_stalls / total_stalls : 0) << "%)" << endl;
+    out << "% Router→Router stalls: " << total_router_router_stalls 
+        << " (" << fixed << setprecision(2) 
+        << (total_stalls > 0 ? 100.0 * total_router_router_stalls / total_stalls : 0) << "%)" << endl;
+    
+    // Print stalls by reason
+    out << "%" << endl;
+    out << "% === Stalls by Reason ===" << endl;
+    out << "% Buffer full stalls: " << stall_stats.buffer_full_stalls 
+        << " (" << fixed << setprecision(2) 
+        << (total_stalls > 0 ? 100.0 * stall_stats.buffer_full_stalls / total_stalls : 0) << "%)" << endl;
+    out << "% VC busy stalls: " << stall_stats.vc_busy_stalls 
+        << " (" << fixed << setprecision(2) 
+        << (total_stalls > 0 ? 100.0 * stall_stats.vc_busy_stalls / total_stalls : 0) << "%)" << endl;
+    out << "% Reservation stalls: " << stall_stats.reservation_stalls 
+        << " (" << fixed << setprecision(2) 
+        << (total_stalls > 0 ? 100.0 * stall_stats.reservation_stalls / total_stalls : 0) << "%)" << endl;
+	out << "% Already reserved stalls: " << stall_stats.already_reserved_stalls 
+		<< " (" << fixed << setprecision(2) 
+		<< (total_stalls > 0 ? 100.0 * stall_stats.already_reserved_stalls / total_stalls : 0) << "%)" << endl;
+    
+    // Print stalls by direction
+    out << "%" << endl;
+    out << "% === Stalls by Direction ===" << endl;
+    out << "% Direction\tPE→Router\t\tRouter→Router" << endl;
+    
+    string direction_names[DIRECTIONS + 2] = {"North", "East", "South", "West", "Local", "Hub"};
+    
+    for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
+        double pe_router_percent = total_pe_router_stalls > 0 ? 
+            100.0 * stall_stats.pe_to_router_stalls_by_direction[dir] / total_pe_router_stalls : 0;
+        
+        double router_router_percent = total_router_router_stalls > 0 ?
+            100.0 * stall_stats.router_to_router_stalls_by_direction[dir] / total_router_router_stalls : 0;
+        
+        out << "% " << setw(10) << direction_names[dir] 
+            << "\t" << stall_stats.pe_to_router_stalls_by_direction[dir] 
+            << " (" << fixed << setprecision(2) << pe_router_percent << "%)"
+            << "\t\t" << stall_stats.router_to_router_stalls_by_direction[dir] 
+            << " (" << fixed << setprecision(2) << router_router_percent << "%)" 
+            << endl;
+    }
+}
+
+void GlobalStats::generateStallHeatmap(std::ostream & out) {
+    if (GlobalParams::topology != TOPOLOGY_MESH) {
+        out << "% Stall heatmap is only available for mesh topology" << endl;
+        return;
+    }
+    
+    out << "% === Stall Heatmap ===" << endl;
+    out << "% Each cell shows total stalls (PE→Router + Router→Router)" << endl;
+    out << "% Intensity: . < ░ < ▒ < ▓ < █" << endl;
+    
+    // Find maximum value for scaling
+    unsigned long max_stalls = 0;
+    for (int y = 0; y < GlobalParams::mesh_dim_y; y++) {
+        for (int x = 0; x < GlobalParams::mesh_dim_x; x++) {
+            if (stall_matrices.total_stalls[y][x] > max_stalls)
+                max_stalls = stall_matrices.total_stalls[y][x];
+        }
+    }
+    
+    // Generate heatmap
+    for (int y = 0; y < GlobalParams::mesh_dim_y; y++) {
+        out << "% ";
+        for (int x = 0; x < GlobalParams::mesh_dim_x; x++) {
+            double intensity = max_stalls > 0 ? 
+                (double)stall_matrices.total_stalls[y][x] / max_stalls : 0;
+            
+            if (intensity == 0) out << " . ";
+            else if (intensity < 0.2) out << " . ";
+            else if (intensity < 0.4) out << " ░ ";
+            else if (intensity < 0.6) out << " ▒ ";
+            else if (intensity < 0.8) out << " ▓ ";
+            else out << " █ ";
+        }
+        out << endl;
+    }
+    
+    // Generate numeric heatmap
+    out << "% " << endl;
+    out << "% Raw stall counts:" << endl;
+    for (int y = 0; y < GlobalParams::mesh_dim_y; y++) {
+        out << "% ";
+        for (int x = 0; x < GlobalParams::mesh_dim_x; x++) {
+            out << setw(8) << stall_matrices.total_stalls[y][x] << " ";
+        }
+        out << endl;
+    }
+}
+
+void GlobalStats::showStallsByReasonPerNode(std::ostream & out) {
+    out << "%" << endl;
+    out << "% === Per-Node Stall Analysis ===" << endl;
+    
+    // Header
+    out << "% Node ID\tBuffer Full\tVC Busy\tReservation\tAlready Reserved\tTotal" << endl;
+    
+    if (GlobalParams::topology == TOPOLOGY_MESH) {
+        for (int y = 0; y < GlobalParams::mesh_dim_y; y++) {
+            for (int x = 0; x < GlobalParams::mesh_dim_x; x++) {
+                Router* router = noc->t[x][y]->r;
+                int id = y * GlobalParams::mesh_dim_x + x;
+                
+                // Get stall counts by reason for this router
+                unsigned long buf_full = router->stall_stats.buffer_full_stalls;
+                unsigned long vc_busy = router->stall_stats.vc_busy_stalls;
+                unsigned long resv = router->stall_stats.reservation_stalls;
+                unsigned long already = router->stall_stats.already_reserved_stalls;
+                unsigned long total = buf_full + vc_busy + resv + already;
+                
+                // Output formatted row
+                out << "% " << setw(7) << id << "\t" 
+                    << setw(11) << buf_full << "\t"
+                    << setw(7) << vc_busy << "\t"
+                    << setw(11) << resv << "\t"
+                    << setw(16) << already << "\t"
+                    << setw(5) << total << endl;
+            }
+        }
+    } else {
+        out << "Stall breakdown by node Not supported for other topologies!" << endl;
+    }
 }

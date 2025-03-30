@@ -46,40 +46,38 @@ void Router::rxProcess()
 	    // 2) there is a free slot in the input buffer of direction i
 	    //LOG<<"****RX****DIRECTION ="<<i<<  endl;
 
-	    if (req_rx[i].read() == 1 - current_level_rx[i])
-	    { 
-		Flit received_flit = flit_rx[i].read();
-		//LOG<<"request opposite to the current_level, reading flit "<<received_flit<<endl;
+	    if (req_rx[i].read() == 1 - current_level_rx[i]) { 
+			Flit received_flit = flit_rx[i].read();
+			//LOG<<"request opposite to the current_level, reading flit "<<received_flit<<endl;
 
-		int vc = received_flit.vc_id;
+			int vc = received_flit.vc_id;
 
-		if (!buffer[i][vc].IsFull()) 
-		{
+			if (!buffer[i][vc].IsFull()) {
+				// Store the incoming flit in the circular buffer
+				buffer[i][vc].Push(received_flit);
+				LOG << " Flit " << received_flit << " collected from Input[" << i << "][" << vc <<"]" << endl;
 
-		    // Store the incoming flit in the circular buffer
-		    buffer[i][vc].Push(received_flit);
-		    LOG << " Flit " << received_flit << " collected from Input[" << i << "][" << vc <<"]" << endl;
+				power.bufferRouterPush();
 
-		    power.bufferRouterPush();
+				// Negate the old value for Alternating Bit Protocol (ABP)
+				//LOG<<"INVERTING CL FROM "<< current_level_rx[i]<< " TO "<<  1 - current_level_rx[i]<<endl;
+				current_level_rx[i] = 1 - current_level_rx[i];
 
-		    // Negate the old value for Alternating Bit Protocol (ABP)
-		    //LOG<<"INVERTING CL FROM "<< current_level_rx[i]<< " TO "<<  1 - current_level_rx[i]<<endl;
-		    current_level_rx[i] = 1 - current_level_rx[i];
+				// if a new flit is injected from local PE
+				if (received_flit.src_id == local_id)
+				power.networkInterface();
+			} else { 
+				// buffer full
+				// Buffer is full - track stall
+				stall_stats.pe_to_router_stalls[i]++;
+				stall_stats.buffer_full_stalls++;
+				// should not happen with the new TBufferFullStatus control signals    
+				// except for flit coming from local PE, which don't use it 
+				LOG << " Flit " << received_flit << " buffer full Input[" << i << "][" << vc <<"]" << endl;
+				assert(i== DIRECTION_LOCAL);
+			}
 
-		    // if a new flit is injected from local PE
-		    if (received_flit.src_id == local_id)
-			power.networkInterface();
 		}
-
-		else  // buffer full
-		{
-		    // should not happen with the new TBufferFullStatus control signals    
-		    // except for flit coming from local PE, which don't use it 
-		    LOG << " Flit " << received_flit << " buffer full Input[" << i << "][" << vc <<"]" << endl;
-		    assert(i== DIRECTION_LOCAL);
-		}
-
-	    }
 	    ack_rx[i].write(current_level_rx[i]);
 	    // updates the mask of VCs to prevent incoming data on full buffers
 	    TBufferFullStatus bfs;
@@ -166,7 +164,8 @@ void Router::txProcess()
 							}
 							
 							// Get the session and store the successfully reserved directions
-							vector<int> reserved_directions = reservation_table.reserveMultiple(r, output_ports);
+							MulticastReservationResult reservation_result = reservation_table.reserveMultiple(r, output_ports);
+							vector<int> reserved_directions = reservation_result.reserved_ports;
 							
 							// Store the reserved directions in the session
 							for (int dir : reserved_directions) {
@@ -177,6 +176,41 @@ void Router::txProcess()
 							for (unsigned int j = 0; j < reserved_directions.size(); j++)
 								output_str += to_string(reserved_directions[j]) + ", ";
 							LOG << output_str << endl;
+
+							// Track stalls for directions that couldn't be reserved
+							for (auto& port : output_ports) {
+								bool reserved = false;
+								for (auto& dir : reserved_directions) {
+									if (port == dir) {
+										reserved = true;
+										break;
+									}
+								}
+								
+								if (!reserved) {
+									// This direction couldn't be reserved - count as stall
+									stall_stats.router_to_router_stalls[port]++;
+									
+									// Check if we have a specific reason for the failure
+									if (reservation_result.failed_ports.find(port) != reservation_result.failed_ports.end()) {
+										int failure_reason = reservation_result.failed_ports[port];
+										
+										if (failure_reason == RT_OUTVC_BUSY) {
+											stall_stats.vc_busy_stalls++;
+										} else if (failure_reason == RT_ALREADY_OTHER_OUT) {
+											stall_stats.reservation_stalls++;
+										} else if (failure_reason == RT_ALREADY_SAME) {
+											stall_stats.already_reserved_stalls++;
+										} else {
+											// Generic reservation stall for unknown reasons
+											stall_stats.reservation_stalls++;
+										}
+									} else {
+										// Fallback if no specific reason found
+										stall_stats.reservation_stalls++;
+									}
+								}
+							}
 						}
 					} else {
 						// original unicast logic
@@ -229,6 +263,19 @@ void Router::txProcess()
 						}
 						else {
 						assert(false); // no meaningful status here
+						}
+
+						// collect stall stats in reservation phase
+						if (rt_status != RT_AVAILABLE) {
+							stall_stats.router_to_router_stalls[o]++;
+							
+							if (rt_status == RT_OUTVC_BUSY) {
+								stall_stats.vc_busy_stalls++;
+							} else if (rt_status == RT_ALREADY_OTHER_OUT) {
+								stall_stats.reservation_stalls++;
+							} else if (rt_status == RT_ALREADY_SAME) {
+								stall_stats.already_reserved_stalls++;
+							}
 						}
 					}
 				}
@@ -353,6 +400,11 @@ void Router::txProcess()
 							routed_flits++;
 						/* End Power & Stats ------------------------------------------------- */
 						//LOG<<"END_OK_cl_tx="<<current_level_tx[o]<<"_req_tx="<<req_tx[o].read()<<" _ack= "<<ack_tx[o].read()<< endl;
+						// stall stats collection in forwarding phase
+						if (buffer_full_status_tx[o].read().mask[vc] == true) {
+							stall_stats.router_to_router_stalls[o]++;
+							stall_stats.buffer_full_stalls++;
+						}
 					}
 					else
 					{
@@ -483,6 +535,12 @@ void Router::handleMulticastFlit(int i, int vc) {
             } 
             else if (i != DIRECTION_LOCAL) // not generated locally
                 routed_flits++;
+
+			// stall stats for forwarding phase (multicast)
+			if (buffer_full_status_tx[direction].read().mask[vc] == true) {
+				stall_stats.router_to_router_stalls[direction]++;
+				stall_stats.buffer_full_stalls++;
+			}
         }
     }
     

@@ -183,9 +183,9 @@ int ReservationTable::checkMulticastReservation(const TReservation r, const int 
     return RT_AVAILABLE;
 }
 
-vector<int> ReservationTable::reserveMultiple(const TReservation r, const vector<int>& ports)
+MulticastReservationResult ReservationTable::reserveMultiple(const TReservation r, const vector<int>& ports)
 {
-    vector<int> reserved_ports;
+    MulticastReservationResult result;
     
     for (unsigned int i = 0; i < ports.size(); i++) {
         int port_out = ports[i];
@@ -197,24 +197,32 @@ vector<int> ReservationTable::reserveMultiple(const TReservation r, const vector
         if (status == RT_AVAILABLE || status == RT_ALREADY_SAME) {
             if (status == RT_AVAILABLE) {
                 rtable[port_out].reservations.push_back(r);
-                reserved_ports.push_back(port_out);
+                result.reserved_ports.push_back(port_out);
                 LOG << "Successfully reserved output " << port_out << " for multicast" << endl;
             } else if (status == RT_ALREADY_SAME) {
                 // Already reserved by same input/vc, count it as reserved
-                reserved_ports.push_back(port_out);
+                result.reserved_ports.push_back(port_out);
                 LOG << "RT_ALREADY_SAME Output " << port_out << " already reserved by same input/vc" << endl;
             }
         } else if (status == RT_ALREADY_OTHER_OUT) {
             // For multicast, we want to allow the same input to reserve multiple outputs
             rtable[port_out].reservations.push_back(r);
-            reserved_ports.push_back(port_out);
+            result.reserved_ports.push_back(port_out);
             LOG << "RT_ALREADY_OTHER_OUT Reserved additional output " << port_out << " for multicast (multi-output)" << endl;
+        } else {
+            // Handle RT_OUTVC_BUSY or any other status
+            result.failed_ports[port_out] = status;
+            if (status == RT_OUTVC_BUSY) {
+                LOG << "RT_OUTVC_BUSY Output " << port_out << " VC is busy, cannot reserve for multicast" << endl;
+            } else {
+                LOG << "Output " << port_out << " cannot be reserved for multicast, status: " << status << endl;
+            }
         }
-        // Skip if the output VC is busy
     }
     
-    return reserved_ports;
+    return result;
 }
+
 vector<int> ReservationTable::getMulticastReservations(const int port_in, const int vc)
 {
     pair<int, int> key = make_pair(port_in, vc);

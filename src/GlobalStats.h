@@ -17,6 +17,29 @@
 #include "NoC.h"
 #include "Tile.h"
 using namespace std;
+// Add global stall statistics structure
+struct GlobalStallMatrices {
+  vector<vector<unsigned long>> pe_to_router_stalls;
+  vector<vector<unsigned long>> router_to_router_stalls;  
+  vector<vector<unsigned long>> total_stalls;
+};
+
+struct GlobalStallStats {
+  // Matrices for heatmaps
+  vector<vector<unsigned long>> pe_to_router_stalls;
+  vector<vector<unsigned long>> router_to_router_stalls;
+  vector<vector<unsigned long>> total_stalls;
+  
+  // Directional aggregates
+  unsigned long pe_to_router_stalls_by_direction[DIRECTIONS + 2];
+  unsigned long router_to_router_stalls_by_direction[DIRECTIONS + 2];
+  
+  // Stall reasons
+  unsigned long reservation_stalls;
+  unsigned long buffer_full_stalls;
+  unsigned long vc_busy_stalls;
+  unsigned long already_reserved_stalls;
+};
 
 class GlobalStats {
 
@@ -89,6 +112,16 @@ class GlobalStats {
     void showPowerManagerStats(std::ostream & out);
 
     double getReceivedIdealFlitRatio();
+
+    GlobalStallMatrices stall_matrices;
+    GlobalStallStats stall_stats;
+
+    //  add global stall stats
+    void collectStallStats();
+    // global stall stats visualization
+    void showStallStats(std::ostream & out);
+    void generateStallHeatmap(std::ostream & out);
+    void showStallsByReasonPerNode(std::ostream & out);
 
 
 
