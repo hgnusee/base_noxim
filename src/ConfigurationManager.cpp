@@ -43,6 +43,25 @@ void loadConfiguration() {
         cerr << "ERROR at line " << pe.mark.line +1 << " column " << pe.mark.column + 1 << ": "<< pe.msg << ". Please check identation." << endl;
         exit(0);
     }
+    try {
+        // Other parameter loading...
+        
+        // Load compute_delay parameter if present
+        if (config["compute_delay"]) {
+            int compute_delay = config["compute_delay"].as<int>();
+            if (compute_delay > 0) {
+                GlobalParams::compute_delay_cycles = compute_delay;
+            } else {
+                cerr << "Error: compute_delay in config file must be a positive integer." << endl;
+                exit(1);
+            }
+        }
+        
+        // Other parameter loading...
+    } catch (YAML::Exception& e) {
+        cerr << "Error parsing YAML configuration file: " << e.what() << endl;
+        exit(1);
+    }
 
     // Initialize global configuration parameters (can be overridden with command-line arguments)
     GlobalParams::verbose_mode = readParam<string>(config, "verbose_mode");
@@ -194,6 +213,7 @@ void showHelp(char selfname[])
          << "\t-power\t\t\tLoad the specified power configurations file" << endl
          << "\t-verbose N\t\tVerbosity level (1=low, 2=medium, 3=high)" << endl
          << "\t-trace FILENAME\t\tTrace signals to a VCD file named 'FILENAME.vcd'" << endl
+         << "\t-compute_delay <int>\t\tNumber of clock cycles for computation delay (default: 1)" << endl
          << "\t-dimx N\t\t\tSet the mesh X dimension" << endl
          << "\t-dimy N\t\t\tSet the mesh Y dimension" << endl
          << "\t-buffer N\t\tSet the depth of router input buffers [flits]" << endl
@@ -601,6 +621,21 @@ void parseCmdLine(int arg_num, char *arg_vet[])
 		GlobalParams::simulation_time = atoi(arg_vet[++i]);
 	    else if (!strcmp(arg_vet[i], "-asciimonitor")) 
 		GlobalParams::ascii_monitor = true;
+        else if (!strcmp(arg_vet[i], "-compute_delay")) {
+            if (i + 1 < arg_num) {
+                int delay = atoi(arg_vet[i+1]);
+                if (delay > 0) {
+                    GlobalParams::compute_delay_cycles = delay;
+                    i++;
+                } else {
+                    cerr << "Error: compute_delay must be a positive integer." << endl;
+                    exit(1);
+                }
+            } else {
+                cerr << "Error: compute_delay requires an integer argument." << endl;
+                exit(1);
+            }
+        }
 	    else if (!strcmp(arg_vet[i], "-config") || !strcmp(arg_vet[i], "-power"))
 		// -config is managed from configure function
 		// i++ skips the configuration file name 

@@ -60,6 +60,10 @@ void ProcessingElement::rxProcess()
         compute_queue.clear(); // clear all compute queue pairs
         rcv_comm = traffic_communication_table->getEmptyComm(); // reset rcv_comm to empty_comm
         src_pos = -1;
+        // reset compute status
+        pending_compute.active = false;
+        pending_compute.bytes_to_process = 0;
+        pending_compute.start_time = 0;
 
     } else {
         // LOG << "In rxProcess() for PE " << local_id << endl;
@@ -244,6 +248,33 @@ void ProcessingElement::txProcess(void)
         tran_minBytes = 0;
         tran_totalBytes = 0;
     } else {
+
+        // FIXED CODE: Only check for completion of EXISTING computations
+        // Do NOT start new ones here - this respects dependencies
+        if (pending_compute.active) {
+            double current_time = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+            
+            if ((current_time - pending_compute.start_time) >= compute_delayN) {
+                // Computation complete - update processedBytes
+                processedBytes += pending_compute.bytes_to_process;
+                LOG << "PE" << local_id << " Computation complete after " << compute_delayN 
+                    << " cycles - Processed " << pending_compute.bytes_to_process << " bytes" << endl;
+                
+                pending_compute.active = false;
+                
+                if (processedBytes >= tran_totalBytes) {
+                    state = PE_READY;
+                    LOG << "All Bytes Processed. Revert PE state --> PE_READY" << endl;
+                    traffic_communication_table->setComputeComplete(currentTaskID, last_recv_srcID, local_id);
+                }                
+                // Always try to start a new computation if needed, regardless of state
+                // This keeps processing going even when all flits have been received
+                else {
+                    computeProcess(); // Try to start next computation if more bytes to process
+                }
+            }
+        }
+
         Packet packet;
         // LOG << "In txProcess() for PE " << local_id << endl;
         if (canShot(packet)) {
@@ -650,11 +681,96 @@ bool ProcessingElement::canShot(Packet & packet)
 //  > stop processing more data
 // How to hold byte for one or N clock cycle delay?
 // >  push the recv_bytes into a vector array with N wait cycles, then we decrement it every cycle
+void ProcessingElement::computeProcess() {
+    double current_time = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+    // int compute_delayN = 5; // Get delay from global params， hard-code for now
+    
+    // First check if there's a pending computation that needs to complete
+    if (pending_compute.active) {
+        // Check if enough time has passed
+        if ((current_time - pending_compute.start_time) >= compute_delayN) {
+            // Computation complete, update processedBytes
+            if (pending_compute.bytes_to_process == 1) {
+                processedBytes++;
+                LOG << "PE" << local_id << " Computation complete after " << compute_delayN 
+                    << " cycles - Processed 1 byte" << endl;
+            } else {
+                // For batch processing
+                processedBytes += pending_compute.bytes_to_process;
+                LOG << "PE" << local_id << " Computation complete after " << compute_delayN 
+                    << " cycles - Processed " << pending_compute.bytes_to_process << " bytes" << endl;
+            }
+            
+            // Reset pending computation
+            pending_compute.active = false;
+            
+            // Check if all processing is complete
+            if (processedBytes >= tran_totalBytes) {
+                state = PE_READY;
+                LOG << "All Bytes Processed. Revert PE state --> PE_READY" << endl;
+                traffic_communication_table->setComputeComplete(currentTaskID, last_recv_srcID, local_id);
+            }
+        } else {
+            // Still computing, don't start a new computation
+            LOG << "PE" << local_id << " Still computing... " << (current_time - pending_compute.start_time) 
+                << "/" << compute_delayN << " cycles elapsed" << endl;
+            return;
+        }
+    }
+    
+    // Original sum_recvBytes calculation remains the same
+    int sum_recvBytes = 0;
+    for (int i = 0; i < recvBytes.size(); i++) {
+        sum_recvBytes += recvBytes[i];
+    }
+    int norm_sum_recvBytes = recvBytes.size() > 0 ? sum_recvBytes / recvBytes.size() : 0;
+    
+    LOG << "PE" << local_id << " sum_recvBytes: " << sum_recvBytes << " processedBytes: " << processedBytes << endl;
+    
+    // Determine if we have bytes to process and should start a computation delay
+    int bytes_to_process = 0;
+    
+    // Logic to determine bytes_to_process (similar to existing code)
+    if (processedBytes == 0) {
+        if (norm_sum_recvBytes == recv_minBytes) {
+            if (recv_minBytes == recv_totalBytes && tran_minBytes == tran_totalBytes) {
+                bytes_to_process = tran_minBytes;
+            } else {
+                bytes_to_process = 1;
+            }
+        }
+    }
+    else if (processedBytes < tran_totalBytes) {
+        if ((norm_sum_recvBytes - processedBytes) >= recv_minBytes) {
+            if ((norm_sum_recvBytes % tran_minBytes == 0) && (processedBytes != norm_sum_recvBytes / tran_minBytes)) {
+                if (recv_minBytes == recv_totalBytes && tran_minBytes == tran_totalBytes) {
+                    bytes_to_process = min(tran_minBytes, tran_totalBytes - processedBytes);
+                } else {
+                    bytes_to_process = 1;
+                }
+            }
+        }
+    }
+    
+    // Start a new computation if bytes are available to process
+    if (bytes_to_process > 0) {
+        pending_compute.bytes_to_process = bytes_to_process;
+        pending_compute.start_time = current_time;
+        pending_compute.active = true;
+        
+        LOG << "PE" << local_id << " Starting computation for " << bytes_to_process 
+            << " bytes, delay = " << compute_delayN << " cycles" << endl;
+    }
+    
+    // Note: We don't increment processedBytes here anymore
+    // That happens when the delay is complete
+}
 
-void ProcessingElement::computeProcess()
+// computeProcess() old version, without delay
+void ProcessingElement::computeProcess2()
 {
-    int compute_delayN = 1; // set fixed delay for compute process
-    // FIX: compute_delayN > 1 is not working, no delay > 1 is modelled and last traffic not moving
+    // int compute_delayN = 1; // set fixed delay for compute process
+    // TODO: compute_delayN > 1 is not working, no delay > 1 is modelled and last traffic not moving
 
     int sum_recvBytes = 0;
     for (int i = 0; i < recvBytes.size(); i++) {

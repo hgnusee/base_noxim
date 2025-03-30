@@ -20,6 +20,12 @@
 
 using namespace std;
 
+struct PendingComputation {
+    int bytes_to_process;
+    double start_time;
+    bool active;
+};
+
 SC_MODULE(ProcessingElement)
 {
 
@@ -65,6 +71,9 @@ SC_MODULE(ProcessingElement)
     vector<pair<int, int>> compute_queue;   // vector to hold compute parameters (processByte, delayN)
     TrafficCommunication rcv_comm; // hold Traffic Info of current received packet
     int src_pos; // find src PE position in vector of sources in the traffic table
+    PendingComputation pending_compute; // hold pending computation data
+    static int compute_cycles_per_byte; // number of cycles to compute per byte
+    int compute_delayN = GlobalParams::compute_delay_cycles;
 
     // Functions
     void rxProcess();		// The receiving process
@@ -72,6 +81,7 @@ SC_MODULE(ProcessingElement)
     bool canShot(Packet & packet);	// True when the packet must be shot
 
     void computeProcess(); // HG: Compute Process to "stall" PE from further receive packets
+    void computeProcess2(); 
     void reservedTableMonitor(); // HG: check and move transactions from reserved -> traffic comm table
     bool packetShotbyPE(TrafficCommunication& comm, const int local_id, Packet & packet); // HG: check if packet can be created by the PE
 

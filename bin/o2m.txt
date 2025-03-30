@@ -62,7 +62,7 @@
 % 0 1 [0] [1] -1 9 9 9 [-1] [1] 0
 % 1 1 [1] [2] 1 1 -1 1 [0] [-1] 0
 % taskID layerID [src] [dst] src_minVol src_totalVol dst_minVol dst_totalVol [waitID] [nextID] waitOP traffic
-% % Demo: 8-stage Pipeline
+% Demo: 8-stage Pipeline
 % 0 1 [0] [1] -1 256 2 256 [-1] [1] 0
 % 1 1 [1] [2] 2 128 2 128 [0] [2] 0
 % 2 1 [2] [3] 2 64 2 64 [1] [3] 0
@@ -71,7 +71,7 @@
 % 5 1 [5] [6] 2 8 2 8 [4] [6] 0
 % 6 1 [6] [7] 2 4 2 4 [5] [7] 0
 % 7 1 [7] [8] 2 2 2 2 [6] [8] 0
-% 8 1 [8] [9] 2 1 -1 1 [7] [-1] 0
+% 8 1 [8] [9] 2 1 -1 9 [7] [-1] 0
 % Demo:
 % 0 0 [4] [0] -1 1 1 1 [-1] [1] 0
 % 1 0 [0] [1] 1 1 1 1 [0] [2] 0
@@ -82,62 +82,62 @@
 % 2 1 [2] [3] 3 2 2 -1 [1] [-1] 0
 % 3 2 [4] [5] -1 12 2 12 [-1] [4] 0
 % 4 2 [5] [6] 2 6 3 6 [3] [5] 0
-% % Demo: 3-stage Pipeline
+% Demo: 3-stage Pipeline
 % 0 1 [0] [1] -1 12 2 12 [-1] [1] 0
 % 1 1 [1] [2] 2 6 3 6 [0] [2] 0
 % 2 1 [2] [3] 3 2 1 2 [1] [3] 0
 % 3 1 [3] [4] 1 2 -1 2 [2] [-1] 0
-% % Demo: Simple one-to-many traffic
+% Demo: Simple one-to-many traffic
 % 0 1 [0] [1 4] -1 12 2 12 [-1] [1 2] 0
 % 1 1 [1] [2] 2 6 3 6 [0] [3] 0
 % 2 1 [4] [5] 2 6 3 6 [0] [4] 0
 % 3 1 [2] [3] 3 2 -1 2 [1] [-1] 0
 % 4 1 [5] [6] 3 2 -1 2 [2] [-1] 0
-% % Demo: Traffic with "contention", unless VC >= 4
+% Demo: Traffic with "contention", unless VC >= 4
 % 0 1 [0] [1 2] -1 12 2 12 [-1] [1 2] 0
 % 1 1 [1] [3] 2 6 3 6 [0] [-1] 0
 % 2 1 [2] [4] 2 6 3 6 [0] [-1] 0
-% % % Demo: Simple one-to-many traffic (Type II)
+% Demo: Simple one-to-many traffic (Type II)
 % 0 1 [0] [1] -1 12 2 12 [-1] [1] 0
 % 1 1 [1] [2 5] 2 6 3 6 [0] [2 3] 0
 % 2 1 [2] [3] 3 2 -1 2 [1] [-1] 0
 % 3 1 [5] [6] 3 2 -1 2 [1] [-1] 0
-% % Demo: Simple one-to-many traffic (Type II, different route)
+% Demo: Simple one-to-many traffic (Type II, different route)
 % 0 1 [4] [5] -1 12 2 12 [-1] [1] 0
 % 1 1 [5] [6 9] 2 6 3 6 [0] [2 3] 0 m
 % 2 1 [6] [7] 3 2 -1 2 [1] [-1] 0
 % 3 1 [9] [10] 3 2 -1 2 [1] [-1] 0
-% % Demo: Simple many-to-one traffic (Type I)
+% Demo: Simple many-to-one traffic (Type I)
 % 0 1 [0 4 8] [1] -1 12 2 12 [-1] [1] 0
 % 1 1 [1] [2] 2 6 3 6 [0] [2] 0
 % 2 1 [2] [3] 3 2 -1 2 [1] [-1] 0
-% % Demo: Simple many-to-one traffic (Type II)
+% Demo: Simple many-to-one traffic (Type II)
 % 0 1 [0] [1] -1 12 2 12 [-1] [2] 0
 % 1 1 [4] [5] -1 12 2 12 [-1] [2] 0
 % 2 1 [8] [9] -1 12 2 12 [-1] [2] 0
 % 3 1 [1 5 9] [2] 2 6 3 6 [0 1 2] [4] 0
 % 4 1 [2] [3] 3 2 -1 2 [3] [-1] 0
-% % Demo: Simple many-to-one traffic (Type II, extended)
+% Demo: Simple many-to-one traffic (Type II, extended)
 % 0 1 [0] [1] -1 12 2 12 [-1] [2] 0
 % 1 1 [4] [5] -1 12 2 12 [-1] [3] 0
 % 2 1 [1] [2] 2 6 3 6 [0] [4] 0
 % 3 1 [5] [6] 2 6 3 6 [1] [4] 0
 % 4 1 [2 6] [3] 3 2 -1 2 [2 3] [-1] 0
-% % Demo: o2m -> m2o traffic
+% Demo: o2m -> m2o traffic
 % 0 1 [0] [1 4 5] -1 12 2 12 [-1] [1] 0 m
 % 1 1 [1 4 5] [2] 2 6 3 6 [0] [2] 0
 % 2 1 [2] [3] 3 2 -1 2 [1] [-1] 0
-% % Demo: m2o -> o2m traffic
+% Demo: m2o -> o2m traffic
 % 0 1 [0 4 8] [1] -1 12 2 12 [-1] [1] 0 m
 % 1 1 [1] [2 5] 2 6 3 6 [0] [2 3] 0
 % 2 1 [2] [3] 3 2 -1 2 [1] [-1] 0
 % 3 1 [2] [6] 3 2 -1 2 [1] [-1] 0
-% % Demo: o2m -> m2o traffic (extended)
+% Demo: o2m -> m2o traffic (extended)
 % 0 1 [0] [1] -1 24 2 24 [-1] [1] 0
 % 1 1 [1] [2 5] 2 12 2 12 [0] [1] 0 m
 % 2 1 [2 5] [3] 2 6 3 6 [1] [3] 0
 % 3 1 [3] [7] 3 2 -1 2 [2] [-1] 0
-% % Demo: m2o -> o2m traffic (extended)
+% Demo: m2o -> o2m traffic (extended)
 % 0 1 [0] [1] -1 24 2 24 [-1] [2] 0
 % 1 1 [4] [5] -1 24 2 24 [-1] [2] 0
 % 2 1 [1 5] [2] 2 12 2 12 [0 1] [3] 0
@@ -152,7 +152,7 @@
 % 5 2 [4] [8] -1 24 2 24 [-1] [6] 0
 % 6 2 [8] [12] 2 12 2 12 [5] [7] 0
 % 7 3 [12] [10] 2 6 -1 6 [6] [-1] 0
-% % Multicast: Simple one-to-many traffic (Type II)
+% Multicast: Simple one-to-many traffic (Type II)
 % 0 1 [0] [1] -1 12 2 12 [-1] [1] 0 u
 % 1 1 [1] [2 5] 2 6 3 6 [0] [2 3] 0 m
 % 2 1 [2] [3] 3 2 -1 2 [1] [-1] 0 u
@@ -177,7 +177,7 @@
 % 2 1 [3] [7] 2 6 -1 6 [0] [-1] 0 u
 % 3 1 [12] [13] 2 6 -1 6 [0] [-1] 0 u
 % 4 1 [10] [14] 2 6 -1 6 [0] [-1] 0 u
-% % Multicast test II:
+% Multicast test II:
 % 0 1 [0] [4 3 8 10 12 11] -1 12 2 12 [-1] [1 2 3 4 5 6] 0 m
 % 1 1 [4] [5] 2 6 -1 6 [0] [-1] 0 u
 % 2 1 [3] [7] 2 6 -1 6 [0] [-1] 0 u
@@ -193,11 +193,11 @@
 % 4 1 [10] [14] 2 6 -1 6 [0] [-1] 0 u
 % 5 1 [12] [13] 2 6 -1 6 [0] [-1] 0 u
 % 6 1 [11] [15] 2 6 -1 6 [0] [-1] 0 u
-% Simple traffic (Send Traffic to Self)
+% (not work) Simple traffic (Send Traffic to Self)
 % 1 1 [0] [1] -1 3 1 3 [-1] [1] 0 u
 % 2 1 [1] [1] 1 3 1 3 [1] [3] 1 u
 % 3 1 [1] [2] 1 3 -1 3 [2] [-1] 1 u
-% Simple traffic (Send Traffic to Self, at time0)
+% (not work) Simple traffic (Send Traffic to Self, at time0)
 % 1 1 [1] [1] -1 3 1 3 [-1] [1] 0 u
 % 2 1 [1] [2] 1 3 1 3 [1] [3] 1 u
 % 3 1 [2] [4] 1 3 -1 3 [2] [-1] 1 u
@@ -241,7 +241,7 @@
 % 2%8   9 10 11
 % 3%12 13 14 15
 % style VI (many-to-many traffic)
-0 1 [0 4] [1 5 9] -1 8 8 8 [-1] [1] 0
-1 1 [1 5 9] [2 6] 4 4 2 4 [0] [2 3] 0
-2 1 [2] [3] 2 2 -1 2 [1] [-1] 0
-3 1 [6] [7] 2 2 -1 2 [1] [-1] 0
+% 0 1 [0 4] [1 5 9] -1 8 8 8 [-1] [1] 0
+% 1 1 [1 5 9] [2 6] 4 4 2 4 [0] [2 3] 0
+% 2 1 [2] [3] 2 2 -1 2 [1] [-1] 0
+% 3 1 [6] [7] 2 2 -1 2 [1] [-1] 0
