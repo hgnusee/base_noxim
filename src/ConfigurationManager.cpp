@@ -63,6 +63,12 @@ void loadConfiguration() {
         exit(1);
     }
 
+    // Add to the YAML config parsing section
+    if (config["traffic_in_bytes"])
+    GlobalParams::traffic_in_bytes = config["traffic_in_bytes"].as<bool>();
+    else
+    GlobalParams::traffic_in_bytes = false; // Default to data_volume mode for backward compatibility
+
     // Initialize global configuration parameters (can be overridden with command-line arguments)
     GlobalParams::verbose_mode = readParam<string>(config, "verbose_mode");
     GlobalParams::trace_mode = readParam<bool>(config, "trace_mode");
@@ -267,6 +273,7 @@ void showHelp(char selfname[])
          << "\t\t\t\tbeen delivered" << endl
          << "\t-asciimonitor\t\tShow status of the network while running (experimental)" << endl
          << "\t-sim N\t\t\tRun for the specified simulation time [cycles]" << endl
+         << "\t-traffic_in_bytes\t\tInterpret traffic volumes as bytes instead of data_volume units" << endl
          << endl
          << "If you find this program useful please don't forget to mention in your paper Maurizio Palesi <maurizio.palesi@unikore.it>" << endl
          <<	"If you find this program useless please feel free to complain with Davide Patti <davide.patti@dieei.unict.it>" << endl
@@ -294,7 +301,9 @@ void showConfig()
          << "- clock_period = " << GlobalParams::clock_period_ps << "ps" << endl
          << "- simulation_time = " << GlobalParams::simulation_time << endl
          << "- warm_up_time = " << GlobalParams::stats_warm_up_time << endl
+         << "- traffic_in_bytes = " << (GlobalParams::traffic_in_bytes ? "enabled" : "disabled") << endl
          << "- rnd_generator_seed = " << GlobalParams::rnd_generator_seed << endl;
+         
 }
 
 void checkConfiguration()
@@ -353,7 +362,8 @@ void checkConfiguration()
 	cerr << "Error: buffer must be >= 1" << endl;
 	exit(1);
     }
-    if (GlobalParams::flit_size <= 0) {
+    // Adding a check for power-of-2 flit sizes 
+    if (GlobalParams::flit_size <= 0 || (GlobalParams::flit_size & (GlobalParams::flit_size - 1)) != 0) {
 	cerr << "Error: flit_size must be > 0" << endl;
 	exit(1);
     }
@@ -621,6 +631,8 @@ void parseCmdLine(int arg_num, char *arg_vet[])
 		GlobalParams::simulation_time = atoi(arg_vet[++i]);
 	    else if (!strcmp(arg_vet[i], "-asciimonitor")) 
 		GlobalParams::ascii_monitor = true;
+        else if (!strcmp(arg_vet[i], "-traffic_in_bytes"))
+        GlobalParams::traffic_in_bytes = true;
         else if (!strcmp(arg_vet[i], "-compute_delay")) {
             if (i + 1 < arg_num) {
                 int delay = atoi(arg_vet[i+1]);
