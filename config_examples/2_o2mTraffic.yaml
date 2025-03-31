@@ -20,6 +20,8 @@ compute_delay: 5
 # number of flits for each router buffer
 buffer_depth: 4
 # size of flits, in bits
+# IMPORTANT: if traffic_in_bytes == true, this will be used to do user bytes -> data volume conversion
+# e.g. 32bytes * 8 = 256 bits per flit
 flit_size: 32
 # lenght in mm of router to hub connection
 r2h_link_length: 2.0
@@ -168,3 +170,6 @@ traffic_distribution: TRAFFIC_COMMUNICATION_TABLE
 # when traffic table based is specified, use the following
 # configuration file
 traffic_table_filename: "o2m.txt"
+
+# Define Traffic in Bytes (only for TRAFFIC_COMMUNICATION_TABLE)
+traffic_in_bytes: false

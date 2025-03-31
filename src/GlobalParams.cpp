@@ -61,3 +61,4 @@ int GlobalParams::compute_delay_cycles = 1;
 // out of yaml configuration
 bool GlobalParams::ascii_monitor;
 int GlobalParams::channel_selection;
+bool GlobalParams::traffic_in_bytes;  // If true, traffic values in tables are in bytes

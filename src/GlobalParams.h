@@ -184,6 +184,7 @@ struct GlobalParams {
     static map<int, HubConfig> hub_configuration;
     static map<int, int> hub_for_tile;
     static PowerConfig power_configuration;
+    static bool traffic_in_bytes;  // If true, traffic values in tables are in bytes
     static int compute_delay_cycles;  // Compute delay cycles parameter
     // out of yaml configuration
     static bool ascii_monitor;

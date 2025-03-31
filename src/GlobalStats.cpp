@@ -490,7 +490,10 @@ void GlobalStats::showStats(std::ostream & out, bool detailed)
 	
     out << endl;
 #endif
-
+	// Add in showStats() method after other output lines
+	out << "% Traffic mode: " << (GlobalParams::traffic_in_bytes ? "BYTES" : "DATA_VOLUME") << endl;
+	if (GlobalParams::traffic_in_bytes)
+    out << "% Flit size: " << GlobalParams::flit_size << " bits (" << (GlobalParams::flit_size/8) << " bytes)" << endl;
     //int total_cycles = GlobalParams::simulation_time - GlobalParams::stats_warm_up_time;
     out << "% Total received packets: " << getReceivedPackets() << endl;
     out << "% Total received flits: " << getReceivedFlits() << endl;

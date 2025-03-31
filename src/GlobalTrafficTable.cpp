@@ -193,10 +193,11 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			TrafficCommunication.taskID = taskID;
 			TrafficCommunication.src = src; // HG: src is now a vector
 			TrafficCommunication.dst = dst;
-			TrafficCommunication.src_minVol = src_minVol;
-			TrafficCommunication.src_totalVol = src_totalVol;
-			TrafficCommunication.dst_minVol = dst_minVol;
-			TrafficCommunication.dst_totalVol = dst_totalVol;
+			// Convert byte-based volumes to data_volume units
+			TrafficCommunication.src_minVol = bytesToDataVolume(src_minVol);
+			TrafficCommunication.src_totalVol = bytesToDataVolume(src_totalVol);
+			TrafficCommunication.dst_minVol = bytesToDataVolume(dst_minVol);
+			TrafficCommunication.dst_totalVol = bytesToDataVolume(dst_totalVol);
 			TrafficCommunication.waitID = waitID;
 			TrafficCommunication.waitOP = waitOP;
 			TrafficCommunication.nextID = nextID;
@@ -251,6 +252,31 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
       }
     }
   }
+
+// Print out all traffic communications with their volume info if traffic_in_bytes is true
+if (GlobalParams::traffic_in_bytes) {
+    cout << "*** Traffic Communication Table (with byte-converted volumes) ***" << endl;
+    for (const auto& comm : traffic_communication_table) {
+        // Format src vector as string
+        string src_str;
+        for (size_t i = 0; i < comm.src.size(); i++) {
+            src_str += to_string(comm.src[i]);
+            if (i < comm.src.size() - 1) src_str += " ";
+        }
+        
+        // Format dst vector as string
+        string dst_str;
+        for (size_t i = 0; i < comm.dst.size(); i++) {
+            dst_str += to_string(comm.dst[i]);
+            if (i < comm.dst.size() - 1) dst_str += " ";
+        }
+        
+        cout << "TaskID: " << comm.taskID << ", Src: [" << src_str << "], Dst: [" << dst_str 
+            << "], Volumes (min/total): Src=" << comm.src_minVol << "/" << comm.src_totalVol 
+            << ", Dst=" << comm.dst_minVol << "/" << comm.dst_totalVol << endl;
+    }
+    cout << "*** End of Traffic Communication Table ***" << endl;
+}
 
   return true;
 }
@@ -575,6 +601,24 @@ TrafficCommunication GlobalTrafficTable::getsrcID(const int task_ID) {
 
 TrafficCommunication GlobalTrafficTable::getEmptyComm() {
 	return empty_comm;
+}
+
+// Convert bytes to data_volume units based on flit size
+int GlobalTrafficTable::bytesToDataVolume(int bytes) {
+    // If traffic_in_bytes flag is false, return the original value (backward compatibility)
+    if (!GlobalParams::traffic_in_bytes)
+        return bytes;
+
+    // Special cases: if bytes is -1 or 0, return as-is
+    if (bytes <= 0)
+        return bytes;
+        
+    // Calculate flit size in bytes (from bits)
+    int flit_size_bytes = GlobalParams::flit_size / 8;
+    
+    // Round up to ensure all data is transmitted (ceiling division)
+    // This converts bytes to equivalent data_volume units
+    return (bytes + flit_size_bytes - 1) / flit_size_bytes;
 }
 
 int GlobalTrafficTable::occurrencesAsSource(const int src_id)
