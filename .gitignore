@@ -9,5 +9,8 @@ bin/*.out
 bin/*.json
 bin/*.txt
 /*.json*
+bin/test_results
+bim/*.yaml
 # Except the following files
 !o2m.txt
+bin/test_config.yaml

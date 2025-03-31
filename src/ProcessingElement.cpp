@@ -111,10 +111,27 @@ void ProcessingElement::rxProcess()
                              // resize recvBytes to size of src vector of taskID of received flit
                             recvBytes.resize(rcv_comm.src.size(), 0);
                         }
+                        
+                        // relate to latest flit taskID for src vector size
+                        TrafficCommunication latest_rcv_comm = traffic_communication_table->getsrcID(receivedTaskID);
 
                         if (recvBytes.size() != rcv_comm.src.size()) {
                             cout << "PE " << local_id << " received a new taskID. Resizing recvBytes." << endl;
                             recvBytes.resize(rcv_comm.src.size(), 0);
+                        }
+                        // Ensure rcv_comm is non-empty before resizing
+                        if (!rcv_comm.src.empty()) {
+                            recvBytes.resize(rcv_comm.src.size(), 0);
+                            cout << "PE" << local_id << " resized recvBytes to " << rcv_comm.src.size() << " elements" << endl;
+                        } else if(latest_rcv_comm.nextID[0] == -1) {
+                            // this check to confirm that we are at a terminal task (aka nextID = -1)
+                            // since the dstPE at terminal task wont be triggered to update its currentTaskID (since it wont tx anything)
+                            cout << "WARNING: PE" << local_id << " received HEAD flit for taskID " << receivedTaskID 
+                                << ", default to receivedTaskID = " << receivedTaskID << " for recvByte size"<< endl;
+                            // Default to receivedTaskID src size
+                            cout << "WaitID of receivedTaskID = -1. Setting currentTaskID to receivedTaskID: " << receivedTaskID << endl;
+                            setCurrentTaskID(receivedTaskID);
+                            recvBytes.resize(latest_rcv_comm.src.size(), 0);
                         }
 
                         // Check if receivedTaskID is a many-to-many task
@@ -426,7 +443,17 @@ bool ProcessingElement::canShot(Packet & packet)
         if (comm.taskID == -1 && comm.src.empty() && comm.dst.empty() && comm.src_totalVol == 0 
             && comm.waitID.empty() && comm.waitOP == 0 && comm.traffic_used == true) {
                 // cout << "No Traffic Communication Table found for src_id = " << local_id << endl;
-                setCurrentTaskID(-1); // assume PE is not waiting for any taskID, and not in Operation
+                // setCurrentTaskID(-1); // assume PE is not waiting for any taskID, and not in Operation
+
+                // Don't reset currentTaskID if we're in a receive state
+                if (state == PE_READY && receivedTaskID == -1) {
+                    setCurrentTaskID(-1); // Only reset if not actively receiving
+                    // LOG << "PE " << local_id << " No outgoing traffic, resetting currentTaskID to -1" << endl;
+                } else {
+                    // LOG << "PE " << local_id << " No outgoing traffic, but preserving currentTaskID=" 
+                    //     << currentTaskID << " (state=" << state << ", receivedTaskID=" << receivedTaskID << ")" << endl;
+                }
+
             return false;
         } else {
 
