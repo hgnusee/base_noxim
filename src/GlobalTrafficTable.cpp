@@ -517,10 +517,9 @@ void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID
                 }
             }
             
-            if (all_done) {
-                cout << sc_time_stamp().to_double() / GlobalParams::clock_period_ps 
-                     << " GlobalTrafficTable" << "::" << __func__ << "() --> " 
-                     << "All traffic complete for taskID: " << task_ID << endl;
+            if (all_done && comm.traffic_used == false) {
+                // ensure we only tag traffic_used once, for every taskID
+                cout << "All traffic complete for taskID: " << task_ID << endl;
                 comm.traffic_used = true;
             }
             break;

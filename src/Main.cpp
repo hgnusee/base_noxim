@@ -21,6 +21,7 @@ using namespace std;
 // need to be globally visible to allow "-volume" simulation stop
 unsigned int drained_volume;
 NoC *n;
+GlobalTrafficTable *traffic_communication_table;
 
 void signalHandler( int signum )
 {
@@ -28,7 +29,7 @@ void signalHandler( int signum )
     cout << endl;
     cout << "Current Statistics:" << endl;
     cout << "(" << sc_time_stamp().to_double() / GlobalParams::clock_period_ps << " sim cycles executed)" << endl;
-    GlobalStats gs(n);
+    GlobalStats gs(n, traffic_communication_table);
     gs.showStats(std::cout, GlobalParams::detailed);
 }
 
@@ -58,6 +59,8 @@ int sc_main(int arg_num, char *arg_vet[])
 
     // NoC instance
     n = new NoC("NoC");
+
+    traffic_communication_table = &n->gttable;
 
     n->clock(clock);
     n->reset(reset);
@@ -117,7 +120,7 @@ int sc_main(int arg_num, char *arg_vet[])
     cout << endl;
 //assert(false);
     // Show statistics
-    GlobalStats gs(n);
+    GlobalStats gs(n, traffic_communication_table);
     gs.showStats(std::cout, GlobalParams::detailed);
 
 

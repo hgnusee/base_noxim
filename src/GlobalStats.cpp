@@ -11,9 +11,10 @@
 #include "GlobalStats.h"
 using namespace std;
 
-GlobalStats::GlobalStats(const NoC * _noc)
+GlobalStats::GlobalStats(const NoC * _noc, const GlobalTrafficTable* _traffic_communication_table)
 {
     noc = _noc;
+    traffic_communication_table = _traffic_communication_table;
 
 	#ifdef TESTING
     drained_total = 0;
@@ -516,6 +517,10 @@ void GlobalStats::showStats(std::ostream & out, bool detailed)
 	out << "%" << endl;
     showStallsByReasonPerNode(out);
 
+    // Show traffic table stats
+    if (GlobalParams::traffic_distribution == TRAFFIC_COMMUNICATION_TABLE)
+        showTrafficCompletionStats(out);
+
     if (GlobalParams::show_buffer_stats)
       showBufferStats(out);
 
@@ -990,4 +995,37 @@ void GlobalStats::showStallsByReasonPerNode(std::ostream & out) {
     } else {
         out << "Stall breakdown by node Not supported for other topologies!" << endl;
     }
+}
+
+
+
+void GlobalStats::showTrafficCompletionStats(std::ostream & out)
+{
+    out << "%" << endl;
+    out << "% === Traffic Completion Statistics ===" << endl;
+    out << "% TaskID\tUsed?" << endl;
+    out << "% ---------------------" << endl;
+    
+    int total_tasks = 0;
+    int completed_tasks = 0;
+
+    if (traffic_communication_table == nullptr)
+        out << "% Traffic table not available - null pointer" << endl;
+
+    // Access the traffic communication table through GlobalParams::traffic_table
+    const auto& traffic_table = traffic_communication_table->getTCommunicationTable();
+    
+    for (const auto& comm : traffic_table) {
+        out << "% " << setw(6) << comm.taskID << "\t" 
+            << (comm.traffic_used ? "YES" : "NO") << endl;
+        total_tasks++;
+        if (comm.traffic_used) completed_tasks++;
+    }
+    
+    out << "% ---------------------" << endl;
+    out << "% Completion Rate: " << completed_tasks << "/" << total_tasks 
+         << " (" << fixed << setprecision(2)
+         << (total_tasks > 0 ? 100.0 * completed_tasks / total_tasks : 0)
+         << "%)" << endl;
+    out << "% =============================================" << endl;
 }

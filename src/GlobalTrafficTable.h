@@ -16,6 +16,7 @@
 #include <vector>
 #include <algorithm> // HG: to use std::find
 #include "DataStructs.h"
+#include "Utils.h"
 
 
 using namespace std;
@@ -132,6 +133,10 @@ class GlobalTrafficTable {
     // table
     int occurrencesAsSource(const int src_id);
 
+    // Getter for the traffic communication table
+    const vector<TrafficCommunication>& getTCommunicationTable() const {
+      return traffic_communication_table;
+    }
 
 
   private:

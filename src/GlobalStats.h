@@ -16,6 +16,7 @@
 #include <iomanip>
 #include "NoC.h"
 #include "Tile.h"
+#include "GlobalTrafficTable.h"
 using namespace std;
 // Add global stall statistics structure
 struct GlobalStallMatrices {
@@ -45,7 +46,7 @@ class GlobalStats {
 
   public:
 
-    GlobalStats(const NoC * _noc);
+    GlobalStats(const NoC * _noc, const GlobalTrafficTable* _traffic_communication_table);
 
     // Returns the aggregated average delay (cycles)
     double getAverageDelay();
@@ -122,6 +123,8 @@ class GlobalStats {
     void showStallStats(std::ostream & out);
     void generateStallHeatmap(std::ostream & out);
     void showStallsByReasonPerNode(std::ostream & out);
+    void showTrafficCompletionStats(std::ostream & out);
+    void printTrafficCompletionStats();
 
 
 
@@ -131,6 +134,8 @@ class GlobalStats {
 
   private:
     const NoC *noc;
+    // HG: Reference to Traffic Communication Table
+    const GlobalTrafficTable* traffic_communication_table;
     void updatePowerBreakDown(map<string,double> &dst,PowerBreakdown* src);
 };
 
