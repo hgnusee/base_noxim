@@ -212,6 +212,18 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			size_t size_to_use = src.size() * dst.size();
 			TrafficCommunication.trn_complete.resize(size_to_use, TRN_WAIT);
 			TrafficCommunication.cmp_complete.resize(size_to_use, TRN_WAIT);
+
+            // Check for special traffic types ###### Fri Apr 4 14:06:45 SGT 2025
+            if (src.size() == 1 && dst.size() == 1 && src[0] == dst[0]) {
+                TrafficCommunication.is_self_compute = true;
+            } else {
+                TrafficCommunication.is_self_compute = false;
+            }
+            
+    
+            // Initialize reception tracking array in parallel to trn_complete ###### Fri Apr 4 14:06:50 SGT 2025
+            TrafficCommunication.rcv_complete.resize(TrafficCommunication.trn_complete.size(), RCV_WAIT);
+            TrafficCommunication.traffic_received = false;
 			
             // Handle traffic_type - check if the parameter was provided (12 params total)
             if (params < 12 || traffic_type_str[0] == '\0') {
@@ -226,13 +238,26 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 				}
                 else if (strcmp(traffic_type_str, "b") == 0)
                     TrafficCommunication.traffic_type = T_BROADCAST;
+                else if (strcmp(traffic_type_str, "w") == 0) {
+                    // NOTE: temporary fix to allow waiting traffic types
+                    TrafficCommunication.traffic_type = T_WAIT;
+                    cout << "Wait traffic recorded" << endl;
+                }
                 else {
                     cerr << "Error parsing traffic file " << fname  
                          << ": invalid traffic_type '" << traffic_type_str 
-                         << "'. Must be 'u', 'm', or 'b'" << endl;
+                         << "'. Must be 'u', 'm', 'b', or 'w'" << endl;
                     assert(false);
                     return false;
                 }
+            }
+
+            // Check for reception-dependent traffic ###### Fri Apr 4 14:06:47 SGT 2025
+
+            if (src_minVol == -1 && dst_minVol == -1) {
+                TrafficCommunication.is_wait_reception = true;
+            } else {
+                TrafficCommunication.is_wait_reception = false;
             }
 
 			// All traffic goes to main comm table, since pipeline model decides who to go next
@@ -583,6 +608,114 @@ void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID,
             break;
         }
     }
+}
+
+void GlobalTrafficTable::setReceptionComplete(const int task_ID, const int src_ID, const int dst_ID) {
+    for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
+        TrafficCommunication& comm = traffic_communication_table[i];
+
+        if (comm.taskID == task_ID) {
+
+            if (comm.traffic_received == true) {
+                cout << "DEBUG: Traffic Received has been done before, skip taskID: " << task_ID << endl;
+                break;
+            }
+
+            // Many-to-Many case
+            if (comm.src.size() > 1 && comm.dst.size() > 1) {
+                auto src_it = find(comm.src.begin(), comm.src.end(), src_ID);
+                auto dst_it = find(comm.dst.begin(), comm.dst.end(), dst_ID);
+                
+                if (src_it != comm.src.end() && dst_it != comm.dst.end()) {
+                    size_t src_pos = distance(comm.src.begin(), src_it);
+                    size_t dst_pos = distance(comm.dst.begin(), dst_it);
+                    
+                    // Calculate serialized index and mark as done
+                    size_t idx = src_pos * comm.dst.size() + dst_pos;
+                    if (idx < comm.rcv_complete.size()) {
+                        comm.rcv_complete[idx] = RCV_DONE;
+                        cout << "DEBUG: Reception complete for task " << task_ID
+                             << " from src=" << src_ID << " to dst=" << dst_ID << endl;
+                    }
+                }
+            }
+            // One-to-Many Case
+            else if (comm.src.size() == 1 && comm.dst.size() > 1) {
+                auto it = find(comm.dst.begin(), comm.dst.end(), dst_ID);
+                if (it != comm.dst.end()) {
+                    size_t pos = distance(comm.dst.begin(), it);
+                    comm.rcv_complete[pos] = RCV_DONE;
+                }
+            }
+            // Many-to-One OR one-to-one case
+            else if (comm.src.size() >= 1 && comm.dst.size() == 1) {
+                auto it = find(comm.src.begin(), comm.src.end(), src_ID);
+                if (it != comm.src.end()) {
+                    size_t pos = distance(comm.src.begin(), it);
+                    comm.rcv_complete[pos] = RCV_DONE;
+                }
+            }
+
+            if (comm.is_self_compute) {
+                // set all reception to done
+                comm.rcv_complete[0] = RCV_DONE;
+                cout << "DEBUG: Self compute reception complete for task " << task_ID
+                     << " from src=" << src_ID << " to dst=" << dst_ID << endl;
+            }
+
+            // Check if all receptions are complete
+            bool all_rcv_done = true;
+            for (const auto& rcv_status : comm.rcv_complete) {
+                if (rcv_status != RCV_DONE) {
+                    all_rcv_done = false;
+                    break;
+                }
+            }
+            
+            if (all_rcv_done) {
+                cout << "All reception complete for taskID: " << task_ID << endl;
+                comm.traffic_received = true;  // Set flag indicating all receptions are complete
+            }
+            break;
+        }
+    }
+}
+
+bool GlobalTrafficTable::checkReceptionDependencies(const vector<int>& waitIDs) {
+    for (int waitID : waitIDs) {
+        if (waitID == -1) continue;  // No dependency
+        
+        // Check if the dependency task has its reception completed
+        bool found_completed = false;
+        for (auto& comm : traffic_communication_table) {
+            if (comm.taskID == waitID && comm.traffic_received) {
+                found_completed = true;
+                break;
+            }
+        }
+        
+        if (!found_completed) return false;  // At least one dependency not satisfied
+    }
+    return true;  // All dependencies satisfied
+}
+
+void GlobalTrafficTable::updateReceivedTraffic(const int task_ID, const int src_ID, const int dst_ID) {
+    // Update the traffic communication table to mark the reception as complete
+    // TODO: only works for one to one traffic for now, need to use ternary operator like compute task
+    for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
+		TrafficCommunication& comm = traffic_communication_table[i];
+		if (comm.taskID == task_ID) {
+			comm.received_traffic ++;
+            cout << "DEBUG: received_traffic for task " << task_ID
+                     << " [" << comm.received_traffic << "|" << comm.dst_totalVol <<"]" << endl;
+
+            if (comm.received_traffic == comm.dst_totalVol) {
+                cout << "DEBUG: Done all received_traffic for task " << task_ID
+                     << " [" << comm.received_traffic << "|" << comm.dst_totalVol <<"]" << endl;
+                setReceptionComplete(task_ID, src_ID, dst_ID);
+            }
+		}
+	}
 }
 
 TrafficCommunication GlobalTrafficTable::getsrcID(const int task_ID) {

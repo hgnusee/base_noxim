@@ -60,6 +60,7 @@ void ProcessingElement::rxProcess()
         compute_queue.clear(); // clear all compute queue pairs
         rcv_comm = traffic_communication_table->getEmptyComm(); // reset rcv_comm to empty_comm
         src_pos = -1;
+        last_sent_task_id = -1;
         // reset compute status
         pending_compute.active = false;
         pending_compute.bytes_to_process = 0;
@@ -103,12 +104,26 @@ void ProcessingElement::rxProcess()
                         // currentTaskID is set to -1 during Reset or PE does not have a valid taskID
                         if (receivedTaskID != currentTaskID) {
                             LOG << "PE " << local_id << " received HEAD FLIT with diff taskID: "<<receivedTaskID<<" current taskID: "<<currentTaskID << endl;
-                            cout << "PE " << local_id << " received a new taskID. Resetting data counters." << endl;
-                            recvBytes.clear(); // reset recvBytes to empty vector
-                            processedBytes = 0; // reset processedBytes to 0
+                                                        
+                            // Check if we're in a self-compute task ###### Fri Apr 4 17:38:14 SGT 2025
+                            TrafficCommunication curr_comm = traffic_communication_table->getsrcID(currentTaskID);
+                            if (curr_comm.is_self_compute && pending_compute.active) {
+                                // TODO Verify if this leads to issues btwn subsequent normal compute tasks
+                                // Don't reset processedBytes if we're in self-compute
+                                LOG << "PE " << local_id << " is in a self-compute task. Preserving processedBytes=" 
+                                    << processedBytes << endl;
+                                recvBytes.clear(); // Reset reception counters only
+                            } else {
+                                LOG << "PE " << local_id << " received a new taskID. Resetting data counters." << endl;
+                                // Regular reset behavior
+                                recvBytes.clear();
+                                processedBytes = 0;
+                            }
+                                                        
+                            // recvBytes.clear(); // reset recvBytes to empty vector
+                            // processedBytes = 0; // reset processedBytes to 0
 
-                            
-                             // resize recvBytes to size of src vector of taskID of received flit
+                            // resize recvBytes to size of src vector of taskID of received flit
                             recvBytes.resize(rcv_comm.src.size(), 0);
                         }
                         
@@ -149,6 +164,12 @@ void ProcessingElement::rxProcess()
                         recv_minBytes = flit_tmp.min_vol; // set minBytes to minVol of received flit
                         // currentTaskID = flit_tmp.taskID; // set currentTaskID to taskID of received flit
 
+                        // Debug prompt for PE 10
+                        // if (local_id == 10) {
+                        //     std::cout << "PE 10 received a HEAD flit. Press Enter to continue..." << std::endl;
+                        //     std::cin.get();
+                        // }
+
                         // start increment recvBytes, assume one flit is one byte
                         if (!recvBytes.empty()) {
                             recvBytes[src_pos] ++;
@@ -168,10 +189,35 @@ void ProcessingElement::rxProcess()
                             // when min_vol = -1, set state PE_RECV and collect till TAIL flit
                             // no more computeProcess() needed
                             if (flit_tmp.sequence_length == 1) {
+                                // TODO check placement of reception tracking ###### Fri Apr 4 15:09:36 SGT 2025
+                                int sum_recvBytesRx = 0;
+                                for (int i = 0; i < recvBytes.size(); i++) {
+                                    sum_recvBytesRx += recvBytes[i];
+                                }
+                                
+                                if (sum_recvBytesRx >= recv_totalBytes) {
+                                    LOG << "PE " << local_id << " has received all flits for taskID " 
+                                        << flit_tmp.taskID << " from src " << flit_tmp.src_id << endl;
+                                    
+                                    traffic_communication_table->setReceptionComplete(
+                                        flit_tmp.taskID, flit_tmp.src_id, local_id);
+                                }
+                                
+                                // Existing code continues:
+                                computeProcess();
                                 state = PE_READY;
                             } else {
                                 state = PE_RECV;                                
                             }
+                        }
+                        
+                        // special handling for T_WAIT Traffic
+                        // T_WAIT traffic is specified by 'w' in traffic table, we update recepted flits using updateReceviedTraffic
+                        // in updateReceivedTraffic(), we increment received_traffic for the taskID
+                        // and check if all traffic is received for the taskID
+                        if (flit_tmp.traffic_type == T_WAIT) {
+                            LOG << "PE " << local_id << " received a T_WAIT flit. Updating reception status." << endl;
+                            traffic_communication_table->updateReceivedTraffic(flit_tmp.taskID, flit_tmp.src_id, local_id);
                         }
                     }
                 }
@@ -202,9 +248,37 @@ void ProcessingElement::rxProcess()
                             computeProcess();
                         } else if (flit_tmp.flit_type == FLIT_TYPE_TAIL && receivedTaskID == currentTaskID && flit_tmp.waitID != -1) {
                             recvBytes[src_pos] ++;
+
+                            int sum_recvBytesRx = 0;
+                            for (int i = 0; i < recvBytes.size(); i++) {
+                                sum_recvBytesRx += recvBytes[i];
+                            }
+                            
+                            if (sum_recvBytesRx >= recv_totalBytes) {
+                                LOG << "PE " << local_id << " has received all flits for taskID " 
+                                    << flit_tmp.taskID << " from src " << flit_tmp.src_id << endl;
+                                    
+                                traffic_communication_table->setReceptionComplete(
+                                    flit_tmp.taskID, flit_tmp.src_id, local_id);
+                            }
+                            
                             computeProcess();
                         } else if (flit_tmp.flit_type == FLIT_TYPE_TAIL && receivedTaskID == currentTaskID && flit_tmp.waitID == -1) {
                             recvBytes[src_pos] ++;
+
+                            int sum_recvBytesRx = 0;
+                            for (int i = 0; i < recvBytes.size(); i++) {
+                                sum_recvBytesRx += recvBytes[i];
+                            }
+                            
+                            if (sum_recvBytesRx >= recv_totalBytes) {
+                                LOG << "PE " << local_id << " has received all flits for taskID " 
+                                    << flit_tmp.taskID << " from src " << flit_tmp.src_id << endl;
+                                    
+                                traffic_communication_table->setReceptionComplete(
+                                    flit_tmp.taskID, flit_tmp.src_id, local_id);
+                            }
+                            
                             computeProcess();
                             // rely on sum_recvBytes to determine if all flits are received instead
                             // state = PE_READY;
@@ -281,8 +355,19 @@ void ProcessingElement::txProcess(void)
                 
                 if (processedBytes >= tran_totalBytes) {
                     state = PE_READY;
-                    LOG << "All Bytes Processed. Revert PE state --> PE_READY" << endl;
+                    LOG << "TaskID: " << currentTaskID << " All Bytes Processed. Revert PE state --> PE_READY" << endl;
                     traffic_communication_table->setComputeComplete(currentTaskID, last_recv_srcID, local_id);
+                                    
+                    // only for self-compute tasks ###### Fri Apr 4 17:18:55 SGT 2025
+                    TrafficCommunication curr_comm = traffic_communication_table->getsrcID(pending_compute.taskID);
+                    if (curr_comm.is_self_compute) {
+                        // For self-compute tasks, also mark reception as complete
+                        // Note: No flits are actually being processed or received here,
+                        // but marking traffic_received complete for dependency tracking
+                        traffic_communication_table->setReceptionComplete(pending_compute.taskID, local_id, local_id);
+                        LOG << "PE" << local_id << " Self-compute task completed, marking reception as complete" << endl;
+                    }
+
                 }                
                 // Always try to start a new computation if needed, regardless of state
                 // This keeps processing going even when all flits have been received
@@ -440,6 +525,37 @@ bool ProcessingElement::canShot(Packet & packet)
         // get transaction for this PE from Traffic Communication Table
         TrafficCommunication& comm = traffic_communication_table->getTrafficCommunicationTable(local_id);
 
+        // Check for self-compute task ###### Fri Apr 4 14:40:35 SGT 2025
+        if (comm.is_self_compute) {
+            if (comm.traffic_used) {
+                return false;  // Already processed
+            }
+            
+            // For self-compute, check reception dependencies
+            if (!traffic_communication_table->checkReceptionDependencies(comm.waitID)) {
+                LOG << "Self-compute task at PE " << local_id << " waiting for reception completion" << endl;
+                return false;
+            }
+            
+            // Start computation without packet creation
+            double current_time = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+            
+            // Set up a delayed computation
+            pending_compute.bytes_to_process = comm.src_totalVol;  // Use as computation units
+            pending_compute.start_time = current_time;
+            pending_compute.active = true;
+            pending_compute.taskID = comm.taskID;
+            
+            LOG << "PE " << local_id << " started self-compute task for " 
+                << pending_compute.bytes_to_process << " computation units, delay = " 
+                << compute_delayN << " cycles" << endl;
+                
+            // Mark as used to prevent re-triggering
+            comm.traffic_used = true;
+            
+            return false;  // No packet to create
+        }
+
         if (comm.taskID == -1 && comm.src.empty() && comm.dst.empty() && comm.src_totalVol == 0 
             && comm.waitID.empty() && comm.waitOP == 0 && comm.traffic_used == true) {
                 // cout << "No Traffic Communication Table found for src_id = " << local_id << endl;
@@ -541,7 +657,7 @@ bool ProcessingElement::canShot(Packet & packet)
                         // Create packet for the found destination
                         packet.make2(comm.taskID, local_id, comm.dst[dst_idx], vc, now,
                             comm.src_totalVol, comm.waitOP, comm.src_minVol, comm.src_totalVol, 
-                            comm.dst_minVol, comm.dst_totalVol);
+                            comm.dst_minVol, comm.dst_totalVol, comm.traffic_type);
                         
                         // For multicast traffic, let's add extra verification for VC
                         // if (packet.vc_id > 1) {
@@ -611,7 +727,7 @@ bool ProcessingElement::canShot(Packet & packet)
                         // HG: make2() with values from comm object
                         packet.make2(comm.taskID, local_id, comm.dst[dst_pos], vc, now, 
                                 comm.src_totalVol, comm.waitOP, comm.src_minVol, 
-                                comm.src_totalVol, comm.dst_minVol, comm.dst_totalVol);
+                                comm.src_totalVol, comm.dst_minVol, comm.dst_totalVol, comm.traffic_type);
                         // waitID=-1 is a one-off transfer, flag this traffic as complete and dont use it anymore
                         traffic_communication_table->setTransmitComplete(comm.taskID, local_id, comm.dst[dst_pos]);
                     } else if (comm.waitID[0] != -1) {
@@ -633,7 +749,7 @@ bool ProcessingElement::canShot(Packet & packet)
                     // use comm.dst[0] as destination since is o2o or m2o case
                     packet.make2(comm.taskID, local_id, comm.dst[0], vc, now,
                         comm.src_totalVol, comm.waitOP, comm.src_minVol, comm.src_totalVol, 
-                        comm.dst_minVol, comm.dst_totalVol);
+                        comm.dst_minVol, comm.dst_totalVol, comm.traffic_type);
                 // waitID=-1 is a one-off transfer, flag this traffic as complete and dont use it anymore
                 traffic_communication_table->setTransmitComplete(comm.taskID, local_id, comm.dst[0]);
                 } else {
@@ -914,17 +1030,58 @@ When the checks above all return true, do the folllowing:
 
 bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int local_id, Packet& packet)
 {
-    // Check if comm.waitID is present in receivedTaskID, to prove that current PE is ready for this task
-    auto it_find_waitID = find(comm.waitID.begin(), comm.waitID.end(), currentTaskID);
-    bool found_waitID = (it_find_waitID != comm.waitID.end());
 
+    // Check if this is a reception-waiting task ###### Fri Apr 4 14:37:46 SGT 2025
+    bool found_waitID = false; // initialize this before using
+
+    if (comm.is_wait_reception) {
+        // Check if all waitIDs have their reception completed
+        if (!traffic_communication_table->checkReceptionDependencies(comm.waitID)) {
+            LOG << "PE " << local_id << " waiting for reception completion of dependencies" << endl;
+            return false;  // Dependencies not satisfied
+        }
+    } else {
+        // Regular waitID semantics (check for transmission completion)
+        auto it_find_waitID = find(comm.waitID.begin(), comm.waitID.end(), currentTaskID);
+        found_waitID = (it_find_waitID != comm.waitID.end());
+        
+        if (!found_waitID) {
+            return false;  // Original dependency check fails
+        }
+    }
+
+    // // This code adds the special debug/pause for PE 10 with specific task conditions
+    // if (local_id == 10 && comm.taskID == 12 && currentTaskID == 2) {
+    //     cout << "PE 10 about to process task 12 (current task 2). Press Enter to continue..." << endl;
+    //     cin.get(); // Wait for user to press Enter
+    // }
+
+    // Update currentTaskID to be the task we're now transmitting for
+    // This helps subsequent calls track the right context
+    if (comm.waitID[0] != -1 && comm.src_minVol == -1 && currentTaskID != comm.taskID) {
+        LOG << "PE " << local_id << " transitioning from taskID " << currentTaskID 
+            << " to transmission task " << comm.taskID << endl;
+        setCurrentTaskID(comm.taskID);  // Update to the new task
+        receivedTaskID = comm.taskID; // update receivedTaskID (if stuck at pervious taskID)
+    }
+    
     // initialzie sentBytes to 0
+    // this part replcade with (comm.taskID != last_sent_task_id) check below
+    /*
     if (receivedTaskID != currentTaskID) {
         LOG << "PE " << local_id << " received a new taskID. Resetting sentBytes. Received taskID: " 
             << receivedTaskID << ", Current taskID: " << currentTaskID << endl;
         // Reset sentBytes for new task - initialize with zeros for each destination
         sentBytes.clear();
         sentBytes.resize(comm.dst.size(), 0);
+    }
+    */
+   if (comm.taskID != last_sent_task_id) {
+    LOG << "PE " << local_id << " starting new sending task: " << comm.taskID 
+        << " (previous: " << last_sent_task_id << "). Resetting sentBytes." << endl;
+    sentBytes.clear();
+    sentBytes.resize(comm.dst.size(), 0);
+    last_sent_task_id = comm.taskID;
     }
     
     // First check if sentBytes vector is initialized with the right size
@@ -947,11 +1104,14 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
         sum_recvBytesPE += recvBytes[i];
     }
     sum_recvBytesPE = recvBytes.size() > 0 ? sum_recvBytesPE / recvBytes.size() : 0;
-    if (comm.waitID[0] != -1 && found_waitID && dst_target != -1) {
-        // Extra check to stop sending this traffic if traffic has been used or reach tran_totalBytes
-        if (comm.traffic_used == true || sentBytes[dst_target] >= tran_totalBytes)
-            return false;
 
+    if (comm.waitID[0] != -1 && found_waitID && dst_target != -1) {
+
+        // Extra check to stop sending this traffic if traffic has been used or reach tran_totalBytes
+        if (comm.traffic_used == true || sentBytes[dst_target] >= tran_totalBytes) {
+            LOG << "PE" << local_id << "TaskID: "<<comm.taskID<<" Traffic already used or all bytes sent. Not sending packet." << endl;
+            return false;
+        }
         // Determine packet size based on conditions
         int packet_size = 1;  // Default size
         if (recv_minBytes == recv_totalBytes && tran_minBytes == tran_totalBytes) {
@@ -1036,7 +1196,7 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
             
             packet.make2(comm.taskID, local_id, comm.dst[dst_target], vc, now,
                 packet_size, comm.waitOP, comm.src_minVol, comm.src_totalVol, 
-                comm.dst_minVol, comm.dst_totalVol);
+                comm.dst_minVol, comm.dst_totalVol, comm.traffic_type);
 
             // For multicast traffic, let's add extra verification for VC
             // if (packet.vc_id > 1) {
@@ -1133,7 +1293,7 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
                     // Create packet for this destination
                     packet.make2(comm.taskID, local_id, comm.dst[dst_pos], vc, now, 
                         packet_size, comm.waitOP, comm.src_minVol, comm.src_totalVol, 
-                        comm.dst_minVol, comm.dst_totalVol);
+                        comm.dst_minVol, comm.dst_totalVol, comm.traffic_type);
 
                     // Update sentBytes and log
                     // sentBytes[dst_target]++;
@@ -1160,13 +1320,16 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
                 if (recv_minBytes == recv_totalBytes && tran_minBytes == tran_totalBytes) {
                     packet_size = tran_minBytes;
                     LOG << "PE" << local_id << " Creating larger packet of size = " << packet_size << endl;
-                }  else {
+                }  else if (comm.traffic_type == T_WAIT) {
+                    // TODO: Handle T_WAIT case
+                
+                }else {
                     LOG << "PE" << local_id << " Creating packet of size = 1"<< endl;
                 }
 
                 packet.make2(comm.taskID, local_id, comm.dst[i], vc, now, 
                     packet_size, comm.waitOP, comm.src_minVol, comm.src_totalVol, 
-                    comm.dst_minVol, comm.dst_totalVol);
+                    comm.dst_minVol, comm.dst_totalVol, comm.traffic_type);
                 
                 // sentBytes[dst_target]++;
                 // Update sentBytes based on packet size

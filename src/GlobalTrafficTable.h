@@ -55,9 +55,21 @@ struct TrafficCommunication {
 
   // multicast support
   int traffic_type;  // Type of traffic: unicast, multicast, broadcast
+
+  // fields for reception tracking
+  vector<int> rcv_complete;  // RCV_WAIT, RCV_BUSY, RCV_DONE
+  bool traffic_received;     // Flag indicating all destinations have received data
   
+  // flags for traffic types
+  bool is_self_compute;      // Flag for self-compute tasks (src==dst)
+  bool is_wait_reception;    // Flag for traffic waiting on reception completion
+
+  // recevied traffic (in flits, at dst) counter for taskID
+  int received_traffic;
+
   TrafficCommunication() {
     traffic_type = T_UNICAST;
+    received_traffic = 0;
   }
 
   // HG: Below are all heper functions for setting up index based src-dst pair status tracking
@@ -120,6 +132,15 @@ class GlobalTrafficTable {
     // HG: set cmp_complete flag in Traffic Communication Table
     void setComputeComplete(const int task_ID, const int dst_ID, const int local_ID);
 
+    // HG: set rcv_complete flag in Traffic Communication Table
+    void setReceptionComplete(const int task_ID, const int src_ID, const int dst_ID);
+
+    // HG: Method to check if dependencies reception is complete
+    bool checkReceptionDependencies(const vector<int>& waitIDs);
+
+    // HG: update received_traffic counter in Traffic Communication Table
+    void updateReceivedTraffic(const int task_ID, const int src_ID, const int dst_ID);
+
     // HG: get vector of src_id from Traffic Communication Table
     TrafficCommunication getsrcID(const int task_ID);
 
@@ -136,6 +157,7 @@ class GlobalTrafficTable {
     // Getter for the traffic communication table
     const vector<TrafficCommunication>& getTCommunicationTable() const {
       return traffic_communication_table;
+      
     }
 
 

@@ -24,6 +24,7 @@ struct PendingComputation {
     int bytes_to_process;
     double start_time;
     bool active;
+    int taskID;
 };
 
 SC_MODULE(ProcessingElement)
@@ -58,6 +59,8 @@ SC_MODULE(ProcessingElement)
     int receivedTaskID;   // HG: Task ID of the received packet
     // collect the last received srcID for use in computeProcess()
     int last_recv_srcID;
+    // for tracking dependencies with same waitIDs
+    int last_sent_task_id; 
     // variable to track data processing in PE, and decide start/stop of transmits
     // int recvBytes; // cumulative bytes received by PE from flits
     vector < int > recvBytes;

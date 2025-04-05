@@ -58,11 +58,20 @@ enum cmpState {
     CMP_DONE
 };
 
+// HG: Add new enum for reception status tracking
+enum ReceptionStatus {
+    RCV_WAIT = 0,  // Initial state - waiting for reception
+    RCV_BUSY = 1,  // In progress - receiving flits
+    RCV_DONE = 2   // Complete - all flits received
+};
+
+
 // Add traffic type enum
 enum TrafficType {
     T_UNICAST = 0,
     T_MULTICAST = 1,
-    T_BROADCAST = 2
+    T_BROADCAST = 2,
+    T_WAIT= 3
 };
 
 // Packet -- Packet definition
@@ -114,12 +123,12 @@ struct Packet {
 
     Packet(const int taskID, const int s, const int d, 
             const int vc, const double ts, const int sz,
-             const int wtOP, const int minV, const int totalV) {
-    make2(taskID, s, d, vc, ts, sz, wtOP, minV, totalV, minV, totalV);
+             const int wtOP, const int minV, const int totalV, const int traffic_typ) {
+    make2(taskID, s, d, vc, ts, sz, wtOP, minV, totalV, minV, totalV, traffic_typ);
     } 
 
     void make2(const int tskID, const int s, const int d, const int vc, const double ts, const int sz,
-         const int wtOP, const int s_minV, const int s_totV, const int d_minV, const int d_totV) {
+         const int wtOP, const int s_minV, const int s_totV, const int d_minV, const int d_totV, const int traffic_typ) {
 	taskID = tskID;
     src_id = s;
 	dst_id = d;
@@ -133,6 +142,7 @@ struct Packet {
     src_totalVol = s_totV;
     dst_minVol = d_minV;
     dst_totalVol = d_totV;
+    traffic_type = traffic_typ;
     }
 
      // Add makeMulticast method

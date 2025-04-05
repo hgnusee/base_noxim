@@ -777,63 +777,7 @@ void GlobalStats::collectStallStats() {
         }
     }
     else { // Delta topologies
-        int stg = log2(GlobalParams::n_delta_tiles);
-        int sw = GlobalParams::n_delta_tiles/2; // switches per stage
-        
-        // Dimensions of delta switch network
-        int dimX = stg; 
-        int dimY = sw;
-        
-        // Resize matrices for delta topology
-        pe_to_router_stalls.resize(GlobalParams::n_delta_tiles);
-        router_to_router_stalls.resize(GlobalParams::n_delta_tiles);
-        total_stalls.resize(GlobalParams::n_delta_tiles);
-        
-        for (int i = 0; i < GlobalParams::n_delta_tiles; i++) {
-            pe_to_router_stalls[i].resize(1, 0);
-            router_to_router_stalls[i].resize(1, 0);
-            total_stalls[i].resize(1, 0);
-        }
-        
-        // Collect stalls from processing elements
-        for (int i = 0; i < GlobalParams::n_delta_tiles; i++) {
-            Router* router = noc->core[i]->r;
-            
-            // Collect stalls by direction
-            for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
-                pe_to_router_stalls_by_direction[dir] += router->stall_stats.pe_to_router_stalls[dir];
-                router_to_router_stalls_by_direction[dir] += router->stall_stats.router_to_router_stalls[dir];
-                
-                pe_to_router_stalls[i][0] += router->stall_stats.pe_to_router_stalls[dir];
-                router_to_router_stalls[i][0] += router->stall_stats.router_to_router_stalls[dir];
-            }
-            
-            // Collect stalls by reason
-            total_buffer_full_stalls += router->stall_stats.buffer_full_stalls;
-            total_reservation_stalls += router->stall_stats.reservation_stalls;
-            total_vc_busy_stalls += router->stall_stats.vc_busy_stalls;
-			total_already_reserved_stalls += router->stall_stats.already_reserved_stalls;
-
-            // Calculate total stalls for heatmap
-            total_stalls[i][0] = pe_to_router_stalls[i][0] + router_to_router_stalls[i][0];
-        }
-        
-        // Handle switches in delta networks
-        for (int y = 0; y < dimY; y++) {
-            for (int x = 0; x < dimX; x++) {
-                Router* router = noc->t[x][y]->r;
-                
-                // Accumulate switch stalls to total counts
-                for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
-                    pe_to_router_stalls_by_direction[dir] += router->stall_stats.pe_to_router_stalls[dir];
-                    router_to_router_stalls_by_direction[dir] += router->stall_stats.router_to_router_stalls[dir];
-                }
-                
-                total_buffer_full_stalls += router->stall_stats.buffer_full_stalls;
-                total_reservation_stalls += router->stall_stats.reservation_stalls;
-                total_vc_busy_stalls += router->stall_stats.vc_busy_stalls;
-            }
-        }
+        cout << "Delta not supported at the moemnt" << endl;
     }
     
     // Store the collected statistics

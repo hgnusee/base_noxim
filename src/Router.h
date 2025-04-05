@@ -54,6 +54,15 @@ struct StallStats {
   
   StallStats() {
       // Initialize counters to zero
+      for (int i = 0; i < DIRECTIONS + 2; i++) {
+        pe_to_router_stalls[i] = 0;
+        router_to_router_stalls[i] = 0;
+    }
+
+    reservation_stalls = 0;
+    buffer_full_stalls = 0;
+    vc_busy_stalls = 0;
+    already_reserved_stalls = 0;
   }
 };
 
