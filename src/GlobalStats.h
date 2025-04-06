@@ -114,6 +114,18 @@ class GlobalStats {
 
     double getReceivedIdealFlitRatio();
 
+    // Returns network throughput in gigabits per second
+    double getNetworkThroughputGbps();
+
+    // Returns network throughput in gigabytes per second
+    double getNetworkThroughputGBps();
+    
+    // Returns average IP throughput in gigabits per second
+    double getIPThroughputGbps();
+    
+    // Returns average IP throughput in gigabytes per second
+    double getIPThroughputGBps();
+
     GlobalStallMatrices stall_matrices;
     GlobalStallStats stall_stats;
 

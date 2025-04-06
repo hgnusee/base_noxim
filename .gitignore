@@ -14,3 +14,8 @@ bim/*.yaml
 # Except the following files
 !o2m.txt
 bin/test_config.yaml
+bin/log
+bin/extracted
+bin/analysis
+bin/summary
+bin/results

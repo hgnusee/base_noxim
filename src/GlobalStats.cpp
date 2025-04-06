@@ -503,7 +503,11 @@ void GlobalStats::showStats(std::ostream & out, bool detailed)
     out << "% Global average delay (cycles): " << getAverageDelay() << endl;
     out << "% Max delay (cycles): " << getMaxDelay() << endl;
     out << "% Network throughput (flits/cycle): " << getAggregatedThroughput() << endl;
+    out << "% \tNetwork throughput (Gbps): " << getNetworkThroughputGbps() << endl;
+    out << "% \tNetwork throughput (GB/s): " << getNetworkThroughputGBps() << endl;
     out << "% Average IP throughput (flits/cycle/IP): " << getThroughput() << endl;
+    out << "% \tAverage IP throughput (Gbps): " << getIPThroughputGbps() << endl;
+    out << "% \tAverage IP throughput (GB/s): " << getIPThroughputGBps() << endl;
     out << "% Total energy (J): " << getTotalPower() << endl;
     out << "% \tDynamic energy (J): " << getDynamicPower() << endl;
     out << "% \tStatic energy (J): " << getStaticPower() << endl;
@@ -713,6 +717,40 @@ double GlobalStats::getReceivedIdealFlitRatio()
 		    GlobalParams::max_packet_size)/2 * total_cycles * GlobalParams::n_delta_tiles);
     }
     return ratio;
+}
+
+double GlobalStats::getNetworkThroughputGbps()
+{
+    // Calculate clock frequency in GHz from clock period in ps
+    double clock_frequency_GHz = 1000.0 / GlobalParams::clock_period_ps;
+    
+    // Convert flits/cycle to Gbps
+    double network_throughput_Gbps = getAggregatedThroughput() * GlobalParams::flit_size * clock_frequency_GHz;
+    
+    return network_throughput_Gbps;
+}
+
+double GlobalStats::getNetworkThroughputGBps()
+{
+    // Convert Gbps to GB/s (divide by 8)
+    return getNetworkThroughputGbps() / 8.0;
+}
+
+double GlobalStats::getIPThroughputGbps()
+{
+    // Calculate clock frequency in GHz from clock period in ps
+    double clock_frequency_GHz = 1000.0 / GlobalParams::clock_period_ps;
+    
+    // Convert flits/cycle/IP to Gbps
+    double ip_throughput_Gbps = getThroughput() * GlobalParams::flit_size * clock_frequency_GHz;
+    
+    return ip_throughput_Gbps;
+}
+
+double GlobalStats::getIPThroughputGBps()
+{
+    // Convert Gbps to GB/s (divide by 8)
+    return getIPThroughputGbps() / 8.0;
 }
 
 void GlobalStats::collectStallStats() {
