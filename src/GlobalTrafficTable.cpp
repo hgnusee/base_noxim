@@ -113,7 +113,7 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 
   // Initialize variables
   traffic_communication_table.clear();
-  reserved_traffic_communication_table.clear();
+//   reserved_traffic_communication_table.clear(); // not used anymore
 
   // Cycle reading file
   while (!fin.eof()) {
@@ -329,6 +329,7 @@ double GlobalTrafficTable::getCumulativePirPor(const int src_id,const int ccycle
 
 TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int src_id)
 {
+    unsigned long long current_cycle = this->current_cycle;
     for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
         // To accommodate vector of src, use find() function
         bool found_src = false;
@@ -344,6 +345,50 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
         if (tcomm.traffic_used == true) {
             continue;
         }
+
+        // ===== ELIGIBILITY TRACKING - START =====
+        // Record wait start cycle for any task we encounter that doesn't have it set yet
+        if (tcomm.wait_start_cycle == 0) {
+            tcomm.wait_start_cycle = current_cycle;
+        }
+        
+        // Check eligibility without changing function flow
+        if (tcomm.wait_end_cycle == 0) {  // Only check if not already marked eligible
+            bool eligible = true;
+            
+            // Check dependencies
+            if (!(tcomm.waitID.size() == 1 && tcomm.waitID[0] == -1)) {
+                for (int wait_id : tcomm.waitID) {
+                    if (wait_id < 0) continue; // Skip no dependency marker
+                    
+                    // Find the dependency task
+                    bool dependency_satisfied = false;
+                    for (const auto& dep_comm : traffic_communication_table) {
+                        if (dep_comm.taskID == wait_id) {
+                            // Simplified dependency check without waitOP
+                            if (dep_comm.traffic_used || dep_comm.compute_used || 
+                                dep_comm.traffic_received) {
+                                dependency_satisfied = true;
+                            }
+                            break;
+                        }
+                    }
+                    
+                    if (!dependency_satisfied) {
+                        eligible = false;
+                        break;
+                    }
+                }
+            }
+            
+            // Mark as eligible if all dependencies satisfied
+            if (eligible) {
+                tcomm.wait_end_cycle = current_cycle;
+                cout << "Task " << tcomm.taskID << " became eligible at cycle " << current_cycle 
+                     << " (waited " << (current_cycle - tcomm.wait_start_cycle) << " cycles)" << endl;
+            }
+        }
+        // ===== ELIGIBILITY TRACKING - END =====
 
         auto it = find(tcomm.src.begin(), tcomm.src.end(), src_id);
         found_src = (it != tcomm.src.end());
@@ -433,7 +478,7 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
 }
 
 void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id) {
-
+/* // not used anymore
 	vector <unsigned int> index_to_remove;
 
 	for (unsigned int i = 0; i < reserved_traffic_communication_table.size(); i++) {
@@ -490,10 +535,11 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
     for (auto it = index_to_remove.rbegin(); it != index_to_remove.rend(); ++it) {
         reserved_traffic_communication_table.erase(reserved_traffic_communication_table.begin() + *it);
     }
-
+*/
 }
 
 void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID, const int dst_ID) {
+
     for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
         TrafficCommunication& comm = traffic_communication_table[i];
 
@@ -544,7 +590,8 @@ void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID
             
             if (all_done && comm.traffic_used == false) {
                 // ensure we only tag traffic_used once, for every taskID
-                cout << "All traffic complete for taskID: " << task_ID << endl;
+                cout << "All traffic complete for taskID: " << task_ID 
+                    << " at cycle " << current_cycle << endl;
                 comm.traffic_used = true;
             }
             break;
@@ -553,10 +600,12 @@ void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID
 }
 
 void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID, const int local_ID) {
+    unsigned long long current_cycle = this->current_cycle;
     for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
         TrafficCommunication& comm = traffic_communication_table[i];
 
         if (comm.taskID == task_ID && comm.compute_used == false) {
+
             // Many-to-Many case
             if (comm.src.size() > 1 && comm.dst.size() > 1) {
                 auto src_it = find(comm.src.begin(), comm.src.end(), src_ID);
@@ -602,7 +651,11 @@ void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID,
             }
             
             if (all_done) {
-                cout << "DEBUG: All ComputeProcess() complete for taskID = " << task_ID << endl;
+                // Record compute end time
+                comm.compute_end_cycle = current_cycle;
+                cout << "DEBUG: All ComputeProcess() complete for taskID = " << task_ID 
+                << " at cycle " << current_cycle
+                << " (computation took " << (current_cycle - comm.compute_start_cycle) << " cycles)" << endl;
 				comm.compute_used = true;
             }
             break;
@@ -611,6 +664,7 @@ void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID,
 }
 
 void GlobalTrafficTable::setReceptionComplete(const int task_ID, const int src_ID, const int dst_ID) {
+    unsigned long long current_cycle = this->current_cycle;
     for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
         TrafficCommunication& comm = traffic_communication_table[i];
 
@@ -672,8 +726,19 @@ void GlobalTrafficTable::setReceptionComplete(const int task_ID, const int src_I
                 }
             }
             
-            if (all_rcv_done) {
-                cout << "All reception complete for taskID: " << task_ID << endl;
+            if (all_rcv_done && !comm.traffic_received) {
+                // Record reception end time
+                comm.receive_end_cycle = current_cycle;
+                
+                // Mark all timing data as valid
+                if (comm.wait_start_cycle > 0 && comm.wait_end_cycle > 0 &&
+                    comm.transmit_start_cycle > 0 && comm.transmit_end_cycle > 0) {
+                    comm.timing_valid = true;
+                }
+                
+                cout << "All reception complete for taskID: " << task_ID 
+                     << " at cycle " << current_cycle
+                     << " (reception took " << (current_cycle - comm.receive_start_cycle) << " cycles)" << endl;
                 comm.traffic_received = true;  // Set flag indicating all receptions are complete
             }
             break;
@@ -762,4 +827,48 @@ int GlobalTrafficTable::occurrencesAsSource(const int src_id)
       count++;
 
   return count;
+}
+
+void GlobalTrafficTable::markTransmitStart(const int task_ID, const int src_ID) {
+    for (auto& comm : traffic_communication_table) {
+        if (comm.taskID == task_ID && comm.transmit_start_cycle == 0) {  // Prevent double-marking
+            comm.transmit_start_cycle = current_cycle;
+            cout << "Task " << task_ID << " started transmission at cycle " 
+                 << current_cycle << " from PE " << src_ID << endl;
+            break;
+        }
+    }
+}
+
+void GlobalTrafficTable::markTransmitEnd(const int task_ID, const int src_ID, const int dst_ID) {
+    for (auto& comm : traffic_communication_table) {
+        if (comm.taskID == task_ID ) {
+            comm.transmit_end_cycle = current_cycle;
+            cout << "Task " << task_ID << " completed transmission at cycle " 
+                 << current_cycle << " (took " << (current_cycle - comm.transmit_start_cycle) 
+                 << " cycles) from PE " << src_ID << " to PE " << dst_ID << endl;
+            break;
+        }
+    }
+}
+void GlobalTrafficTable::markComputeStart(const int task_ID, const int dst_ID) {
+    for (auto& comm : traffic_communication_table) {
+        if (comm.taskID == task_ID && comm.compute_start_cycle == 0) {  // Prevent double-marking
+            comm.compute_start_cycle = current_cycle;
+            cout << "Task " << task_ID << " started computation at cycle " 
+                 << current_cycle << " at PE " << dst_ID << endl;
+            break;
+        }
+    }
+}
+
+void GlobalTrafficTable::markReceiveStart(const int task_ID, const int src_ID, const int dst_ID) {
+    for (auto& comm : traffic_communication_table) {
+        if (comm.taskID == task_ID && comm.receive_start_cycle == 0) {  // Prevent double-marking
+            comm.receive_start_cycle = current_cycle;
+            cout << "Task " << task_ID << " started reception at cycle " 
+                 << current_cycle << " at PE " << dst_ID << endl;
+            break;
+        }
+    }
 }

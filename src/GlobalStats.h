@@ -42,6 +42,36 @@ struct GlobalStallStats {
   unsigned long already_reserved_stalls;
 };
 
+struct TaskTimeline {
+  int task_id;
+  int layer_id;
+  unsigned long long wait_start;
+  unsigned long long wait_end;
+  unsigned long long transmit_start;
+  unsigned long long transmit_end;
+  unsigned long long compute_start;
+  unsigned long long compute_end;
+  unsigned long long receive_start;
+  unsigned long long receive_end;
+  
+  // Convenience method to get total time
+  unsigned long long getTotalTime() const {
+      return receive_end > 0 ? receive_end - wait_start : 0;
+  }
+  
+  // Convenience methods to get phase durations
+  unsigned long long getWaitTime() const { return wait_end > 0 ? wait_end - wait_start : 0; }
+  unsigned long long getTransmitTime() const { 
+      return transmit_end > 0 ? transmit_end - transmit_start : 0; 
+  }
+  unsigned long long getComputeTime() const { 
+      return compute_end > 0 ? compute_end - compute_start : 0; 
+  }
+  unsigned long long getReceiveTime() const { 
+      return receive_end > 0 ? receive_end - receive_start : 0; 
+  }
+};
+
 class GlobalStats {
 
   public:
@@ -107,7 +137,6 @@ class GlobalStats {
 
     void showBufferStats(std::ostream & out);
 
-
     void showPowerBreakDown(std::ostream & out);
 
     void showPowerManagerStats(std::ostream & out);
@@ -137,6 +166,21 @@ class GlobalStats {
     void showStallsByReasonPerNode(std::ostream & out);
     void showTrafficCompletionStats(std::ostream & out);
     void printTrafficCompletionStats();
+
+    // traffic timing stats
+    void showTrafficTimingStats(std::ostream & out = std::cout);
+    void exportTaskTimingData(const string& filename);
+    void generateHistogramData();
+    void outputHistogramData(const string& filename, const vector<unsigned long long>& data);
+
+    // New methods for "true" throughput metrics
+    unsigned long long getActualSimulationEndTime();
+    double getTrueAggregatedThroughput();
+    double getTrueThroughput();
+    double getTrueNetworkThroughputGbps();
+    double getTrueNetworkThroughputGBps();
+    double getTrueIPThroughputGbps();
+    double getTrueIPThroughputGBps();
 
 
 

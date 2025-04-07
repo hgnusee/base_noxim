@@ -67,6 +67,11 @@ void ProcessingElement::rxProcess()
         pending_compute.start_time = 0;
 
     } else {
+
+        // get simulation time for Global Traffic Table
+        unsigned long long current_cycle = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+        traffic_communication_table->updateCurrentCycle(current_cycle);
+
         // LOG << "In rxProcess() for PE " << local_id << endl;
 
         // // Debug prompt for PE 1
@@ -85,7 +90,8 @@ void ProcessingElement::rxProcess()
                     if (flit_tmp.flit_type == FLIT_TYPE_HEAD) {
                         cout << "PE " << local_id << " received a HEAD flit. Begin RECEIVE!!" << endl;
 
-                        
+                        traffic_communication_table->markReceiveStart(flit_tmp.taskID, flit_tmp.src_id, local_id);
+
                         last_recv_srcID = flit_tmp.src_id; // set last_recv_srcID to srcID of received flit
                         receivedTaskID = flit_tmp.taskID;
                         
@@ -339,6 +345,9 @@ void ProcessingElement::txProcess(void)
         tran_minBytes = 0;
         tran_totalBytes = 0;
     } else {
+        // get simulation time for Global Traffic Table
+        unsigned long long current_cycle = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+        traffic_communication_table->updateCurrentCycle(current_cycle);
 
         // FIXED CODE: Only check for completion of EXISTING computations
         // Do NOT start new ones here - this respects dependencies
@@ -366,6 +375,7 @@ void ProcessingElement::txProcess(void)
                         // but marking traffic_received complete for dependency tracking
                         traffic_communication_table->setReceptionComplete(pending_compute.taskID, local_id, local_id);
                         LOG << "PE" << local_id << " Self-compute task completed, marking reception as complete" << endl;
+                        traffic_communication_table->setComputeComplete(pending_compute.taskID, local_id, local_id);
                     }
 
                 }                
@@ -380,12 +390,8 @@ void ProcessingElement::txProcess(void)
         Packet packet;
         // LOG << "In txProcess() for PE " << local_id << endl;
         if (canShot(packet)) {
-            // Check if the packet is using VC > 1
-            // if (packet.vc_id > 1) {
-            //     cout << "Creating a packet with VC > 1 (VC = " << packet.vc_id 
-            //          << ") at PE " << local_id << ". Press Enter to continue..." << endl;
-            //     cin.get();
-            // }
+            // if packet can be shot, then we mark start time for taskID
+            traffic_communication_table->markTransmitStart(packet.taskID, packet.src_id);
             packet_queue.push(packet);
             transmittedAtPreviousCycle = true;
         } else
@@ -467,6 +473,8 @@ Flit ProcessingElement::nextFlit()
             traffic_communication_table->setTransmitComplete(
                 packet.taskID, packet.src_id, packet.dst_id);
         }
+        // mark transmit end for packet.size() > 1
+        traffic_communication_table->markTransmitEnd(packet.taskID, packet.src_id, packet.dst_id);
     }
 
     // Encode total_vol and min_vol data to receive into HEAD Flit
@@ -475,7 +483,14 @@ Flit ProcessingElement::nextFlit()
         flit.min_vol = packet.dst_minVol;
         flit.taskID = packet.taskID;
     }
-        
+
+    // For single-flit packets, mark both start and end
+    if (packet.size == 1) {
+        // traffic_communication_table->markTransmitStart(packet.taskID, packet.src_id);
+        // mark transmit end for packet.size() == 1 (Single Flit Packet)
+        traffic_communication_table->markTransmitEnd(packet.taskID, packet.src_id, packet.dst_id);
+    }
+
 
     packet_queue.front().flit_left--;
 
@@ -516,12 +531,6 @@ bool ProcessingElement::canShot(Packet & packet)
         if (never_transmit)
             return false;
         
-        // Debug prompt for PE 1
-        // if (local_id == 1) {
-        //     cout << "PE 1 is about to process traffic. Press Enter to continue..." << endl;
-        //     cin.get();
-        // }
-        
         // get transaction for this PE from Traffic Communication Table
         TrafficCommunication& comm = traffic_communication_table->getTrafficCommunicationTable(local_id);
 
@@ -536,6 +545,17 @@ bool ProcessingElement::canShot(Packet & packet)
                 LOG << "Self-compute task at PE " << local_id << " waiting for reception completion" << endl;
                 return false;
             }
+
+            // For self-compute: mark transmission as immediate (start=end)
+            traffic_communication_table->markTransmitStart(comm.taskID, local_id);
+            traffic_communication_table->markTransmitEnd(comm.taskID, local_id, local_id);
+
+            // Mark compute start
+            traffic_communication_table->markComputeStart(comm.taskID, local_id);
+
+            // Mark receive start too (conceptually it happens immediately for self-compute)
+            traffic_communication_table->markReceiveStart(comm.taskID, local_id, local_id);
+    
             
             // Start computation without packet creation
             double current_time = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
@@ -897,6 +917,8 @@ void ProcessingElement::computeProcess() {
     
     // Start a new computation if bytes are available to process
     if (bytes_to_process > 0) {
+
+        traffic_communication_table->markComputeStart(currentTaskID, local_id);
         pending_compute.bytes_to_process = bytes_to_process;
         pending_compute.start_time = current_time;
         pending_compute.active = true;
@@ -909,7 +931,8 @@ void ProcessingElement::computeProcess() {
     // That happens when the delay is complete
 }
 
-// computeProcess() old version, without delay
+
+/*// computeProcess() old version, without delay
 void ProcessingElement::computeProcess2()
 {
     // int compute_delayN = 1; // set fixed delay for compute process
@@ -968,17 +991,17 @@ void ProcessingElement::computeProcess2()
     LOG << "PE" << local_id << " [sum|norm|proc] " << sum_recvBytes << "|"
     << norm_sum_recvBytes << "|" << processedBytes << endl;
 
-/*     if ((processedBytes == 0 && sum_recvBytes == recv_minBytes ) ||
-        (processedBytes < tran_totalBytes && 
-            (sum_recvBytes > processedBytes && (sum_recvBytes % tran_minBytes) == 0)
-        )) {
+    // if ((processedBytes == 0 && sum_recvBytes == recv_minBytes ) ||
+    //     (processedBytes < tran_totalBytes && 
+    //         (sum_recvBytes > processedBytes && (sum_recvBytes % tran_minBytes) == 0)
+    //     )) {
 
-        // "Compress recvBytes of (recvBByte%tran_minByte == 0) into 1 single processedByte"
+    //     // "Compress recvBytes of (recvBByte%tran_minByte == 0) into 1 single processedByte"
 
-        processedBytes ++;
-        LOG << "PE" << local_id << " Processed " << processedBytes << " Bytes" << endl;
-    }
- */
+    //     processedBytes ++;
+    //     LOG << "PE" << local_id << " Processed " << processedBytes << " Bytes" << endl;
+    // }
+
     // Check if all processing is complete
     if (processedBytes >= tran_totalBytes) {
         state = PE_READY;
@@ -988,7 +1011,7 @@ void ProcessingElement::computeProcess2()
     }
 
 }
-
+*/
 int ProcessingElement::readyToProcessBytes(int sum_recvBytes, int src_size)
 {
     
@@ -1003,6 +1026,7 @@ int ProcessingElement::readyToSendBytes(const int dst_pos){
     // calculate that are still needed to be sent
     return processedBytes - sentBytes[dst_pos];
 }
+/*
 void ProcessingElement::reservedTableMonitor()
 {
     // HG: check and move transactions from reserved -> traffic comm table
@@ -1014,7 +1038,7 @@ void ProcessingElement::reservedTableMonitor()
         traffic_communication_table->moveReserveToTrafficCommunicationTable(local_id);
     }
 }
-
+*/
 /* Applicable for all non-time0 packets (comm.size() > 0 && comm.waitID[0] != -1)
 Check if arriving flits from rxProcess() for the following conditions:
 - contains arriving flits from the previous cycle

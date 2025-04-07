@@ -511,6 +511,17 @@ void GlobalStats::showStats(std::ostream & out, bool detailed)
     out << "% Total energy (J): " << getTotalPower() << endl;
     out << "% \tDynamic energy (J): " << getDynamicPower() << endl;
     out << "% \tStatic energy (J): " << getStaticPower() << endl;
+
+    // true throughput stats
+    out << "%" << endl;
+    out << "% === True Throughput (based on actual traffic completion time) ===" << endl;
+    out << "% Actual simulation end time (cycles): " << getActualSimulationEndTime() << endl;
+    out << "% True Network throughput (flits/cycle): " << getTrueAggregatedThroughput() << endl;
+    out << "% \tTrue Network throughput (Gbps): " << getTrueNetworkThroughputGbps() << endl;
+    out << "% \tTrue Network throughput (GB/s): " << getTrueNetworkThroughputGBps() << endl;
+    out << "% True Average IP throughput (flits/cycle/IP): " << getTrueThroughput() << endl;
+    out << "% \tTrue Average IP throughput (Gbps): " << getTrueIPThroughputGbps() << endl;
+    out << "% \tTrue Average IP throughput (GB/s): " << getTrueIPThroughputGBps() << endl;
 	
 	// Collect and show stall statistics
 	collectStallStats();
@@ -522,9 +533,30 @@ void GlobalStats::showStats(std::ostream & out, bool detailed)
     showStallsByReasonPerNode(out);
 
     // Show traffic table stats
-    if (GlobalParams::traffic_distribution == TRAFFIC_COMMUNICATION_TABLE)
+    if (GlobalParams::traffic_distribution == TRAFFIC_COMMUNICATION_TABLE) {
         showTrafficCompletionStats(out);
-
+        showTrafficTimingStats(out); // Add timing statistics report
+        
+        // Generate detailed timing data files
+        if (detailed) {
+            string results_path = GlobalParams::stats_warm_up_time > 0 ? 
+                "results/timing_data/" : "results/timing_data_warm/";
+            
+            // Create directory if it doesn't exist
+            string mkdir_cmd = "mkdir -p " + results_path;
+            int dir_result = system(mkdir_cmd.c_str());
+            if (dir_result != 0) {
+                cout << "Warning: Failed to create directory " << results_path << endl;
+            }
+            
+            // Export CSV data for visualization
+            string csv_filename = results_path + "task_timings.csv";
+            exportTaskTimingData(csv_filename);
+            
+            // Generate histogram data
+            generateHistogramData();
+        }
+    }
     if (GlobalParams::show_buffer_stats)
       showBufferStats(out);
 
@@ -1010,4 +1042,250 @@ void GlobalStats::showTrafficCompletionStats(std::ostream & out)
          << (total_tasks > 0 ? 100.0 * completed_tasks / total_tasks : 0)
          << "%)" << endl;
     out << "% =============================================" << endl;
+}
+
+void GlobalStats::showTrafficTimingStats(std::ostream & out) {
+    out << "%" << endl;
+    out << "% === Traffic Processing Time Statistics ===" << endl;
+    out << "% TaskID | Layer | Wait Time | Transmit Time | Compute Time | Receive Time | Total Time | Valid?" << endl;
+    out << "% --------------------------------------------------------------------------------------" << endl;
+    
+    // Get traffic table
+    vector<TrafficCommunication> traffic_table;
+    traffic_table = traffic_communication_table->getTCommunicationTable();
+    
+    unsigned long long total_wait_time = 0;
+    unsigned long long total_transmit_time = 0;
+    unsigned long long total_compute_time = 0;
+    unsigned long long total_receive_time = 0;
+    unsigned long long total_processing_time = 0;
+    int valid_count = 0;
+    
+    for (const auto& comm : traffic_table) {
+        // if (comm.timing_valid) {
+            unsigned long long wait_time = comm.wait_end_cycle - comm.wait_start_cycle;
+            unsigned long long transmit_time = comm.transmit_end_cycle - comm.transmit_start_cycle;
+            unsigned long long compute_time = comm.compute_end_cycle - comm.compute_start_cycle;
+            unsigned long long receive_time = comm.receive_end_cycle - comm.receive_start_cycle;
+            unsigned long long total_time = comm.receive_end_cycle - comm.wait_start_cycle;
+            
+            out << "% " << setw(6) << comm.taskID << " | "
+                << setw(5) << comm.layerID << " | " 
+                << setw(9) << wait_time << " | "
+                << setw(13) << transmit_time << " | "
+                << setw(12) << compute_time << " | "
+                << setw(12) << receive_time << " | "
+                << setw(10) << total_time << " | "
+                << (comm.timing_valid ? "YES" : "NO") << endl;
+            
+            total_wait_time += wait_time;
+            total_transmit_time += transmit_time;
+            total_compute_time += compute_time;
+            total_receive_time += receive_time;
+            total_processing_time += total_time;
+            valid_count++;
+        // }
+    }
+    
+    out << "% --------------------------------------------------------------------------------------" << endl;
+    // if (valid_count > 0) {
+        out << "% Average  |       | " 
+            << setw(9) << (double)total_wait_time / valid_count << " | "
+            << setw(13) << (double)total_transmit_time / valid_count << " | "
+            << setw(12) << (double)total_compute_time / valid_count << " | "
+            << setw(12) << (double)total_receive_time / valid_count << " | "
+            << setw(10) << (double)total_processing_time / valid_count << " |      " << endl;
+    // }
+    out << "% Total Tasks with Complete Timing: " << valid_count << endl;
+}
+
+void GlobalStats::exportTaskTimingData(const string& filename) {
+    ofstream outfile(filename);
+    
+    // CSV header
+    outfile << "task_id,layer_id,wait_start,wait_end,wait_duration,"
+            << "transmit_start,transmit_end,transmit_duration,"
+            << "compute_start,compute_end,compute_duration,"
+            << "receive_start,receive_end,receive_duration,total_duration" << endl;
+            
+    // Get traffic table
+    vector<TrafficCommunication> traffic_table = traffic_communication_table->getTCommunicationTable();
+    
+    for (const auto& comm : traffic_table) {
+        // if (comm.timing_valid) {
+            unsigned long long wait_duration = comm.wait_end_cycle - comm.wait_start_cycle;
+            unsigned long long transmit_duration = comm.transmit_end_cycle - comm.transmit_start_cycle;
+            unsigned long long compute_duration = comm.compute_end_cycle - comm.compute_start_cycle;
+            unsigned long long receive_duration = comm.receive_end_cycle - comm.receive_start_cycle;
+            unsigned long long total_duration = comm.receive_end_cycle - comm.wait_start_cycle;
+            
+            outfile << comm.taskID << "," << comm.layerID << ","
+                    << comm.wait_start_cycle << "," << comm.wait_end_cycle << "," << wait_duration << ","
+                    << comm.transmit_start_cycle << "," << comm.transmit_end_cycle << "," << transmit_duration << ","
+                    << comm.compute_start_cycle << "," << comm.compute_end_cycle << "," << compute_duration << ","
+                    << comm.receive_start_cycle << "," << comm.receive_end_cycle << "," << receive_duration << ","
+                    << total_duration << endl;
+        // }
+    }
+    
+    outfile.close();
+}
+
+void GlobalStats::generateHistogramData() {
+    // Get traffic table
+    vector<TrafficCommunication> traffic_table = traffic_communication_table->getTCommunicationTable();
+    
+    // Determine output directory - same logic as in showStats()
+    string results_path = GlobalParams::stats_warm_up_time > 0 ? 
+        "results/timing_data/" : "results/timing_data_warm/";
+    
+    // Create directory if it doesn't exist
+    string mkdir_cmd = "mkdir -p " + results_path;
+    int dir_result = system(mkdir_cmd.c_str());
+    if (dir_result != 0) {
+        cout << "Warning: Failed to create directory " << results_path << endl;
+    }
+    
+    // Storage for histogram data
+    vector<unsigned long long> wait_times;
+    vector<unsigned long long> transmit_times;
+    vector<unsigned long long> compute_times;
+    vector<unsigned long long> receive_times;
+    vector<unsigned long long> total_times;
+    
+    // Collect timing data
+    for (const auto& comm : traffic_table) {
+        // Add defensive checks to avoid bogus values
+        unsigned long long wait_time = (comm.wait_end_cycle > comm.wait_start_cycle) ? 
+                                      (comm.wait_end_cycle - comm.wait_start_cycle) : 0;
+        
+        unsigned long long transmit_time = (comm.transmit_end_cycle > comm.transmit_start_cycle) ? 
+                                         (comm.transmit_end_cycle - comm.transmit_start_cycle) : 0;
+        
+        unsigned long long compute_time = (comm.compute_end_cycle > comm.compute_start_cycle) ? 
+                                       (comm.compute_end_cycle - comm.compute_start_cycle) : 0;
+        
+        unsigned long long receive_time = (comm.receive_end_cycle > comm.receive_start_cycle) ? 
+                                       (comm.receive_end_cycle - comm.receive_start_cycle) : 0;
+        
+        // Special handling for self-compute tasks
+        if (comm.is_self_compute) {
+            transmit_time = 0;
+            receive_time = 0;
+        }
+        
+        // Only include non-zero values to avoid skewing histograms
+        if (wait_time > 0) wait_times.push_back(wait_time);
+        if (transmit_time > 0) transmit_times.push_back(transmit_time);
+        if (compute_time > 0) compute_times.push_back(compute_time);
+        if (receive_time > 0) receive_times.push_back(receive_time);
+        
+        if (comm.receive_end_cycle > comm.wait_start_cycle) {
+            total_times.push_back(comm.receive_end_cycle - comm.wait_start_cycle);
+        }
+    }
+    
+    // Output histogram data with properly pathed filenames
+    outputHistogramData(results_path + "wait_time_histogram.csv", wait_times);
+    outputHistogramData(results_path + "transmit_time_histogram.csv", transmit_times);
+    outputHistogramData(results_path + "compute_time_histogram.csv", compute_times);
+    outputHistogramData(results_path + "receive_time_histogram.csv", receive_times);
+    outputHistogramData(results_path + "total_time_histogram.csv", total_times);
+    
+    cout << "Histogram data files generated in " << results_path << endl;
+}
+
+void GlobalStats::outputHistogramData(const string& filename, const vector<unsigned long long>& data) {
+    if (data.empty()) return;
+    
+    // Calculate histogram bins
+    unsigned long long min_val = *min_element(data.begin(), data.end());
+    unsigned long long max_val = *max_element(data.begin(), data.end());
+    
+    // Create 20 bins
+    const int num_bins = 20;
+    unsigned long long bin_width = (max_val - min_val) / num_bins + 1;
+    
+    vector<int> histogram(num_bins, 0);
+    
+    // Populate histogram
+    for (unsigned long long val : data) {
+        int bin = (val - min_val) / bin_width;
+        if (bin >= num_bins) bin = num_bins - 1;
+        histogram[bin]++;
+    }
+    
+    // Output histogram data
+    ofstream outfile(filename);
+    outfile << "bin_start,bin_end,count" << endl;
+    
+    for (int i = 0; i < num_bins; i++) {
+        unsigned long long bin_start = min_val + i * bin_width;
+        unsigned long long bin_end = bin_start + bin_width - 1;
+        outfile << bin_start << "," << bin_end << "," << histogram[i] << endl;
+    }
+    
+    outfile.close();
+}
+
+unsigned long long GlobalStats::getActualSimulationEndTime() {
+    unsigned long long last_completion = 0;
+    
+    if (traffic_communication_table != nullptr) {
+        const auto& traffic_table = traffic_communication_table->getTCommunicationTable();
+        
+        for (const auto& comm : traffic_table) {
+            if (comm.receive_end_cycle > last_completion) {
+                last_completion = comm.receive_end_cycle;
+            }
+        }
+    }
+    
+    // If no valid timing data found, fall back to configured simulation time
+    if (last_completion == 0) {
+        return GlobalParams::simulation_time;
+    }
+    
+    return last_completion;
+}
+
+double GlobalStats::getTrueAggregatedThroughput() {
+    unsigned long long actual_end_time = getActualSimulationEndTime();
+    unsigned long long effective_cycles = actual_end_time - GlobalParams::stats_warm_up_time;
+    
+    // Safety check to avoid division by zero
+    if (effective_cycles <= 0) {
+        return getAggregatedThroughput(); // Fall back to standard method
+    }
+    
+    return (double)getReceivedFlits() / (double)effective_cycles;
+}
+
+double GlobalStats::getTrueThroughput()  {
+    if (GlobalParams::topology == TOPOLOGY_MESH) {
+        int number_of_ip = GlobalParams::mesh_dim_x * GlobalParams::mesh_dim_y;
+        return (double)getTrueAggregatedThroughput() / (double)(number_of_ip);
+    }
+    else { // other delta topologies
+        int number_of_ip = GlobalParams::n_delta_tiles;
+        return (double)getTrueAggregatedThroughput() / (double)(number_of_ip);
+    }
+}
+
+double GlobalStats::getTrueNetworkThroughputGbps()  {
+    double clock_frequency_GHz = 1000.0 / GlobalParams::clock_period_ps;
+    return getTrueAggregatedThroughput() * GlobalParams::flit_size * clock_frequency_GHz;
+}
+
+double GlobalStats::getTrueNetworkThroughputGBps()  {
+    return getTrueNetworkThroughputGbps() / 8.0;
+}
+
+double GlobalStats::getTrueIPThroughputGbps()  {
+    double clock_frequency_GHz = 1000.0 / GlobalParams::clock_period_ps;
+    return getTrueThroughput() * GlobalParams::flit_size * clock_frequency_GHz;
+}
+
+double GlobalStats::getTrueIPThroughputGBps()  {
+    return getTrueIPThroughputGbps() / 8.0;
 }

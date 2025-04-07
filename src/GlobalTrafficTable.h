@@ -67,9 +67,26 @@ struct TrafficCommunication {
   // recevied traffic (in flits, at dst) counter for taskID
   int received_traffic;
 
+  // Timing tracking fields - all in simulation cycles
+  unsigned long long wait_start_cycle;    // When dependencies began being checked
+  unsigned long long wait_end_cycle;      // When all dependencies were satisfied
+  unsigned long long transmit_start_cycle; // When first transmission started
+  unsigned long long transmit_end_cycle;   // When all transmissions completed
+  unsigned long long compute_start_cycle;  // When computation started
+  unsigned long long compute_end_cycle;    // When computation completed
+  unsigned long long receive_start_cycle;  // When reception started
+  unsigned long long receive_end_cycle;    // When all receptions completed
+  bool timing_valid;                      // Whether timing data is complete
+
   TrafficCommunication() {
     traffic_type = T_UNICAST;
     received_traffic = 0;
+    // timing initializations
+    wait_start_cycle = wait_end_cycle = 0;
+    transmit_start_cycle = transmit_end_cycle = 0;
+    compute_start_cycle = compute_end_cycle = 0;
+    receive_start_cycle = receive_end_cycle = 0;
+    timing_valid = false;
   }
 
   // HG: Below are all heper functions for setting up index based src-dst pair status tracking
@@ -135,6 +152,12 @@ class GlobalTrafficTable {
     // HG: set rcv_complete flag in Traffic Communication Table
     void setReceptionComplete(const int task_ID, const int src_ID, const int dst_ID);
 
+    // start markers for traffic timing
+    void markTransmitStart(const int task_ID, const int src_ID);
+    void markTransmitEnd(const int task_ID, const int src_ID, const int dst_ID);
+    void markComputeStart(const int task_ID, const int dst_ID);
+    void markReceiveStart(const int task_ID, const int src_ID, const int dst_ID);
+
     // HG: Method to check if dependencies reception is complete
     bool checkReceptionDependencies(const vector<int>& waitIDs);
 
@@ -160,6 +183,16 @@ class GlobalTrafficTable {
       
     }
 
+    // Helper function to get simulation time from PE
+    void updateCurrentCycle(unsigned long long cycle) {
+        current_cycle = cycle;
+    }
+    
+    unsigned long long getCurrentCycle() const {
+        return current_cycle;
+    }
+
+
 
   private:
 
@@ -167,10 +200,15 @@ class GlobalTrafficTable {
      // HG: Create a vector for TrafficCommunication
      vector < TrafficCommunication > traffic_communication_table;
      //  HG: reserved_traffic_communication_table for holding next PE or waiting PE
-     vector < TrafficCommunication > reserved_traffic_communication_table;
+     // Not used anymore
+    //  vector < TrafficCommunication > reserved_traffic_communication_table;
+
+    // get simulation time
+    unsigned long long current_cycle;
 
       // HG: 'empty' transaction to be returned in no entry found in traffic comm table
       TrafficCommunication empty_comm;
+
 
 
 };

@@ -84,8 +84,8 @@ SC_MODULE(ProcessingElement)
     bool canShot(Packet & packet);	// True when the packet must be shot
 
     void computeProcess(); // HG: Compute Process to "stall" PE from further receive packets
-    void computeProcess2(); 
-    void reservedTableMonitor(); // HG: check and move transactions from reserved -> traffic comm table
+    // void computeProcess2(); // original computeProces not, used
+    // void reservedTableMonitor(); // HG: check and move transactions from reserved -> traffic comm table
     bool packetShotbyPE(TrafficCommunication& comm, const int local_id, Packet & packet); // HG: check if packet can be created by the PE
 
     int readyToSendBytes (const int dst_pos);
@@ -105,7 +105,7 @@ SC_MODULE(ProcessingElement)
     GlobalTrafficTable *traffic_table;	// Reference to the Global traffic Table
     // HG: Reference to Traffic Communication Tables
     GlobalTrafficTable *traffic_communication_table;
-    GlobalTrafficTable *reserved_traffic_communication_table;
+    // GlobalTrafficTable *reserved_traffic_communication_table;
     vector<vector<int> > holdDataArray;    // 2D vector to store hold data
 
     bool never_transmit;	// true if the PE does not transmit any packet 
@@ -132,9 +132,9 @@ SC_MODULE(ProcessingElement)
 	sensitive << reset;
 	sensitive << clock.pos();
 
-    SC_METHOD(reservedTableMonitor);
-    sensitive << reset;
-    sensitive << clock.pos();
+    // SC_METHOD(reservedTableMonitor);
+    // sensitive << reset;
+    // sensitive << clock.pos();
     }
 
 };

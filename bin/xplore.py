@@ -30,10 +30,10 @@ class NoxExplorer:
         # Default parameters if no config file provided
         self.parameters = {
             "vc": [1, 2, 4],
-            "flit": [256],
-            "buffer": [4, 8],
-            "routing": ["XY"],
-            "sel": ["RANDOM", "NOP"],
+            "flit": [256, 512],
+            "buffer": [4, 8, 16],
+            "routing": ["XY","ODD_EVEN","DYAD"],
+            "sel": ["RANDOM"],
             "sim": ["6000"]
         }
         

@@ -16,7 +16,7 @@ topology: MESH
 mesh_dim_x: 30
 mesh_dim_y: 30
 # 5 clock cycles of compute delay
-compute_delay: 1
+compute_delay: 2
 # number of flits for each router buffer
 buffer_depth: 4
 # size of flits, in bits
@@ -169,7 +169,7 @@ probability_of_retransmission: 0.01
 traffic_distribution: TRAFFIC_COMMUNICATION_TABLE
 # when traffic table based is specified, use the following
 # configuration file
-traffic_table_filename: "lite_mlp.txt"
+traffic_table_filename: "o2m.txt"
 
 # Define Traffic in Bytes (only for TRAFFIC_COMMUNICATION_TABLE)
 traffic_in_bytes: true

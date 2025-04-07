@@ -274,6 +274,7 @@ void showHelp(char selfname[])
          << "\t-asciimonitor\t\tShow status of the network while running (experimental)" << endl
          << "\t-sim N\t\t\tRun for the specified simulation time [cycles]" << endl
          << "\t-traffic_in_bytes\t\tInterpret traffic volumes as bytes instead of data_volume units" << endl
+         << "\t-clkps N\t\tSet the clock period [ps]" << endl
          << endl
          << "If you find this program useful please don't forget to mention in your paper Maurizio Palesi <maurizio.palesi@unikore.it>" << endl
          <<	"If you find this program useless please feel free to complain with Davide Patti <davide.patti@dieei.unict.it>" << endl
@@ -516,6 +517,8 @@ void parseCmdLine(int arg_num, char *arg_vet[])
 		setBufferAntenna(atoi(arg_vet[++i]));
 	    else if (!strcmp(arg_vet[i], "-vc"))
 		GlobalParams::n_virtual_channels = (atoi(arg_vet[++i]));
+        else if (!strcmp(arg_vet[i], "-clkps"))
+        GlobalParams::clock_period_ps = atoi(arg_vet[++i]);
 	    else if (!strcmp(arg_vet[i], "-flit"))
 		GlobalParams::flit_size = atoi(arg_vet[++i]);
 	    else if (!strcmp(arg_vet[i], "-winoc")) 
