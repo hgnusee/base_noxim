@@ -810,6 +810,7 @@ void GlobalStats::collectStallStats() {
     
     // Initialize matrices based on topology
     if (GlobalParams::topology == TOPOLOGY_MESH) {
+
         pe_to_router_stalls.resize(GlobalParams::mesh_dim_y);
         router_to_router_stalls.resize(GlobalParams::mesh_dim_y);
         total_stalls.resize(GlobalParams::mesh_dim_y);
@@ -819,7 +820,8 @@ void GlobalStats::collectStallStats() {
             router_to_router_stalls[y].resize(GlobalParams::mesh_dim_x, 0);
             total_stalls[y].resize(GlobalParams::mesh_dim_x, 0);
         }
-        
+        // PRF
+        /*
         // Collect data from each router in the mesh
         for (int y = 0; y < GlobalParams::mesh_dim_y; y++) {
             for (int x = 0; x < GlobalParams::mesh_dim_x; x++) {
@@ -845,6 +847,36 @@ void GlobalStats::collectStallStats() {
                 total_stalls[y][x] = pe_to_router_stalls[y][x] + router_to_router_stalls[y][x];
             }
         }
+        */
+       for (int y = 0; y < GlobalParams::mesh_dim_y; y++) {
+        for (int x = 0; x < GlobalParams::mesh_dim_x; x++) {
+            Router* router = noc->t[x][y]->r;
+            
+            // Collect all statistics in a single pass
+            for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
+                unsigned long pe_stalls = router->stall_stats.pe_to_router_stalls[dir];
+                unsigned long router_stalls = router->stall_stats.router_to_router_stalls[dir];
+                
+                // Update direction-specific aggregates
+                pe_to_router_stalls_by_direction[dir] += pe_stalls;
+                router_to_router_stalls_by_direction[dir] += router_stalls;
+                
+                // Update position-based matrices
+                pe_to_router_stalls[y][x] += pe_stalls;
+                router_to_router_stalls[y][x] += router_stalls;
+            }
+            
+            // Collect stalls by reason in the same loop
+            total_buffer_full_stalls += router->stall_stats.buffer_full_stalls;
+            total_reservation_stalls += router->stall_stats.reservation_stalls;
+            total_vc_busy_stalls += router->stall_stats.vc_busy_stalls;
+            total_already_reserved_stalls += router->stall_stats.already_reserved_stalls;
+            
+            // Calculate total stalls once
+            total_stalls[y][x] = pe_to_router_stalls[y][x] + router_to_router_stalls[y][x];
+        }
+    }
+    
     }
     else { // Delta topologies
         cout << "Delta not supported at the moemnt" << endl;

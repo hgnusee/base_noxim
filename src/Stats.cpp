@@ -23,7 +23,8 @@ void Stats::receivedFlit(const double arrival_time,
 {
     if (arrival_time - GlobalParams::reset_time < warm_up_time)
 	return;
-
+	// PRF - use unordered map for search
+	/*
     int i = searchCommHistory(flit.src_id);
 
     if (i == -1) {
@@ -36,6 +37,23 @@ void Stats::receivedFlit(const double arrival_time,
 	chist.push_back(ch);
 
 	i = chist.size() - 1;
+    }
+	*/
+
+	auto it = src_id_to_index.find(flit.src_id);
+    int i;
+    
+    if (it == src_id_to_index.end()) {
+        // New source - initialize CommHist structure
+        CommHistory ch;
+        ch.src_id = flit.src_id;
+        ch.total_received_flits = 0;
+        chist.push_back(ch);
+        
+        i = chist.size() - 1;
+        src_id_to_index[flit.src_id] = i;
+    } else {
+        i = it->second;
     }
 
     if (flit.flit_type == FLIT_TYPE_HEAD)

@@ -19,3 +19,4 @@ bin/extracted
 bin/analysis
 bin/summary
 bin/results
+*.data*

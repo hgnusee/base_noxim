@@ -88,7 +88,9 @@ void ProcessingElement::rxProcess()
                     current_level_rx = 1 - current_level_rx;	// Negate the old value for Alternating Bit Protocol (ABP)
 
                     if (flit_tmp.flit_type == FLIT_TYPE_HEAD) {
+                        #ifdef CDEBUG
                         cout << "PE " << local_id << " received a HEAD flit. Begin RECEIVE!!" << endl;
+                        #endif
 
                         traffic_communication_table->markReceiveStart(flit_tmp.taskID, flit_tmp.src_id, local_id);
 
@@ -130,29 +132,43 @@ void ProcessingElement::rxProcess()
                             // processedBytes = 0; // reset processedBytes to 0
 
                             // resize recvBytes to size of src vector of taskID of received flit
-                            recvBytes.resize(rcv_comm.src.size(), 0);
+                            // recvBytes.resize(rcv_comm.src.size(), 0);
+                            // PRF
+                            enhancedEnsureVectorSize(recvBytes, rcv_comm.src.size(), 0, true);
                         }
                         
                         // relate to latest flit taskID for src vector size
                         TrafficCommunication latest_rcv_comm = traffic_communication_table->getsrcID(receivedTaskID);
 
                         if (recvBytes.size() != rcv_comm.src.size()) {
+                            #ifdef CDEBUG
                             cout << "PE " << local_id << " received a new taskID. Resizing recvBytes." << endl;
-                            recvBytes.resize(rcv_comm.src.size(), 0);
+                            #endif
+                            // recvBytes.resize(rcv_comm.src.size(), 0);
+                            // PRF
+                            enhancedEnsureVectorSize(recvBytes, rcv_comm.src.size(), 0, true);
                         }
                         // Ensure rcv_comm is non-empty before resizing
                         if (!rcv_comm.src.empty()) {
-                            recvBytes.resize(rcv_comm.src.size(), 0);
+                            // recvBytes.resize(rcv_comm.src.size(), 0);
+                            // PRF
+                            enhancedEnsureVectorSize(recvBytes, rcv_comm.src.size(), 0, true);
+                            #ifdef CDEBUG
                             cout << "PE" << local_id << " resized recvBytes to " << rcv_comm.src.size() << " elements" << endl;
+                            #endif
                         } else if(latest_rcv_comm.nextID[0] == -1) {
                             // this check to confirm that we are at a terminal task (aka nextID = -1)
                             // since the dstPE at terminal task wont be triggered to update its currentTaskID (since it wont tx anything)
+                            #ifdef CDEBUG
                             cout << "WARNING: PE" << local_id << " received HEAD flit for taskID " << receivedTaskID 
                                 << ", default to receivedTaskID = " << receivedTaskID << " for recvByte size"<< endl;
                             // Default to receivedTaskID src size
                             cout << "WaitID of receivedTaskID = -1. Setting currentTaskID to receivedTaskID: " << receivedTaskID << endl;
+                            #endif
                             setCurrentTaskID(receivedTaskID);
-                            recvBytes.resize(latest_rcv_comm.src.size(), 0);
+                            // recvBytes.resize(latest_rcv_comm.src.size(), 0);
+                            // PRF
+                            enhancedEnsureVectorSize(recvBytes, latest_rcv_comm.src.size(), 0, true);
                         }
 
                         // Check if receivedTaskID is a many-to-many task
@@ -160,8 +176,12 @@ void ProcessingElement::rxProcess()
                         if (rcv_task_comm.src.size() > 1 && rcv_task_comm.dst.size() > 1) {
                             LOG << "PE " << local_id << " received a many-to-many task with ID: " << receivedTaskID << endl;
                             // Resize recvBytes to match the size of src vector for this task
-                            recvBytes.resize(rcv_task_comm.src.size(), 0);
+                            // recvBytes.resize(rcv_task_comm.src.size(), 0);
+                            // PRF
+                            enhancedEnsureVectorSize(recvBytes, rcv_task_comm.src.size(), 0, true);
+                            #ifdef CDEBUG
                             cout << "PE " << local_id << " resized recvBytes for many-to-many task to size: " << rcv_task_comm.src.size() << endl;
+                            #endif
                         }
 
                         src_pos = distance(rcv_comm.src.begin(), find(rcv_comm.src.begin(), rcv_comm.src.end(), last_recv_srcID));
@@ -1104,13 +1124,17 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
     LOG << "PE " << local_id << " starting new sending task: " << comm.taskID 
         << " (previous: " << last_sent_task_id << "). Resetting sentBytes." << endl;
     sentBytes.clear();
-    sentBytes.resize(comm.dst.size(), 0);
+    // sentBytes.resize(comm.dst.size(), 0);
+    // PRF
+    enhancedEnsureVectorSize(sentBytes, comm.dst.size(), 0, true);
     last_sent_task_id = comm.taskID;
     }
     
     // First check if sentBytes vector is initialized with the right size
     if (sentBytes.size() != comm.dst.size()) {
-        sentBytes.resize(comm.dst.size(), 0);
+        // sentBytes.resize(comm.dst.size(), 0);
+        // PRF
+        enhancedEnsureVectorSize(sentBytes, comm.dst.size(), 0, true);
     }
 
     // Find destination that hasn't received all bytes yet
@@ -1191,7 +1215,9 @@ bool ProcessingElement::packetShotbyPE(TrafficCommunication& comm, const int loc
             
             // Resize sentBytes if needed
             if (sentBytes.size() < comm.dst.size()) {
-                sentBytes.resize(comm.dst.size(), 0);
+                // sentBytes.resize(comm.dst.size(), 0);
+                // PRF
+                enhancedEnsureVectorSize(sentBytes, comm.dst.size(), 0, true);
             }
             
             // Check if we've sent enough bytes to this destination

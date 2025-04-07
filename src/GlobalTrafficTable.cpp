@@ -159,7 +159,9 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			// }
 			// Allow src/dst to be mutliple values for many to many case
 			if (src.size() > 1 && dst.size() > 1) {
-				cout << "INFO: Detected Many to Many Traffic at taskID = "<< taskID << endl;
+                #ifdef CDEBUG 
+                cout << "INFO: Detected Many to Many Traffic at taskID = "<< taskID << endl; 
+                #endif
 			}
 
 			// Parse waitID vector
@@ -210,8 +212,11 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			TrafficCommunication.cmp_complete.resize(size_to_use, CMP_WAIT);
 			*/
 			size_t size_to_use = src.size() * dst.size();
-			TrafficCommunication.trn_complete.resize(size_to_use, TRN_WAIT);
-			TrafficCommunication.cmp_complete.resize(size_to_use, TRN_WAIT);
+			// TrafficCommunication.trn_complete.resize(size_to_use, TRN_WAIT);
+			// TrafficCommunication.cmp_complete.resize(size_to_use, TRN_WAIT);
+            // PRF
+            enhancedEnsureVectorSize(TrafficCommunication.trn_complete, size_to_use, TRN_WAIT, true);
+            enhancedEnsureVectorSize(TrafficCommunication.cmp_complete, size_to_use, TRN_WAIT, true);
 
             // Check for special traffic types ###### Fri Apr 4 14:06:45 SGT 2025
             if (src.size() == 1 && dst.size() == 1 && src[0] == dst[0]) {
@@ -222,7 +227,9 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
             
     
             // Initialize reception tracking array in parallel to trn_complete ###### Fri Apr 4 14:06:50 SGT 2025
-            TrafficCommunication.rcv_complete.resize(TrafficCommunication.trn_complete.size(), RCV_WAIT);
+            // TrafficCommunication.rcv_complete.resize(TrafficCommunication.trn_complete.size(), RCV_WAIT);
+            // PRF
+            enhancedEnsureVectorSize(TrafficCommunication.rcv_complete, TrafficCommunication.trn_complete.size(), RCV_WAIT, true);
             TrafficCommunication.traffic_received = false;
 			
             // Handle traffic_type - check if the parameter was provided (12 params total)
@@ -263,6 +270,8 @@ bool GlobalTrafficTable::loadTrafficFile(const char *fname)
 			// All traffic goes to main comm table, since pipeline model decides who to go next
 			if (waitID[0] >= -1) {
 				traffic_communication_table.push_back(TrafficCommunication);
+                // PRF: Mapping taskID to vector index
+                task_id_to_index[TrafficCommunication.taskID] = traffic_communication_table.size() - 1;
 			// } else if (all_of(waitID.begin(), waitID.end(), [](int id) { return id >= 0; })) {
 			// 	// Add to reserved traffic table
 			// 	reserved_traffic_communication_table.push_back(TrafficCommunication);
@@ -384,12 +393,14 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
             // Mark as eligible if all dependencies satisfied
             if (eligible) {
                 tcomm.wait_end_cycle = current_cycle;
+                #ifdef CDEBUG
                 cout << "Task " << tcomm.taskID << " became eligible at cycle " << current_cycle 
                      << " (waited " << (current_cycle - tcomm.wait_start_cycle) << " cycles)" << endl;
+                #endif
             }
         }
         // ===== ELIGIBILITY TRACKING - END =====
-
+        /*
         auto it = find(tcomm.src.begin(), tcomm.src.end(), src_id);
         found_src = (it != tcomm.src.end());
         
@@ -398,6 +409,11 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
         }
         
         src_pos = distance(tcomm.src.begin(), it);
+        */
+        // PRF: Improve Execution time
+        auto it = find(tcomm.src.begin(), tcomm.src.end(), src_id);
+        if (it == tcomm.src.end()) continue;
+        src_pos = it - tcomm.src.begin(); // More efficient than distance()
         
         // Handle Many-to-Many case
         if (tcomm.src.size() > 1 && tcomm.dst.size() > 1) {
@@ -417,8 +433,10 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
             if (has_wait_destinations) {
                 // Found destination in WAIT state - mark as BUSY and return
                 size_t idx = src_pos * tcomm.dst.size() + wait_dst_pos;
+                #ifdef CDEBUG
                 cout << "DEBUG: (m2m) Traffic found for src_id = " << src_id 
                      << " to dst_id = " << tcomm.dst[wait_dst_pos] << " - return with TRN_WAIT" << endl;
+                     #endif
                 // tcomm.trn_complete[idx] = TRN_BUSY; // like PE handle TRN_BUSY tagging
                 return tcomm;
             }
@@ -427,8 +445,10 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
             for (size_t d = 0; d < tcomm.dst.size(); d++) {
                 size_t idx = src_pos * tcomm.dst.size() + d;
                 if (idx < tcomm.trn_complete.size() && tcomm.trn_complete[idx] == TRN_BUSY) {
+                    #ifdef CDEBUG
                     cout << "DEBUG: (m2m) Source " << src_id << " already BUSY with destination "
                          << tcomm.dst[d] << " - returning traffic" << endl;
+                         #endif
 						// if (tcomm.dst[d] == 1) {
 						// 	cout << "Press Enter to continue...";
 						// 	cin.get();
@@ -445,19 +465,25 @@ TrafficCommunication& GlobalTrafficTable::getTrafficCommunicationTable(const int
             check_trn_state = tcomm.trn_complete[src_pos];
 
             if (check_trn_state == TRN_WAIT) {
+                #ifdef CDEBUG
                 cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
                     << " return traffic" << endl;
+                    #endif
                 tcomm.trn_complete[src_pos] = TRN_BUSY;
                 return tcomm;
             } 
             else if (check_trn_state == TRN_BUSY) {
+                #ifdef CDEBUG
                 cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
                     << " trn_complete = TRN_BUSY, return traffic" << endl;
+                    #endif
                 return tcomm;
             }
             else if (check_trn_state == TRN_DONE) {
+                #ifdef CDEBUG
                 cout << "DEBUG: (m2o) Traffic Comm Table found for src_id = " << src_id 
                     << " but trn_complete = TRN_DONE" << endl;
+                    #endif
             }
         }
         // Handle One-to-Many or One-to-One case (existing logic)
@@ -539,9 +565,10 @@ void GlobalTrafficTable::moveReserveToTrafficCommunicationTable(const int src_id
 }
 
 void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID, const int dst_ID) {
-
-    for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
-        TrafficCommunication& comm = traffic_communication_table[i];
+    // PRF
+    auto task_it = task_id_to_index.find(task_ID);
+    if (task_it != task_id_to_index.end()) {
+        TrafficCommunication& comm = traffic_communication_table[task_it->second];
 
         if (comm.taskID == task_ID && comm.traffic_used == false) {
             // Many-to-Many case
@@ -557,8 +584,10 @@ void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID
                     size_t idx = src_pos * comm.dst.size() + dst_pos;
                     if (idx < comm.trn_complete.size()) {
                         comm.trn_complete[idx] = TRN_DONE;
+                        #ifdef CDEBUG
                         cout << "DEBUG: M2M transmission complete for task " << task_ID
                              << " from src=" << src_ID << " to dst=" << dst_ID << endl;
+                             #endif
                     }
                 }
             }
@@ -590,19 +619,23 @@ void GlobalTrafficTable::setTransmitComplete(const int task_ID, const int src_ID
             
             if (all_done && comm.traffic_used == false) {
                 // ensure we only tag traffic_used once, for every taskID
+                #ifdef CDEBUG
                 cout << "All traffic complete for taskID: " << task_ID 
                     << " at cycle " << current_cycle << endl;
+                    #endif
                 comm.traffic_used = true;
             }
-            break;
         }
     }
 }
 
 void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID, const int local_ID) {
     unsigned long long current_cycle = this->current_cycle;
-    for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
-        TrafficCommunication& comm = traffic_communication_table[i];
+
+    // PRF
+    auto task_it = task_id_to_index.find(task_ID);
+    if (task_it != task_id_to_index.end()) {
+        TrafficCommunication& comm = traffic_communication_table[task_it->second];
 
         if (comm.taskID == task_ID && comm.compute_used == false) {
 
@@ -619,8 +652,10 @@ void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID,
                     size_t idx = src_pos * comm.dst.size() + dst_pos;
                     if (idx < comm.cmp_complete.size()) {
                         comm.cmp_complete[idx] = CMP_DONE;
+                        #ifdef CDEBUG
                         cout << "DEBUG: M2M computation complete for task " << task_ID
                              << " from src=" << src_ID << " at dst=" << local_ID << endl;
+                             #endif
                     }
                 }
             }
@@ -653,26 +688,29 @@ void GlobalTrafficTable::setComputeComplete(const int task_ID, const int src_ID,
             if (all_done) {
                 // Record compute end time
                 comm.compute_end_cycle = current_cycle;
+                #ifdef CDEBUG
                 cout << "DEBUG: All ComputeProcess() complete for taskID = " << task_ID 
                 << " at cycle " << current_cycle
                 << " (computation took " << (current_cycle - comm.compute_start_cycle) << " cycles)" << endl;
+                #endif
 				comm.compute_used = true;
             }
-            break;
         }
     }
 }
 
 void GlobalTrafficTable::setReceptionComplete(const int task_ID, const int src_ID, const int dst_ID) {
     unsigned long long current_cycle = this->current_cycle;
-    for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
-        TrafficCommunication& comm = traffic_communication_table[i];
 
-        if (comm.taskID == task_ID) {
+    auto task_it = task_id_to_index.find(task_ID);
+    if (task_it != task_id_to_index.end()) {
+        TrafficCommunication& comm = traffic_communication_table[task_it->second];
 
             if (comm.traffic_received == true) {
+                #ifdef CDEBUG
                 cout << "DEBUG: Traffic Received has been done before, skip taskID: " << task_ID << endl;
-                break;
+                #endif
+                return;
             }
 
             // Many-to-Many case
@@ -688,8 +726,10 @@ void GlobalTrafficTable::setReceptionComplete(const int task_ID, const int src_I
                     size_t idx = src_pos * comm.dst.size() + dst_pos;
                     if (idx < comm.rcv_complete.size()) {
                         comm.rcv_complete[idx] = RCV_DONE;
+                        #ifdef CDEBUG
                         cout << "DEBUG: Reception complete for task " << task_ID
                              << " from src=" << src_ID << " to dst=" << dst_ID << endl;
+                             #endif
                     }
                 }
             }
@@ -713,8 +753,10 @@ void GlobalTrafficTable::setReceptionComplete(const int task_ID, const int src_I
             if (comm.is_self_compute) {
                 // set all reception to done
                 comm.rcv_complete[0] = RCV_DONE;
+                #ifdef CDEBUG
                 cout << "DEBUG: Self compute reception complete for task " << task_ID
                      << " from src=" << src_ID << " to dst=" << dst_ID << endl;
+                     #endif
             }
 
             // Check if all receptions are complete
@@ -735,14 +777,13 @@ void GlobalTrafficTable::setReceptionComplete(const int task_ID, const int src_I
                     comm.transmit_start_cycle > 0 && comm.transmit_end_cycle > 0) {
                     comm.timing_valid = true;
                 }
-                
+                #ifdef CDEBUG
                 cout << "All reception complete for taskID: " << task_ID 
                      << " at cycle " << current_cycle
                      << " (reception took " << (current_cycle - comm.receive_start_cycle) << " cycles)" << endl;
+                     #endif
                 comm.traffic_received = true;  // Set flag indicating all receptions are complete
             }
-            break;
-        }
     }
 }
 
@@ -750,8 +791,18 @@ bool GlobalTrafficTable::checkReceptionDependencies(const vector<int>& waitIDs) 
     for (int waitID : waitIDs) {
         if (waitID == -1) continue;  // No dependency
         
+        // PRF // Check if the dependency task has its reception complete
+        auto task_it = task_id_to_index.find(waitID);
+        if (task_it == task_id_to_index.end() || 
+            !traffic_communication_table[task_it->second].traffic_received) {
+            return false;  // Dependency not found or not completed
+        }
+
+        
         // Check if the dependency task has its reception completed
+        /*
         bool found_completed = false;
+
         for (auto& comm : traffic_communication_table) {
             if (comm.taskID == waitID && comm.traffic_received) {
                 found_completed = true;
@@ -760,6 +811,7 @@ bool GlobalTrafficTable::checkReceptionDependencies(const vector<int>& waitIDs) 
         }
         
         if (!found_completed) return false;  // At least one dependency not satisfied
+        */
     }
     return true;  // All dependencies satisfied
 }
@@ -767,6 +819,26 @@ bool GlobalTrafficTable::checkReceptionDependencies(const vector<int>& waitIDs) 
 void GlobalTrafficTable::updateReceivedTraffic(const int task_ID, const int src_ID, const int dst_ID) {
     // Update the traffic communication table to mark the reception as complete
     // TODO: only works for one to one traffic for now, need to use ternary operator like compute task
+    // PRF
+    auto task_it = task_id_to_index.find(task_ID);
+    if (task_it != task_id_to_index.end()) {
+        TrafficCommunication& comm = traffic_communication_table[task_it->second];
+        comm.received_traffic++;
+        #ifdef CDEBUG
+        cout << "DEBUG: received_traffic for task " << task_ID
+             << " [" << comm.received_traffic << "|" << comm.dst_totalVol <<"]" << endl;
+             #endif
+
+        if (comm.received_traffic == comm.dst_totalVol) {
+            #ifdef CDEBUG
+            cout << "DEBUG: Done all received_traffic for task " << task_ID
+                 << " [" << comm.received_traffic << "|" << comm.dst_totalVol <<"]" << endl;
+                 #endif
+            setReceptionComplete(task_ID, src_ID, dst_ID);
+        }
+    }
+
+    /*
     for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
 		TrafficCommunication& comm = traffic_communication_table[i];
 		if (comm.taskID == task_ID) {
@@ -781,16 +853,17 @@ void GlobalTrafficTable::updateReceivedTraffic(const int task_ID, const int src_
             }
 		}
 	}
+    */
 }
 
 TrafficCommunication GlobalTrafficTable::getsrcID(const int task_ID) {
 
-	for (unsigned int i = 0; i < traffic_communication_table.size(); i++) {
-		TrafficCommunication comm = traffic_communication_table[i];
-		if (comm.taskID == task_ID) {
-			return comm;
-		}
-	}
+    // PRF
+
+    auto task_it = task_id_to_index.find(task_ID);
+    if (task_it != task_id_to_index.end()) {
+        return traffic_communication_table[task_it->second];
+    }
 	// HG: return empty TrafficCommunication, if not matching task_ID found
 	assert("Error in Traffic Table, no such taskID!");
 	return empty_comm;
@@ -830,45 +903,59 @@ int GlobalTrafficTable::occurrencesAsSource(const int src_id)
 }
 
 void GlobalTrafficTable::markTransmitStart(const int task_ID, const int src_ID) {
-    for (auto& comm : traffic_communication_table) {
-        if (comm.taskID == task_ID && comm.transmit_start_cycle == 0) {  // Prevent double-marking
+    // PRF
+    auto task_it = task_id_to_index.find(task_ID);
+    if (task_it != task_id_to_index.end()) {
+        TrafficCommunication& comm = traffic_communication_table[task_it->second];
+        if (comm.transmit_start_cycle == 0) {  // Prevent double-marking
             comm.transmit_start_cycle = current_cycle;
+            #ifdef CDEBUG
             cout << "Task " << task_ID << " started transmission at cycle " 
                  << current_cycle << " from PE " << src_ID << endl;
-            break;
+                 #endif
         }
     }
 }
 
 void GlobalTrafficTable::markTransmitEnd(const int task_ID, const int src_ID, const int dst_ID) {
-    for (auto& comm : traffic_communication_table) {
-        if (comm.taskID == task_ID ) {
-            comm.transmit_end_cycle = current_cycle;
-            cout << "Task " << task_ID << " completed transmission at cycle " 
-                 << current_cycle << " (took " << (current_cycle - comm.transmit_start_cycle) 
-                 << " cycles) from PE " << src_ID << " to PE " << dst_ID << endl;
-            break;
-        }
+    // PRF
+    auto task_it = task_id_to_index.find(task_ID);
+    if (task_it != task_id_to_index.end()) {
+        TrafficCommunication& comm = traffic_communication_table[task_it->second];
+        comm.transmit_end_cycle = current_cycle;
+        #ifdef CDEBUG
+        cout << "Task " << task_ID << " completed transmission at cycle " 
+             << current_cycle << " (took " << (current_cycle - comm.transmit_start_cycle) 
+             << " cycles) from PE " << src_ID << " to PE " << dst_ID << endl;
+             #endif
     }
 }
 void GlobalTrafficTable::markComputeStart(const int task_ID, const int dst_ID) {
-    for (auto& comm : traffic_communication_table) {
-        if (comm.taskID == task_ID && comm.compute_start_cycle == 0) {  // Prevent double-marking
+    // PRF
+    auto task_it = task_id_to_index.find(task_ID);
+    if (task_it != task_id_to_index.end()) {
+        TrafficCommunication& comm = traffic_communication_table[task_it->second];
+        if (comm.compute_start_cycle == 0) {
             comm.compute_start_cycle = current_cycle;
+            #ifdef CDEBUG
             cout << "Task " << task_ID << " started computation at cycle " 
                  << current_cycle << " at PE " << dst_ID << endl;
-            break;
+                 #endif
         }
     }
 }
 
 void GlobalTrafficTable::markReceiveStart(const int task_ID, const int src_ID, const int dst_ID) {
-    for (auto& comm : traffic_communication_table) {
-        if (comm.taskID == task_ID && comm.receive_start_cycle == 0) {  // Prevent double-marking
+    // PRF
+    auto task_it = task_id_to_index.find(task_ID);
+    if (task_it != task_id_to_index.end()) {
+        TrafficCommunication& comm = traffic_communication_table[task_it->second];
+        if (comm.receive_start_cycle == 0) {
             comm.receive_start_cycle = current_cycle;
+            #ifdef CDEBUG
             cout << "Task " << task_ID << " started reception at cycle " 
                  << current_cycle << " at PE " << dst_ID << endl;
-            break;
+                 #endif
         }
     }
 }

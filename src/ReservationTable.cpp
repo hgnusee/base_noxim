@@ -62,11 +62,13 @@ int ReservationTable::checkReservation(const TReservation r, const int port_out)
 	    // In the current implementation this should never happen
 	    if (o!=port_out && rtable[o].reservations[i] == r)
 	    {
+            #ifdef CDEBUG
 			cout << "Found same input/VC in different outputs: o=" << o
 				<< ", port_out=" << port_out
 				<< ", reservation=[in:" << rtable[o].reservations[i].input
 				<< ", vc:" << rtable[o].reservations[i].vc << "]" << endl;
 			cout << "r = " << r.input << "," << r.vc << endl;
+            #endif
 		return RT_ALREADY_OTHER_OUT;
 	    }
 	}
@@ -85,10 +87,12 @@ int ReservationTable::checkReservation(const TReservation r, const int port_out)
 	// the same VC for that output has been reserved by another input
 	if (rtable[port_out].reservations[i].input != r.input &&
 	    rtable[port_out].reservations[i].vc == r.vc) {
+            #ifdef CDEBUG
             cout << "VC conflict on output port " << port_out 
                 << " - Input " << r.input << " (VC " << r.vc 
                 << ") conflicts with input " << rtable[port_out].reservations[i].input 
                 << " (VC " << rtable[port_out].reservations[i].vc << ")" << endl;
+                #endif
 	    return RT_OUTVC_BUSY;
         }
     }

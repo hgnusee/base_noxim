@@ -17,6 +17,8 @@
 #include <algorithm> // HG: to use std::find
 #include "DataStructs.h"
 #include "Utils.h"
+#include <unordered_map>
+
 
 
 using namespace std;
@@ -208,6 +210,9 @@ class GlobalTrafficTable {
 
       // HG: 'empty' transaction to be returned in no entry found in traffic comm table
       TrafficCommunication empty_comm;
+
+    unordered_map<int, size_t> task_id_to_index;  // Maps task IDs to their indices in the vector
+
 
 
 

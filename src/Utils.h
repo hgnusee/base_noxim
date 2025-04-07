@@ -259,4 +259,15 @@ inline bool YouAreSwitch(int id)
     else return false;
 }
 
+inline void enhancedEnsureVectorSize(vector<int>& vec, size_t size, int defaultValue = 0, bool reset_all = false) {
+    if (vec.size() != size) {
+        vec.reserve(size);  // Reserve memory first
+        vec.resize(size, defaultValue);
+    } 
+    else if (reset_all) {
+        // Size is already correct, but reset all elements to default value
+        fill(vec.begin(), vec.end(), defaultValue);
+    }
+}
+
 #endif

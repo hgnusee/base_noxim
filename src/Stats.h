@@ -16,6 +16,7 @@
 #include <vector>
 #include "DataStructs.h"
 #include "Power.h"
+#include <unordered_map>
 using namespace std;
 
 struct CommHistory {
@@ -84,6 +85,9 @@ class Stats {
     int id;
     vector < CommHistory > chist;
     double warm_up_time;
+    // PRF
+    unordered_map<int, int> src_id_to_index; // Maps source ID to index in chist
+
 
     int searchCommHistory(int src_id);
 };
