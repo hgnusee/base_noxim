@@ -21,8 +21,7 @@ void Router::process()
     txProcess();
     rxProcess();
 }
-
-void Router::rxProcess()
+/*void Router::rxProcess()
 {
     if (reset.read()) {
 	TBufferFullStatus bfs;
@@ -85,6 +84,96 @@ void Router::rxProcess()
 		bfs.mask[vc] = buffer[i][vc].IsFull();
 	    buffer_full_status_rx[i].write(bfs);
 	}
+    }
+}
+*/
+
+
+// PRF - routerRxProcess
+void Router::rxProcess()
+{
+    if (reset.read()) {
+        TBufferFullStatus bfs;
+        // Clear outputs and indexes of receiving protocol
+        for (int i = 0; i < DIRECTIONS + 2; i++) {
+            ack_rx[i].write(0);
+            current_level_rx[i] = 0;
+            buffer_full_status_rx[i].write(bfs);
+        }
+        routed_flits = 0;
+        local_drained = 0;
+    } 
+    else 
+    { 
+        // Pre-compute all buffer states at the beginning of cycle
+        // This reduces redundant IsFull() calls which may be expensive
+        bool buffer_full_states[DIRECTIONS + 2][GlobalParams::n_virtual_channels];
+        
+        // Cache buffer states once at the beginning of the cycle
+        for (int i = 0; i < DIRECTIONS + 2; i++) {
+            for (int vc = 0; vc < GlobalParams::n_virtual_channels; vc++) {
+                buffer_full_states[i][vc] = buffer[i][vc].IsFull();
+            }
+        }
+        
+        // This process simply sees a flow of incoming flits. All arbitration
+        // and wormhole related issues are addressed in the txProcess()
+        for (int i = 0; i < DIRECTIONS + 2; i++) {
+            // To accept a new flit, the following conditions must match:
+            // 1) there is an incoming request
+            // 2) there is a free slot in the input buffer of direction i
+            
+            // Check if there's a request to receive (ABP protocol)
+            if (req_rx[i].read() == 1 - current_level_rx[i]) { 
+                Flit received_flit = flit_rx[i].read();
+                int vc = received_flit.vc_id;
+                
+                // Use cached buffer state instead of calling IsFull() again
+                if (!buffer_full_states[i][vc]) {
+                    // Store the incoming flit in the circular buffer
+                    buffer[i][vc].Push(received_flit);
+                    
+                    #ifdef CDEBUG
+                    LOG << " Flit " << received_flit << " collected from Input[" << i << "][" << vc <<"]" << endl;
+                    #endif
+                    
+                    power.bufferRouterPush();
+                    
+                    // Negate the old value for Alternating Bit Protocol (ABP)
+                    current_level_rx[i] = 1 - current_level_rx[i];
+                    
+                    // if a new flit is injected from local PE
+                    if (received_flit.src_id == local_id)
+                        power.networkInterface();
+                        
+                    // Update cached state after Push()
+                    buffer_full_states[i][vc] = buffer[i][vc].IsFull();
+                }
+                else { 
+                    // Buffer is full - track stall
+                    stall_stats.pe_to_router_stalls[i]++;
+                    stall_stats.buffer_full_stalls++;
+                    
+                    // Should not happen with the new TBufferFullStatus control signals    
+                    // except for flit coming from local PE, which don't use it
+                    #ifdef CDEBUG 
+                    LOG << " Flit " << received_flit << " buffer full Input[" << i << "][" << vc <<"]" << endl;
+                    #endif
+                    
+                    assert(i == DIRECTION_LOCAL);
+                }
+            }
+            
+            // Always update acknowledgment signals
+            ack_rx[i].write(current_level_rx[i]);
+            
+            // Updates the mask of VCs to prevent incoming data on full buffers
+            // Now uses the cached buffer states
+            TBufferFullStatus bfs;
+            for (int vc = 0; vc < GlobalParams::n_virtual_channels; vc++)
+                bfs.mask[vc] = buffer_full_states[i][vc];
+            buffer_full_status_rx[i].write(bfs);
+        }
     }
 }
 
