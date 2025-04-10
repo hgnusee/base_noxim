@@ -17,6 +17,8 @@
 #include "NoC.h"
 #include "Tile.h"
 #include "GlobalTrafficTable.h"
+#include <time.h>
+
 using namespace std;
 // Add global stall statistics structure
 struct GlobalStallMatrices {
@@ -170,7 +172,7 @@ class GlobalStats {
     // traffic timing stats
     void showTrafficTimingStats(std::ostream & out = std::cout);
     void exportTaskTimingData(const string& filename);
-    void generateHistogramData();
+    void generateHistogramData(const string& folder_path);
     void outputHistogramData(const string& filename, const vector<unsigned long long>& data);
 
     // New methods for "true" throughput metrics
@@ -181,6 +183,17 @@ class GlobalStats {
     double getTrueNetworkThroughputGBps();
     double getTrueIPThroughputGbps();
     double getTrueIPThroughputGBps();
+
+    // export CSV
+    string generateResultsFolderName();
+    void exportAllStatsToCSV();
+    string getTimestampString();
+    void createResultsDirectory(const string& path);
+    void exportNetworkStatsToCSV(const string& filename);
+    void exportPowerStatsToCSV(const string& filename);
+    void exportStallStatsToCSV(const string& summary_filename, const string& details_filename);
+    void exportTrafficCompletionToCSV(const string& filename);
+
 
 
 

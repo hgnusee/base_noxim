@@ -29,12 +29,12 @@ class NoxExplorer:
         
         # Default parameters if no config file provided
         self.parameters = {
-            "vc": [1, 2, 4],
-            "flit": [256, 512],
-            "buffer": [4, 8, 16],
-            "routing": ["XY","ODD_EVEN","DYAD"],
+            "vc": [1],
+            "flit": [256],
+            "buffer": [4],
+            "routing": ["XY","ODD_EVEN","NEGATIVE_FIRST"],
             "sel": ["RANDOM"],
-            "sim": ["6000"]
+            "sim": ["500000"],
         }
         
         # Updated regex patterns for metrics extraction including the new throughput metrics

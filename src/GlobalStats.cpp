@@ -532,31 +532,17 @@ void GlobalStats::showStats(std::ostream & out, bool detailed)
 	out << "%" << endl;
     showStallsByReasonPerNode(out);
 
-    // Show traffic table stats
     if (GlobalParams::traffic_distribution == TRAFFIC_COMMUNICATION_TABLE) {
         showTrafficCompletionStats(out);
-        showTrafficTimingStats(out); // Add timing statistics report
-        
-        // Generate detailed timing data files
-        if (detailed) {
-            string results_path = GlobalParams::stats_warm_up_time > 0 ? 
-                "results/timing_data/" : "results/timing_data_warm/";
-            
-            // Create directory if it doesn't exist
-            string mkdir_cmd = "mkdir -p " + results_path;
-            int dir_result = system(mkdir_cmd.c_str());
-            if (dir_result != 0) {
-                cout << "Warning: Failed to create directory " << results_path << endl;
-            }
-            
-            // Export CSV data for visualization
-            string csv_filename = results_path + "task_timings.csv";
-            exportTaskTimingData(csv_filename);
-            
-            // Generate histogram data
-            generateHistogramData();
-        }
+        // Removed showTrafficTimingStats(out) as requested
     }
+    
+    if (GlobalParams::show_buffer_stats)
+        showBufferStats(out);
+    
+    // Always export all statistics to CSV files, regardless of detailed flag
+    exportAllStatsToCSV();
+
     if (GlobalParams::show_buffer_stats)
       showBufferStats(out);
 
@@ -1044,31 +1030,37 @@ void GlobalStats::showStallsByReasonPerNode(std::ostream & out) {
 }
 
 
-
-void GlobalStats::showTrafficCompletionStats(std::ostream & out)
-{
-    out << "%" << endl;
-    out << "% === Traffic Completion Statistics ===" << endl;
-    out << "% TaskID\tUsed?" << endl;
-    out << "% ---------------------" << endl;
-    
+void GlobalStats::showTrafficCompletionStats(std::ostream & out) {
+    // Count incomplete tasks
     int total_tasks = 0;
     int completed_tasks = 0;
-
-    if (traffic_communication_table == nullptr)
-        out << "% Traffic table not available - null pointer" << endl;
-
-    // Access the traffic communication table through GlobalParams::traffic_table
+    vector<int> incomplete_task_ids;
+    
     const auto& traffic_table = traffic_communication_table->getTCommunicationTable();
     
     for (const auto& comm : traffic_table) {
-        out << "% " << setw(6) << comm.taskID << "\t" 
-            << (comm.traffic_used ? "YES" : "NO") << endl;
         total_tasks++;
-        if (comm.traffic_used) completed_tasks++;
+        if (comm.traffic_used) 
+            completed_tasks++;
+        else
+            incomplete_task_ids.push_back(comm.taskID);
     }
     
-    out << "% ---------------------" << endl;
+    // Display info
+    out << "%" << endl;
+    out << "% === Traffic Completion Statistics ===" << endl;
+    
+    // If there are incomplete tasks, list them
+    if (!incomplete_task_ids.empty()) {
+        out << "% Incomplete Tasks:" << endl;
+        for (int task_id : incomplete_task_ids) {
+            out << "% Task ID: " << task_id << endl;
+        }
+    } else {
+        out << "% All tasks completed successfully!" << endl;
+    }
+    
+    // Always show completion rate
     out << "% Completion Rate: " << completed_tasks << "/" << total_tasks 
          << " (" << fixed << setprecision(2)
          << (total_tasks > 0 ? 100.0 * completed_tasks / total_tasks : 0)
@@ -1163,19 +1155,15 @@ void GlobalStats::exportTaskTimingData(const string& filename) {
     outfile.close();
 }
 
-void GlobalStats::generateHistogramData() {
+void GlobalStats::generateHistogramData(const string& folder_path) {
     // Get traffic table
     vector<TrafficCommunication> traffic_table = traffic_communication_table->getTCommunicationTable();
     
-    // Determine output directory - same logic as in showStats()
-    string results_path = GlobalParams::stats_warm_up_time > 0 ? 
-        "results/timing_data/" : "results/timing_data_warm/";
-    
-    // Create directory if it doesn't exist
-    string mkdir_cmd = "mkdir -p " + results_path;
+    // Create directory if it doesn't exist (although this should be already handled by createResultsDirectory)
+    string mkdir_cmd = "mkdir -p " + folder_path;
     int dir_result = system(mkdir_cmd.c_str());
     if (dir_result != 0) {
-        cout << "Warning: Failed to create directory " << results_path << endl;
+        cerr << "Warning: Failed to create histogram directory " << folder_path << endl;
     }
     
     // Storage for histogram data
@@ -1217,14 +1205,14 @@ void GlobalStats::generateHistogramData() {
         }
     }
     
-    // Output histogram data with properly pathed filenames
-    outputHistogramData(results_path + "wait_time_histogram.csv", wait_times);
-    outputHistogramData(results_path + "transmit_time_histogram.csv", transmit_times);
-    outputHistogramData(results_path + "compute_time_histogram.csv", compute_times);
-    outputHistogramData(results_path + "receive_time_histogram.csv", receive_times);
-    outputHistogramData(results_path + "total_time_histogram.csv", total_times);
+    // Output histogram data with the given folder path
+    outputHistogramData(folder_path + "/wait_time.csv", wait_times);
+    outputHistogramData(folder_path + "/transmit_time.csv", transmit_times);
+    outputHistogramData(folder_path + "/compute_time.csv", compute_times);
+    outputHistogramData(folder_path + "/receive_time.csv", receive_times);
+    outputHistogramData(folder_path + "/total_time.csv", total_times);
     
-    cout << "Histogram data files generated in " << results_path << endl;
+    cout << "Histogram data files generated in " << folder_path << endl;
 }
 
 void GlobalStats::outputHistogramData(const string& filename, const vector<unsigned long long>& data) {
@@ -1320,4 +1308,300 @@ double GlobalStats::getTrueIPThroughputGbps()  {
 
 double GlobalStats::getTrueIPThroughputGBps()  {
     return getTrueIPThroughputGbps() / 8.0;
+}
+
+string GlobalStats::generateResultsFolderName() {
+    // Extract traffic table filename from path
+    string traffic_filename = GlobalParams::traffic_table_filename;
+    if (GlobalParams::traffic_table_filename != "") {
+        size_t last_slash = GlobalParams::traffic_table_filename.find_last_of("/\\");
+        size_t dot_pos = GlobalParams::traffic_table_filename.find_last_of(".");
+        if (last_slash != string::npos && dot_pos != string::npos) {
+            traffic_filename = GlobalParams::traffic_table_filename.substr(last_slash + 1, dot_pos - last_slash - 1);
+        }
+    }
+    
+    // Build folder name
+    stringstream ss;
+    ss << traffic_filename 
+       << "_" << GlobalParams::mesh_dim_x << "x" << GlobalParams::mesh_dim_y  // Add mesh dimensions
+       << "_r-" << GlobalParams::routing_algorithm
+       << "_flit-" << GlobalParams::flit_size
+       << "_vc" << GlobalParams::n_virtual_channels
+       << "_b" << GlobalParams::buffer_depth
+       << "_" << getTimestampString();
+    
+    return "results/" + ss.str();
+}
+
+void GlobalStats::exportAllStatsToCSV() {
+    // Create the results folder with unique name
+    string results_folder = generateResultsFolderName();
+    createResultsDirectory(results_folder);
+    
+    // Export all statistics to CSV files
+    exportNetworkStatsToCSV(results_folder + "/network_stats.csv");
+    exportPowerStatsToCSV(results_folder + "/power_stats.csv");
+    exportStallStatsToCSV(results_folder + "/stall_stats.csv", results_folder + "/stall_details.csv");
+    exportTrafficCompletionToCSV(results_folder + "/traffic_completion.csv");
+    
+    // Export timing data if using traffic communication table
+    if (GlobalParams::traffic_distribution == TRAFFIC_COMMUNICATION_TABLE) {
+        exportTaskTimingData(results_folder + "/task_timings.csv");
+        generateHistogramData(results_folder + "/histograms/");
+    }
+    
+    cout << "All statistics exported to " << results_folder << endl;
+}
+// Helper function to get current timestamp as string
+string GlobalStats::getTimestampString() {
+    time_t now = time(nullptr);
+    return to_string(static_cast<long>(now));
+}
+
+// Creates the results directory structure
+void GlobalStats::createResultsDirectory(const string& path) {
+    // First ensure the base results directory exists
+    int res = system("mkdir -p results");
+    if (res != 0) {
+        cerr << "Warning: Failed to create base results directory" << endl;
+    }
+    
+    // Then create the specific results folder
+    string mkdir_cmd = "mkdir -p " + path;
+    res = system(mkdir_cmd.c_str());
+    if (res != 0) {
+        cerr << "Warning: Failed to create directory " << path << endl;
+    }
+    
+    // Create histograms subdirectory if using traffic table
+    if (GlobalParams::traffic_distribution == TRAFFIC_COMMUNICATION_TABLE) {
+        string histograms_dir = path + "/histograms";
+        mkdir_cmd = "mkdir -p " + histograms_dir;
+        res = system(mkdir_cmd.c_str());
+        if (res != 0) {
+            cerr << "Warning: Failed to create histograms directory" << endl;
+        }
+    }
+}
+
+// Export network performance statistics
+void GlobalStats::exportNetworkStatsToCSV(const string& filename) {
+    ofstream outfile(filename);
+    if (!outfile.is_open()) {
+        cerr << "Error: Could not open file " << filename << " for writing" << endl;
+        return;
+    }
+    
+    // CSV header
+    outfile << "metric,value" << endl;
+    
+    // Network metrics
+    outfile << "received_packets," << getReceivedPackets() << endl;
+    outfile << "received_flits," << getReceivedFlits() << endl;
+    outfile << "received_ideal_flit_ratio," << getReceivedIdealFlitRatio() << endl;
+    outfile << "average_delay_cycles," << getAverageDelay() << endl;
+    outfile << "max_delay_cycles," << getMaxDelay() << endl;
+    outfile << "network_throughput_flits_cycle," << getAggregatedThroughput() << endl;
+    outfile << "network_throughput_gbps," << getNetworkThroughputGbps() << endl;
+    outfile << "network_throughput_GBps," << getNetworkThroughputGBps() << endl;
+    outfile << "ip_throughput_flits_cycle," << getThroughput() << endl;
+    outfile << "ip_throughput_gbps," << getIPThroughputGbps() << endl;
+    outfile << "ip_throughput_GBps," << getIPThroughputGBps() << endl;
+    
+    // True throughput metrics (based on actual traffic completion time)
+    outfile << "actual_simulation_end_time," << getActualSimulationEndTime() << endl;
+    outfile << "true_network_throughput_flits_cycle," << getTrueAggregatedThroughput() << endl;
+    outfile << "true_network_throughput_gbps," << getTrueNetworkThroughputGbps() << endl;
+    outfile << "true_network_throughput_GBps," << getTrueNetworkThroughputGBps() << endl;
+    outfile << "true_ip_throughput_flits_cycle," << getTrueThroughput() << endl;
+    outfile << "true_ip_throughput_gbps," << getTrueIPThroughputGbps() << endl;
+    outfile << "true_ip_throughput_GBps," << getTrueIPThroughputGBps() << endl;
+    
+    // Configuration data
+    outfile << "simulation_time," << GlobalParams::simulation_time << endl;
+    outfile << "warm_up_time," << GlobalParams::stats_warm_up_time << endl;
+    outfile << "clock_period_ps," << GlobalParams::clock_period_ps << endl;
+    outfile << "flit_size_bits," << GlobalParams::flit_size << endl;
+    
+    outfile.close();
+}
+
+// Export power consumption statistics
+void GlobalStats::exportPowerStatsToCSV(const string& filename) {
+    ofstream outfile(filename);
+    if (!outfile.is_open()) {
+        cerr << "Error: Could not open file " << filename << " for writing" << endl;
+        return;
+    }
+    
+    // CSV header
+    outfile << "metric,value" << endl;
+    
+    // Power metrics
+    outfile << "total_power_J," << getTotalPower() << endl;
+    outfile << "dynamic_power_J," << getDynamicPower() << endl;
+    outfile << "static_power_J," << getStaticPower() << endl;
+    
+    // Add power breakdown for dynamic power
+    outfile << endl << "dynamic_power_breakdown_component,value" << endl;
+    map<string, double> power_dynamic;
+    
+    // Collect power data based on topology
+    if (GlobalParams::topology == TOPOLOGY_MESH) {
+        for (int y = 0; y < GlobalParams::mesh_dim_y; y++) {
+            for (int x = 0; x < GlobalParams::mesh_dim_x; x++) {
+                updatePowerBreakDown(power_dynamic, noc->t[x][y]->r->power.getDynamicPowerBreakDown());
+            }
+        }
+    } else {
+        for (int y = 0; y < GlobalParams::n_delta_tiles; y++) {
+            updatePowerBreakDown(power_dynamic, noc->core[y]->r->power.getDynamicPowerBreakDown());
+        }
+    }
+    
+    // Add hub power if present
+    for (map<int, HubConfig>::iterator it = GlobalParams::hub_configuration.begin();
+            it != GlobalParams::hub_configuration.end(); ++it) {
+        int hub_id = it->first;
+        map<int,Hub*>::const_iterator i = noc->hub.find(hub_id);
+        Hub* h = i->second;
+        updatePowerBreakDown(power_dynamic, h->power.getDynamicPowerBreakDown());
+    }
+    
+    // Output power breakdown
+    for (const auto& item : power_dynamic) {
+        outfile << item.first << "," << item.second << endl;
+    }
+    
+    outfile.close();
+}
+
+// Export stall statistics
+void GlobalStats::exportStallStatsToCSV(const string& summary_filename, const string& details_filename) {
+    // First collect stats if they haven't been collected already
+    collectStallStats();
+    
+    // Export summary stats
+    ofstream summary_file(summary_filename);
+    if (!summary_file.is_open()) {
+        cerr << "Error: Could not open file " << summary_filename << " for writing" << endl;
+        return;
+    }
+    
+    // Calculate total stalls
+    unsigned long total_pe_router_stalls = 0;
+    unsigned long total_router_router_stalls = 0;
+    
+    for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
+        total_pe_router_stalls += stall_stats.pe_to_router_stalls_by_direction[dir];
+        total_router_router_stalls += stall_stats.router_to_router_stalls_by_direction[dir];
+    }
+    
+    unsigned long total_stalls = total_pe_router_stalls + total_router_router_stalls;
+    
+    // CSV header
+    summary_file << "stall_type,count,percentage" << endl;
+    
+    // Summary stats
+    summary_file << "total_stalls," << total_stalls << ",100" << endl;
+    summary_file << "pe_to_router_stalls," << total_pe_router_stalls << "," 
+                 << (total_stalls > 0 ? 100.0 * total_pe_router_stalls / total_stalls : 0) << endl;
+    summary_file << "router_to_router_stalls," << total_router_router_stalls << ","
+                 << (total_stalls > 0 ? 100.0 * total_router_router_stalls / total_stalls : 0) << endl;
+    
+    // Stalls by reason
+    summary_file << "buffer_full_stalls," << stall_stats.buffer_full_stalls << ","
+                 << (total_stalls > 0 ? 100.0 * stall_stats.buffer_full_stalls / total_stalls : 0) << endl;
+    summary_file << "vc_busy_stalls," << stall_stats.vc_busy_stalls << ","
+                 << (total_stalls > 0 ? 100.0 * stall_stats.vc_busy_stalls / total_stalls : 0) << endl;
+    summary_file << "reservation_stalls," << stall_stats.reservation_stalls << ","
+                 << (total_stalls > 0 ? 100.0 * stall_stats.reservation_stalls / total_stalls : 0) << endl;
+    summary_file << "already_reserved_stalls," << stall_stats.already_reserved_stalls << ","
+                 << (total_stalls > 0 ? 100.0 * stall_stats.already_reserved_stalls / total_stalls : 0) << endl;
+    
+    // Stalls by direction
+    string direction_names[DIRECTIONS + 2] = {"North", "East", "South", "West", "Local", "Hub"};
+    
+    summary_file << endl << "direction,pe_to_router_count,pe_to_router_percentage,router_to_router_count,router_to_router_percentage" << endl;
+    
+    for (int dir = 0; dir < DIRECTIONS + 2; dir++) {
+        double pe_router_percent = total_pe_router_stalls > 0 ? 
+            100.0 * stall_stats.pe_to_router_stalls_by_direction[dir] / total_pe_router_stalls : 0;
+        
+        double router_router_percent = total_router_router_stalls > 0 ?
+            100.0 * stall_stats.router_to_router_stalls_by_direction[dir] / total_router_router_stalls : 0;
+        
+        summary_file << direction_names[dir] << ","
+                    << stall_stats.pe_to_router_stalls_by_direction[dir] << ","
+                    << pe_router_percent << ","
+                    << stall_stats.router_to_router_stalls_by_direction[dir] << ","
+                    << router_router_percent << endl;
+    }
+    
+    summary_file.close();
+    
+    // Export detailed per-node stats
+    if (GlobalParams::topology == TOPOLOGY_MESH) {
+        ofstream details_file(details_filename);
+        if (!details_file.is_open()) {
+            cerr << "Error: Could not open file " << details_filename << " for writing" << endl;
+            return;
+        }
+        
+        // CSV header
+        details_file << "node_id,x,y,buffer_full,vc_busy,reservation,already_reserved,total" << endl;
+        
+        for (int y = 0; y < GlobalParams::mesh_dim_y; y++) {
+            for (int x = 0; x < GlobalParams::mesh_dim_x; x++) {
+                Router* router = noc->t[x][y]->r;
+                int id = y * GlobalParams::mesh_dim_x + x;
+                
+                // Get stall counts by reason for this router
+                unsigned long buf_full = router->stall_stats.buffer_full_stalls;
+                unsigned long vc_busy = router->stall_stats.vc_busy_stalls;
+                unsigned long resv = router->stall_stats.reservation_stalls;
+                unsigned long already = router->stall_stats.already_reserved_stalls;
+                unsigned long total = buf_full + vc_busy + resv + already;
+                
+                // Output as CSV row
+                details_file << id << "," << x << "," << y << ","
+                            << buf_full << "," << vc_busy << "," << resv << ","
+                            << already << "," << total << endl;
+            }
+        }
+        
+        details_file.close();
+    }
+}
+
+// Export traffic completion statistics
+void GlobalStats::exportTrafficCompletionToCSV(const string& filename) {
+    // Only export if traffic communication table is used
+    if (GlobalParams::traffic_distribution != TRAFFIC_COMMUNICATION_TABLE) {
+        return;
+    }
+    
+    ofstream outfile(filename);
+    if (!outfile.is_open()) {
+        cerr << "Error: Could not open file " << filename << " for writing" << endl;
+        return;
+    }
+    
+    // CSV header
+    outfile << "task_id,layer_id,completed,src_id,dst_id" << endl;
+    
+    // Get traffic table
+    const auto& traffic_table = traffic_communication_table->getTCommunicationTable();
+    
+    // Output task completion status
+    for (const auto& comm : traffic_table) {
+        outfile << comm.taskID << ","
+                << comm.layerID << ","
+                << (comm.traffic_used ? "1" : "0") << "," 
+                << comm.src[0] << "," // force showing one dst-src for now
+                << comm.dst[0] << endl;
+    }
+    
+    outfile.close();
 }

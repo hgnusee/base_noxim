@@ -19,4 +19,7 @@ bin/extracted
 bin/analysis
 bin/summary
 bin/results
+bin/gpt2
 *.data*
+bin/perfo
+bin/g2trf

@@ -13,8 +13,8 @@
 #   BUTTERFLY, BASELINE, and OMEGA are Delta Network topologies
 topology: MESH
 # X and Y mesh sizes
-mesh_dim_x: 30
-mesh_dim_y: 30
+mesh_dim_x: 10
+mesh_dim_y: 40
 # 5 clock cycles of compute delay
 compute_delay: 2
 # number of flits for each router buffer
@@ -128,7 +128,7 @@ simulation_time: 10000
 # HG: warm_up_time set to 0, ensure stats are collected right after reset
 stats_warm_up_time: 0
 # power breakdown, nodes communication details
-detailed: false
+detailed: true
 # stop after a given amount of load has been processed
 max_volume_to_be_drained: 0
 show_buffer_stats: false
@@ -169,7 +169,7 @@ probability_of_retransmission: 0.01
 traffic_distribution: TRAFFIC_COMMUNICATION_TABLE
 # when traffic table based is specified, use the following
 # configuration file
-traffic_table_filename: "lite_mlp.txt"
+traffic_table_filename: "o2m.txt"
 
 # Define Traffic in Bytes (only for TRAFFIC_COMMUNICATION_TABLE)
 traffic_in_bytes: true
